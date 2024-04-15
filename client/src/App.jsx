@@ -6,7 +6,7 @@ import Libri from "./faqet/Libri";
 import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
-import './output.css';
+import "./output.css";
 
 const Struktura = () => {
   return (
@@ -44,13 +44,7 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  return (
-    <div className="app">
-      <div className="container">
-        <RouterProvider router={router} />
-      </div>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default App;
