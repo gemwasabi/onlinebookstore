@@ -6,6 +6,7 @@ import Libri from "./faqet/Libri";
 import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
+import './output.css';
 
 const Struktura = () => {
   return (
