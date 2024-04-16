@@ -613,8 +613,16 @@ video {
   margin-left: 20px;
 }
 
+.mt-5 {
+  margin-top: 1.25rem;
+}
+
 .mt-\[116px\] {
   margin-top: 116px;
+}
+
+.mt-\[93px\] {
+  margin-top: 93px;
 }
 
 .flex {
@@ -701,6 +709,11 @@ video {
   background-color: rgb(188 197 184 / var(--tw-bg-opacity));
 }
 
+.bg-\[\#d6a3a3\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(214 163 163 / var(--tw-bg-opacity));
+}
+
 .bg-inherit {
   background-color: inherit;
 }
@@ -712,6 +725,11 @@ video {
 .px-3 {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .px-\[16px\] {
@@ -731,6 +749,14 @@ video {
 
 .pb-\[30px\] {
   padding-bottom: 30px;
+}
+
+.pb-\[50px\] {
+  padding-bottom: 50px;
+}
+
+.pr-3 {
+  padding-right: 0.75rem;
 }
 
 .pt-3 {
@@ -753,6 +779,11 @@ video {
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
+}
+
+.text-\[\#6e5d5d\] {
+  --tw-text-opacity: 1;
+  color: rgb(110 93 93 / var(--tw-text-opacity));
 }
 
 .text-\[\#757C73\] {
@@ -789,6 +820,13 @@ video {
 
 .duration-100 {
   transition-duration: 100ms;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+  -webkit-background-clip: text;
 }
 
 .hover\:shadow-\[inset_0_10px_23px_-15px_rgba\(0\2c 0\2c 0\2c 1\)\]:hover {
