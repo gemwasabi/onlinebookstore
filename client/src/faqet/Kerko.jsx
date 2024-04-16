@@ -9,7 +9,7 @@ const Kerko = () => {
     <div className="w-screen bg-[#7B8E76]">
       <div className="flex justify-center">
         <img
-          className="mt-[283px] absolute text-center"
+          className="mt-40 absolute text-center"
           src={logo}
           alt="Logoja Lype"
         />

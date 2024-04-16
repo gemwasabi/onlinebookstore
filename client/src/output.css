@@ -683,6 +683,10 @@ video {
   margin-top: 1rem;
 }
 
+.mt-40 {
+  margin-top: 10rem;
+}
+
 .flex {
   display: flex;
 }
