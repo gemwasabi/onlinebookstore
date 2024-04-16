@@ -7,10 +7,12 @@ import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
 import "./output.css";
+import Kerko from "./faqet/Kerko";
 
 const Struktura = () => {
   return (
     <>
+      <Kerko></Kerko>
       <Navbar></Navbar>
       <Outlet></Outlet>
       <Footer></Footer>
