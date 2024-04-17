@@ -21,8 +21,8 @@ const Kycu = () => {
   const trajtoSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8800/api/auth/kycu", inputs);
-      navigate("/");
+      const x = await axios.post("http://localhost:8800/api/auth/kycu", inputs);
+      console.log(x);
     } catch (err) {
       setError(err.response.data);
     }

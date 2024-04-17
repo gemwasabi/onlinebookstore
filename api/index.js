@@ -16,5 +16,5 @@ app.use("/api/perdoruesit", perdoruesitRoutes)
 app.use("/api/librat", libratRoutes)
 
 app.listen(8800, () => {
-    console.log("Connected!");
+    console.log("jeni konektuar!");
 })

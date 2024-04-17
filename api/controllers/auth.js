@@ -9,6 +9,7 @@ export const regjistrohu = (req, res) => {
 
   db.query(q, [req.body.emaili], (err, data) => {
     if (err) return res.json(err);
+
     if (data.length)
       return res.status(409).json("Një llogari me këtë email ekziston!");
 

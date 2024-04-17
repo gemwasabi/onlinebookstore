@@ -1,8 +1,8 @@
-import express from "express"
-import {shtoLiber} from "../controllers/librat.js"
+import express from "express";
+import { shtoLiber, shlyejLiber } from "../controllers/librat.js";
 
-const router = express.Router()
+const router = express.Router();
 
-router.get("/test", shtoLiber)
+router.post("/shto", shtoLiber);
 
-export default router
+export default router;

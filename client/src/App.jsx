@@ -8,6 +8,7 @@ import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
 import "./output.css";
 import Kerko from "./faqet/Kerko";
+import LibratShto from "./faqet/librat/Shto";
 
 const Struktura = () => {
   return (
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
         path: "/libri/:id",
         element: <Libri></Libri>,
       },
+      // {
+      //   path: "/librat/shto",
+      //   element: <LibratShto></LibratShto>,
+      // },
     ],
   },
   {
@@ -42,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/kycu",
     element: <Kycu />,
+  },
+  {
+    path: "/librat/shto",
+    element: <LibratShto></LibratShto>,
   },
 ]);
 
