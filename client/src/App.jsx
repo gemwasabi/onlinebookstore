@@ -2,7 +2,7 @@ import React from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import Regjistrohu from "./faqet/Regjistrohu";
 import Kycu from "./faqet/Kycu";
-import Libri from "./faqet/Libri";
+import Libri from "./faqet/librat/Libri";
 import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
@@ -30,10 +30,10 @@ const router = createBrowserRouter([
         path: "/",
         element: <Ballina></Ballina>,
       },
-      {
-        path: "/libri/:id",
-        element: <Libri></Libri>,
-      },
+      // {
+      //   path: "/libri/:id",
+      //   element: <Libri></Libri>,
+      // },
       // {
       //   path: "/librat/shto",
       //   element: <LibratShto></LibratShto>,
@@ -49,8 +49,12 @@ const router = createBrowserRouter([
     element: <Kycu />,
   },
   {
-    path: "/librat/shto",
+    path: "/shtoLiber",
     element: <LibratShto></LibratShto>,
+  },
+  {
+    path: "/libri/:id",
+    element: <Libri></Libri>,
   },
 ]);
 

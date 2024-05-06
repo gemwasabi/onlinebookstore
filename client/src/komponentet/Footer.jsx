@@ -6,7 +6,7 @@ const Footer = () => {
     <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <div className="left-side mx-5 md:mx-0 mb-4 md:mb-0 md:mr-4">
             <div className="company-info">
-                <img src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1713009973/lype_crhi55.svg" alt="Company Logo" class="w-24 mb-2"/>
+                <img src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1713009973/lype_crhi55.svg" alt="Company Logo" className="w-24 mb-2"/>
                 <p className="mt-2 md:mt-0">Lype është një kompani që ofron një gamë të gjerë të librave në gjuhën shqipe dhe angleze.</p>
             </div>
             <div className="social-icons mt-4 flex">

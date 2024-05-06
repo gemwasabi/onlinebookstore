@@ -21,7 +21,7 @@ const Krijo = () => {
   const trajtoSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8800/api/librat/shto", inputs);
+      await axios.post("http://localhost:8800/api/librat", inputs);
       navigate("/");
     } catch (err) {
       // setError(err.response.data);

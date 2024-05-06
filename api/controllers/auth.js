@@ -47,15 +47,23 @@ export const kycu = (req, res) => {
     if (!fjalekalimiKontrolluar)
       return res.status(400).json("Detajet e shkruara nuk janë të sakta!");
 
-    const token = jwt.sign({ id: data[0].id }, "foobarbaz");
+    const token = jwt.sign({ id: data[0].id }, "jwtkey");
     const { fjalekalimi, ...other } = data[0];
     res
       .cookie("tokeni", token, {
-        // httpOnly: true,
+        httpOnly: true,
       })
       .status(200)
       .json(other);
   });
 };
 
-export const ckycu = (req, res) => {};
+export const ckycu = (req, res) => {
+  res
+    .clearCookie("tokeni", {
+      sameSite: "none",
+      secure: true,
+    })
+    .status(200)
+    .json("Perdoruesi eshte ckycur.");
+};

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/img/lype.svg";
 import axios from "axios";
 import warning from "../assets/img/warning-icon.svg";
+import { AuthContext } from "../context/authContext";
 
 const Kycu = () => {
   const [inputs, setInputs] = useState({
@@ -14,6 +15,8 @@ const Kycu = () => {
 
   const navigate = useNavigate();
 
+  const { kycu } = useContext(AuthContext);
+
   const trajtoNdryshimet = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -21,8 +24,8 @@ const Kycu = () => {
   const trajtoSubmit = async (e) => {
     e.preventDefault();
     try {
-      const x = await axios.post("http://localhost:8800/api/auth/kycu", inputs);
-      console.log(x);
+      await kycu(inputs);
+      navigate("/");
     } catch (err) {
       setError(err.response.data);
     }
@@ -86,7 +89,10 @@ const Kycu = () => {
             </span>
           </div>
           <div className="flex justify-center">
-            <button onClick={trajtoSubmit} className="mt-[116px] w-full rounded-[10px] bg-[#7B8E76] p-2 text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]">
+            <button
+              onClick={trajtoSubmit}
+              className="mt-[116px] w-full rounded-[10px] bg-[#7B8E76] p-2 text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
+            >
               kyçu
             </button>
           </div>
