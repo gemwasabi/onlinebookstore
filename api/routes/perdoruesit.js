@@ -1,8 +1,18 @@
-import express from "express"
-import {merrPerdoruesit} from "../controllers/perdoruesit.js";
+import express from "express";
+import {
+  editoPerdoruesin,
+  merrPerdoruesin,
+  merrPerdoruesit,
+  shlyejPerdoruesin,
+  shtoPerdorues,
+} from "../controllers/perdoruesit.js";
 
-const router = express.Router()
+const router = express.Router();
 
 router.get("/", merrPerdoruesit);
+router.get("/:id", merrPerdoruesin);
+router.post("/", shtoPerdorues);
+router.delete("/:id", shlyejPerdoruesin);
+router.put("/:id", editoPerdoruesin);
 
-export default router
+export default router;
