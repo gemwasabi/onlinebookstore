@@ -12,12 +12,17 @@ import LibratShto from "./faqet/librat/Shto";
 import SidebarAdmin from "./komponentet/admin/Sidebar";
 import NavbarAdmin from "./komponentet/admin/Navbar";
 import FooterAdmin from "./komponentet/admin/Footer";
+
 import ShtoLiber from "./faqet/admin/Librat/Shto";
 import ShfaqLibrat from "./faqet/admin/Librat/Lista";
+import EditoLibrin from "./faqet/admin/Librat/Edito";
+
+import ShtoPerdorues from "./faqet/admin/Perdoruesit/Shto";
 import ShfaqPerdoruesin from "./faqet/admin/Perdoruesit/Lista";
+import EditoPerdoruesin from "./faqet/admin/Perdoruesit/Edito";
+
 import ShtoKategori from "./faqet/admin/Kategorite/Shto";
 import ShfaqKategorite from "./faqet/admin/Kategorite/Lista";
-import EditoLibrin from "./faqet/admin/Librat/Edito";
 import EditoKategorine from "./faqet/admin/Kategorite/Edito";
 
 const Struktura = () => {
@@ -103,8 +108,16 @@ const router = createBrowserRouter([
         element: <EditoLibrin />,
       },
       {
+        path: "/admin/perdoruesit/shtoPerdorues",
+        element: <ShtoPerdorues />,
+      },
+      {
         path: "/admin/perdoruesit/shfaqPerdoruesit",
         element: <ShfaqPerdoruesin />,
+      },
+      {
+        path: "/admin/perdoruesit/editoPerdoruesin/:id",
+        element: <EditoPerdoruesin />,
       },
       {
         path: "/admin/kategorite/shtoKategori",

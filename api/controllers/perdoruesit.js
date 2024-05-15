@@ -19,9 +19,16 @@ export const merrPerdoruesin = (req, res) => {
 };
 
 export const shtoPerdorues = (req, res) => {
-  const q = "insert into perdoruesit (emri, mbiemri, emaili, fjalekalimi) values (?)";
+  const q =
+    "insert into perdoruesit (emri, mbiemri, emaili, fjalekalimi, grupi) values (?)";
 
-  const vlerat = [req.body.emri, req.body.pershkrimi];
+  const vlerat = [
+    req.body.emri,
+    req.body.mbiemri,
+    req.body.emaili,
+    req.body.fjalekalimi,
+    req.body.grupi,
+  ];
 
   db.query(q, [vlerat], (err, data) => {
     if (err) return res.json(err);
@@ -41,7 +48,7 @@ export const shlyejPerdoruesin = (req, res) => {
 export const editoPerdoruesin = (req, res) => {
   const { emri, mbiemri, emaili, fjalekalimi, id } = req.body;
 
-  const q = `UPDATE perdoruesit SET emri = ?, mbiemri = ?, emaili = ?, fjalekalimi = ?, WHERE id = ?`;
+  const q = `UPDATE perdoruesit SET emri = ?, mbiemri = ?, emaili = ?, fjalekalimi = ? WHERE id = ?`;
 
   const vlerat = [emri, mbiemri, emaili, fjalekalimi, id];
 
