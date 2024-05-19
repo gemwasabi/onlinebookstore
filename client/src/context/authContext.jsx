@@ -5,7 +5,7 @@ export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(
-    JSON.parse(localStorage.getItem("perdoruesi") || null)
+    JSON.parse(localStorage.getItem("perdoruesi") || "null")
   );
 
   const kycu = async (inputs) => {
@@ -13,7 +13,7 @@ export const AuthContextProvider = ({ children }) => {
     setCurrentUser(res.data);
   };
 
-  const ckycu = async (inputs) => {
+  const ckycu = async () => {
     await axios.post("http://localhost:8800/api/auth/ckycu");
     setCurrentUser(null);
   };

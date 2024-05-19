@@ -1,5 +1,6 @@
 import React from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import { AuthContextProvider } from "./context/authContext";
 import Regjistrohu from "./faqet/Regjistrohu";
 import Kycu from "./faqet/Kycu";
 import Libri from "./faqet/librat/Libri";
@@ -28,10 +29,10 @@ import EditoKategorine from "./faqet/admin/Kategorite/Edito";
 const Struktura = () => {
   return (
     <>
-      <Kerko></Kerko>
-      <Navbar></Navbar>
-      <Outlet></Outlet>
-      <Footer></Footer>
+      <Kerko />
+      <Navbar />
+      <Outlet />
+      <Footer />
     </>
   );
 };
@@ -39,18 +40,15 @@ const Struktura = () => {
 const StrukturaAdmin = () => {
   return (
     <div className="wrapper">
-      <SidebarAdmin></SidebarAdmin>
-
+      <SidebarAdmin />
       <div className="main">
-        <NavbarAdmin></NavbarAdmin>
-
+        <NavbarAdmin />
         <main className="content">
           <div className="container-fluid p-0">
-            <Outlet></Outlet>
+            <Outlet />
           </div>
         </main>
-
-        <FooterAdmin></FooterAdmin>
+        <FooterAdmin />
       </div>
     </div>
   );
@@ -63,16 +61,8 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Ballina></Ballina>,
+        element: <Ballina />,
       },
-      // {
-      //   path: "/libri/:id",
-      //   element: <Libri></Libri>,
-      // },
-      // {
-      //   path: "/librat/shto",
-      //   element: <LibratShto></LibratShto>,
-      // },
     ],
   },
   {
@@ -85,11 +75,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/shtoLiber",
-    element: <LibratShto></LibratShto>,
+    element: <LibratShto />,
   },
   {
     path: "/libri/:id",
-    element: <Libri></Libri>,
+    element: <Libri />,
   },
   {
     path: "/admin",
@@ -136,7 +126,11 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthContextProvider>
+      <RouterProvider router={router} />
+    </AuthContextProvider>
+  );
 };
 
 export default App;
