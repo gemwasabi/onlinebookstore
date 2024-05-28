@@ -51,10 +51,10 @@ const Ballina = () => {
           + Shto Liber
         </Link>
       )}
-      <div className="grid grid-cols-5 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4">
         {librat.map((libri) => (
           <Link key={libri.id} to={`/libri/${libri.id}`}>
-            <div className="bg-[#7B8E76] rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-2xl">
+            <div className="bg-[#7B8E76] rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-2xl h-full">
               <div className="relative h-48">
                 <img src={cover} alt="Book cover" className="h-full w-full object-cover" />
               </div>

@@ -8,6 +8,8 @@ import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
 import "./output.css";
+import "../node_modules/react-grid-layout/css/styles.css";
+import "../node_modules/react-resizable/css/styles.css";
 import Kerko from "./faqet/Kerko";
 import LibratShto from "./faqet/librat/Shto";
 import SidebarAdmin from "./komponentet/admin/Sidebar";
