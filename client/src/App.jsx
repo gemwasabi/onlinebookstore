@@ -8,13 +8,15 @@ import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
 import "./output.css";
-import "../node_modules/react-grid-layout/css/styles.css";
-import "../node_modules/react-resizable/css/styles.css";
+/*import "../node_modules/react-grid-layout/css/styles.css";
+import "../node_modules/react-resizable/css/styles.css";*/
 import Kerko from "./faqet/Kerko";
 import LibratShto from "./faqet/librat/Shto";
 import SidebarAdmin from "./komponentet/admin/Sidebar";
 import NavbarAdmin from "./komponentet/admin/Navbar";
 import FooterAdmin from "./komponentet/admin/Footer";
+
+import CheckoutPage from "./faqet/checkout/checkout-1";
 
 import ShtoLiber from "./faqet/admin/Librat/Shto";
 import ShfaqLibrat from "./faqet/admin/Librat/Lista";
@@ -39,6 +41,15 @@ const Struktura = () => {
   );
 };
 
+const StrukturaNormale = () => {
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+      <Footer />
+    </>
+  );
+};
 const StrukturaAdmin = () => {
   return (
     <div className="wrapper">
@@ -122,6 +133,16 @@ const router = createBrowserRouter([
       {
         path: "/admin/kategorite/editoKategorine/:id",
         element: <EditoKategorine />,
+      },
+    ],
+  },
+  {
+    path: "/",
+    element: <StrukturaNormale />,
+    children: [
+      {
+        path: "/checkout",
+        element: <CheckoutPage />,
       },
     ],
   },
