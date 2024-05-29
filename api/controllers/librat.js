@@ -15,6 +15,7 @@ export const merrLibrat = (req, res) => {
 
 export const merrLibrin = (req, res) => {
   const q = "select * from librat where id = ?";
+
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.status(200).json(data[0]);
@@ -22,14 +23,16 @@ export const merrLibrin = (req, res) => {
 };
 
 export const shtoLiber = (req, res) => {
+  const filename = req.file ? req.file.filename : null;
   const q =
-    "insert into librat (emri, isbn, pershkrimi, kategoria_id) values (?)";
+    "insert into librat (emri, isbn, pershkrimi, kategoria_id, image) values (?)";
 
   const vlerat = [
     req.body.emri,
     req.body.isbn,
     req.body.pershkrimi,
     req.body.kategoria,
+    filename, // Save only the filename
   ];
 
   db.query(q, [vlerat], (err, data) => {
