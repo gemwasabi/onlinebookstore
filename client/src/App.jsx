@@ -7,6 +7,7 @@ import Libri from "./faqet/librat/Libri";
 import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
+import Librii from "./faqet/Librii";
 import "./output.css";
 /*import "../node_modules/react-grid-layout/css/styles.css";
 import "../node_modules/react-resizable/css/styles.css";*/
@@ -29,6 +30,7 @@ import EditoPerdoruesin from "./faqet/admin/Perdoruesit/Edito";
 import ShtoKategori from "./faqet/admin/Kategorite/Shto";
 import ShfaqKategorite from "./faqet/admin/Kategorite/Lista";
 import EditoKategorine from "./faqet/admin/Kategorite/Edito";
+
 
 const Struktura = () => {
   return (
