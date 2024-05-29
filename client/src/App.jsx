@@ -76,6 +76,10 @@ const router = createBrowserRouter([
         path: "/",
         element: <Ballina />,
       },
+      {
+        path: "/libri/:id",
+        element: <Libri />,
+      },
     ],
   },
   {
@@ -89,10 +93,6 @@ const router = createBrowserRouter([
   {
     path: "/shtoLiber",
     element: <LibratShto />,
-  },
-  {
-    path: "/libri/:id",
-    element: <Libri />,
   },
   {
     path: "/admin",

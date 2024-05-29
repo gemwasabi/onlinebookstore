@@ -2,8 +2,12 @@
 export default {
   content: ["./src/**/*.{html,js,jsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Inika", "ui-sans-serif", "system-ui"],
+        serif: ["Inika", "serif"],
+      },
+    },
   },
   plugins: [],
-}
-
+};
