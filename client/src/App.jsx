@@ -156,7 +156,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <StrukturaNormale />,
+    element: <Struktura />,
     children: [
       {
         path: "/checkout",
