@@ -2,12 +2,54 @@ import { db } from "../db.js";
 
 export const merrTufat = (req, res) => {
   const q = `
-  select * from tufat
+    SELECT id, emri, statusi
+    FROM tufat;
   `;
 
   db.query(q, (err, data) => {
     if (err) return res.json(err);
     return res.status(200).json(data);
+  });
+};
+
+export const merrTufatMeLibra = (req, res) => {
+  const q = `SELECT * FROM tufat WHERE statusi = 0`;
+
+  db.query(q, (err, tufatData) => {
+    if (err) return res.json(err);
+
+    // Extract Tufat IDs
+    const tufatIds = tufatData.map((tufa) => tufa.id);
+
+    const q2 = `
+      SELECT tufa_id, librat.*
+      FROM tufat_detal
+      LEFT JOIN librat ON librat.id = tufat_detal.libri_id
+      WHERE tufa_id IN (?)
+    `;
+
+    db.query(q2, [tufatIds], (err, booksData) => {
+      if (err) return res.json(err);
+
+      // Organize books by Tufat ID
+      const tufatBooksMap = {};
+      booksData.forEach((book) => {
+        if (!tufatBooksMap[book.tufa_id]) {
+          tufatBooksMap[book.tufa_id] = [];
+        }
+        tufatBooksMap[book.tufa_id].push(book);
+      });
+
+      // Merge Tufat Data with Books Data
+      const tufatWithBooks = tufatData.map((tufa) => {
+        return {
+          ...tufa,
+          librat: tufatBooksMap[tufa.id] || [], // Attach books data to each Tufat entry
+        };
+      });
+
+      return res.status(200).json(tufatWithBooks);
+    });
   });
 };
 
