@@ -16,7 +16,9 @@ const Ballina = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/api/tufat");
+        const res = await axios.get(
+          "http://localhost:8800/api/tufat/tufatMeLibra"
+        );
         if (Array.isArray(res.data)) {
           setTufat(res.data);
         } else {
@@ -129,42 +131,46 @@ const Ballina = () => {
       <Autoslider></Autoslider>
 
       <div className="bg-[#7B8E76] py-9">
-        <div className="w-full mx-auto lg:container p-10 bg-[#BDC6BA] rounded-2xl shadow sm:rounded-none">
-          <div className="flex flex-col md:flex-row justify-between">
-            <h2 className="text-xl md:text-2xl font-bold mb-4 text-[#282c26]">
-              Mental Health Books for Tough Days, Good Days, and Every Day
-              In-Between
-            </h2>
-            <a href="#!" className="text-purple-700 text-lg">
-              Shfaq të gjitha (28)
-            </a>
-          </div>
-          <div className="relative flex items-center">
-            <button className="absolute -left-16 p-3 m-3 rounded-full z-10 hidden lg:block">
-              <img src={chevronLeft} alt="Previous" />
-            </button>
-            <div className="flex overflow-x-auto scrollbar-hide space-x-4 py-2">
-              {books.map((book, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-0 transform transition-transform hover:scale-105 hover:shadow-lg"
-                >
-                  <Link to={`/libri/${book.id}`}>
-                    <img
-                      className="h-64 w-44 object-cover"
-                      src={book.src}
-                      alt={book.title}
-                    />
-                  </Link>
-                </div>
-              ))}
+        {tufat.map((tufa, index) => (
+          <div
+            className="w-full mx-auto lg:container p-10 bg-[#BDC6BA] rounded-2xl shadow sm:rounded-none my-5"
+            key={index}
+          >
+            <div className="flex flex-col md:flex-row justify-between">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 text-[#282c26]">
+                {tufa.emri}
+              </h2>
+              <a href="#!" className="text-purple-700 text-lg">
+                Shfaq të gjitha ({tufa.librat.length})
+              </a>
             </div>
-            <button className="absolute -right-16 p-3 m-3 rounded-full z-10 hidden lg:block">
-              <img src={chevronRight} alt="Next" />
-            </button>
+            <div className="relative flex items-center">
+              <button className="absolute -left-16 p-3 m-3 rounded-full z-10 hidden lg:block">
+                <img src={chevronLeft} alt="Previous" />
+              </button>
+              <div className="flex overflow-x-auto scrollbar-hide space-x-4 py-2">
+                {tufa.librat.map((libri, index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 transform transition-transform hover:scale-105 hover:shadow-lg"
+                  >
+                    <Link to={`/libri/${libri.id}`}>
+                      <img
+                        className="h-64 w-44 object-cover"
+                        src={`/assets/img/bookcovers/${libri.foto}`}
+                        alt={libri.title}
+                      />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+              <button className="absolute -right-16 p-3 m-3 rounded-full z-10 hidden lg:block">
+                <img src={chevronRight} alt="Next" />
+              </button>
+            </div>
           </div>
-        </div>
-
+        ))}
+        ;
         <div className="w-full mx-auto lg:container p-5 bg-[#BDC6BA] my-10">
           <div className="mb-8">
             <h1 className="text-3xl font-bold">

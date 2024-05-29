@@ -678,6 +678,11 @@ body {
   margin-bottom: 50px;
 }
 
+.my-5 {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
 .mb-0 {
   margin-bottom: 0px;
 }
