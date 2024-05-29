@@ -9,11 +9,11 @@ function Lista() {
   const { currentUser, ckycu } = useContext(AuthContext);
   const [tufat, setTufat] = useState([]);
 
-  const shlyejLibrin = async (id) => {
+  const shlyejTufen = async (id) => {
     try {
-      await axios.delete(`http://localhost:8800/api/librat/${id}`);
+      await axios.delete(`http://localhost:8800/api/tufat/${id}`);
       fetchData();
-      toast.success("Libri u shlye me sukses", {
+      toast.success("Tufa u shlye me sukses", {
         position: "top-right",
       });
     } catch (error) {
@@ -75,7 +75,7 @@ function Lista() {
                       </Link>{" "}
                       <button
                         className="btn btn-danger"
-                        onClick={() => shlyejtufan(tufa.id)}
+                        onClick={() => shlyejTufen(tufa.id)}
                       >
                         Shlyej
                       </button>

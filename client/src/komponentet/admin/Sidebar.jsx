@@ -75,6 +75,17 @@ function Sidebar() {
               <span className="align-middle">Porosite</span>
             </Link>
           </li>
+
+          <li
+            className={`sidebar-item ${isActive(
+              "/admin/tufat"
+            )}`}
+          >
+            <Link className="sidebar-link" to="/admin/tufat">
+              <i className="align-middle" data-feather="sliders"></i>
+              <span className="align-middle">Tufat</span>
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>

@@ -15,7 +15,6 @@ export const merrLibrat = (req, res) => {
 
 export const merrLibrin = (req, res) => {
   const q = "select * from librat where id = ?";
-
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
     return res.status(200).json(data[0]);

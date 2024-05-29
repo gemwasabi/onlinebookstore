@@ -31,6 +31,10 @@ import ShtoKategori from "./faqet/admin/Kategorite/Shto";
 import ShfaqKategorite from "./faqet/admin/Kategorite/Lista";
 import EditoKategorine from "./faqet/admin/Kategorite/Edito";
 
+import Tufat from "./faqet/admin/Tufat/Lista";
+import TufatShto from "./faqet/admin/Tufat/Shto";
+import TufatEdito from "./faqet/admin/Tufat/Edito";
+
 
 const Struktura = () => {
   return (
@@ -135,6 +139,18 @@ const router = createBrowserRouter([
       {
         path: "/admin/kategorite/editoKategorine/:id",
         element: <EditoKategorine />,
+      },
+      {
+        path: "/admin/tufat",
+        element: <Tufat />,
+      },
+      {
+        path: "/admin/editoTufen/:id",
+        element: <TufatEdito />,
+      },
+      {
+        path: "/admin/shtoTufe",
+        element: <TufatShto />,
       },
     ],
   },

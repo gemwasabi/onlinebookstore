@@ -185,3 +185,20 @@ export const editoTufen = (req, res) => {
     });
   });
 };
+
+export const shlyejTufen = (req, res) => {
+  const tufatId = req.params.id;
+
+  const deleteTufatDetal = `DELETE FROM tufat_detal WHERE tufa_id = ?`;
+  const deleteTufat = `DELETE FROM tufat WHERE id = ?`;
+
+  db.query(deleteTufatDetal, [tufatId], (err1, data1) => {
+    if (err1) return res.json(err1);
+
+    db.query(deleteTufat, [tufatId], (err2, data2) => {
+      if (err2) return res.json(err2);
+
+      return res.status(200).json("Libri u shlye me sukses!");
+    });
+  });
+};

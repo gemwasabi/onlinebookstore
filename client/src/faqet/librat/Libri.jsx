@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -11,42 +10,19 @@ const Libri = () => {
     pershkrimi: "",
   });
 
-  const [error, setError] = useState(null);
-
   const navigate = useNavigate();
-
-  const trajtoNdryshimet = (e) => {
-    setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const trajtoSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put("http://localhost:8800/api/librat", inputs);
-      navigate("/");
-    } catch (err) {
-      // setError(err.response.data);
-    }
-  };
-
-  const shlyejLibrin = async (e) => {
-    try {
-      await axios.delete("http://localhost:8800/api/librat/" + libriId);
-      navigate("/");
-    } catch (error) {
-      
-    }
-  }
 
   const [libri, setLibrin] = useState({});
 
   const location = useLocation();
 
   const libriId = location.pathname.split("/")[2];
-  
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get("http://localhost:8800/api/librat/" + libriId);
+      const res = await axios.get(
+        "http://localhost:8800/api/librat/" + libriId
+      );
       try {
         setLibrin(res.data);
       } catch (error) {
@@ -57,45 +33,90 @@ const Libri = () => {
   }, [libriId]);
 
   return (
-    <div className="flex flex-col gap-3">
-      <input
-        onChange={trajtoNdryshimet}
-        name="emri"
-        className="border-2 border-black"
-        type="text"
-        placeholder="Emri"
-        value={libri.emri}
-      />
-      <input
-        onChange={trajtoNdryshimet}
-        name="isbn"
-        className="border-2 border-black"
-        type="text"
-        placeholder="ISBN"
-        value={libri.isbn}
-      />
-      <textarea
-        onChange={trajtoNdryshimet}
-        name="pershkrimi"
-        className="border-2 border-black"
-        id=""
-        cols="30"
-        rows="10"
-        placeholder="Pershkrimi"
-        value={libri.pershkrimi}
-      ></textarea>
-      <button
-        onClick={trajtoSubmit}
-        className="border-2 border-black bg-blue-300"
-      >
-        Perditeso Librin
-      </button>
-      <button
-        onClick={shlyejLibrin}
-        className="border-2 text-center border-black bg-red-300"
-      >
-        Shlyej Librin
-      </button>
+    <div className="font-sans bg-[#7b8e76] min-h-screen">
+      <div className="container mx-auto p-4">
+        <div className="flex flex-col md:flex-row items-start">
+          <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-4">
+            <img
+              className="w-32 md:w-48"
+              src={`/assets/img/bookcovers/${libri.foto}`}
+              alt="The Tenant of Wildfell Hall by Anne Brontë"
+            />
+          </div>
+          <div className="bg-[#bcc5b8] p-6 rounded-lg shadow-lg flex-grow">
+            <h1 className="text-[#848a81] text-2xl md:text-3xl font-bold mb-2">
+              {libri.emri}
+            </h1>
+            <h2 className="text-lg md:text-xl text-[#848a81] mb-4">
+              nga {libri.autori}
+            </h2>
+            <div className="mb-4">
+              <label htmlFor="format" className="block text-[#848a81]">
+                Formati
+              </label>
+              <select
+                id="format"
+                className="h-10 w-full text-[#848a81] rounded-lg border-2 border-[#848a81] bg-transparent px-4 text-lg focus:border-[#848a81] focus:outline-none"
+              >
+                <option>Zgjidh llojin</option>
+                <option>Paperback</option>
+                <option>Hardcover</option>
+              </select>
+            </div>
+            <div className="flex space-x-4 mb-6">
+              <button className="bg-[#7b8e76] text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200 hover:bg-[#6d7b69]">
+                <img
+                  src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1716846152/solar_bag-bold_2_nwtgvx.svg"
+                  alt="Add to Cart"
+                  className="h-5 w-5 mr-2"
+                />
+                Shto në shportë
+              </button>
+              <button className="bg-[#7b8e76] text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200 hover:bg-[#6d7b69]">
+                <img
+                  src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1716846152/Vector_jca2na.svg"
+                  alt="Rent"
+                  className="h-5 w-5 mr-2"
+                />
+                Merr me qera
+              </button>
+            </div>
+            <h2 className="text-2xl font-semibold mb-2 text-[#848a81]">
+              Pershkrimi:
+            </h2>
+            <p className="text-[#848a81] mb-6">
+              {libri.pershkrimi}
+            </p>
+            <div>
+              <h2 className="text-[#848a81] text-2xl font-semibold mb-2">
+                Detajet e produktit:
+              </h2>
+              <div className="flex space-x-2">
+                <ul className="text-[#848a81] text-right">
+                  <li>Çmimi:</li>
+                  <li>Botuesi:</li>
+                  <li>Data e botimit:</li>
+                  <li>Nr. i faqeve:</li>
+                  <li>Dimensionet:</li>
+                  <li>Gjuha:</li>
+                  <li>Lloji:</li>
+                  <li>EAN/UPC:</li>
+                </ul>
+                <ul className="text-[#848a81] text-left">
+                  <li>15.00€</li>
+                  <li>Penguin</li>
+                  <li>2015</li>
+                  <li>386</li>
+                  <li>12.7cm x 20.3cm</li>
+                  <li>Anglisht</li>
+                  <li>Paperback</li>
+                  <li>1111111111111</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

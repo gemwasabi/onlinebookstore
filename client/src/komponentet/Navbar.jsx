@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/authContext";
 import search from "../assets/img/Book.svg";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const { currentUser, ckycu } = useContext(AuthContext);
@@ -14,11 +15,13 @@ const Navbar = () => {
     <nav className="bg-[#879C82] flex flex-col md:flex-row justify-between items-center h-auto md:h-[100px] px-4 md:px-8 py-4 sticky top-0 z-10">
       <div className="flex justify-between items-center w-full md:w-auto">
         <div className="logo">
-          <img
-            src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1713009973/lype_crhi55.svg"
-            alt="Logo"
-            className="h-6 md:h-8"
-          />
+          <Link to="/">
+            <img
+              src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1713009973/lype_crhi55.svg"
+              alt="Logo"
+              className="h-6 md:h-8"
+            />
+          </Link>
         </div>
         <div className="md:hidden">
           <img
