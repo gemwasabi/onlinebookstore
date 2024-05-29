@@ -26,11 +26,10 @@ function Shto() {
   const navigate = useNavigate();
 
   const trajtoNdryshimet = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "image") {
-      setInputs((prev) => ({ ...prev, image: files[0] }));
+    if (e.target.name === "image") {
+      setInputs((prev) => ({ ...prev, image: e.target.files[0] }));
     } else {
-      setInputs((prev) => ({ ...prev, [name]: value }));
+      setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     }
   };
 
@@ -130,9 +129,7 @@ function Shto() {
                   <select
                     name="tipi"
                     onChange={trajtoNdryshimet}
-                    className={`form-control ${
-                      errors.tipi && "is-invalid"
-                    }`}
+                    className={`form-control ${errors.tipi && "is-invalid"}`}
                   >
                     <option value="">Zgjedh Tipin</option>
                     <option value="0">Paperback</option>

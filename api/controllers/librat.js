@@ -25,7 +25,7 @@ export const merrLibrin = (req, res) => {
 export const shtoLiber = (req, res) => {
   const filename = req.file ? req.file.filename : null;
   const q =
-    "insert into librat (emri, isbn, pershkrimi, kategoria_id, image) values (?)";
+    "insert into librat (emri, isbn, pershkrimi, kategoria_id, foto) values (?)";
 
   const vlerat = [
     req.body.emri,
@@ -52,9 +52,20 @@ export const shlyejLibrin = (req, res) => {
 
 export const editoLibrin = (req, res) => {
   const { emri, isbn, pershkrimi, kategoria_id, id } = req.body;
-  const q = `UPDATE librat SET emri = ?, pershkrimi = ?, isbn = ?, kategoria_id = ? WHERE id = ?`;
+  let filename = null;
 
-  const vlerat = [emri, pershkrimi, isbn, kategoria_id, id];
+  // Check if a new file is uploaded
+  if (req.file) {
+    filename = req.file.filename;
+  }
+
+  const q = `
+    UPDATE librat
+    SET emri = ?, pershkrimi = ?, isbn = ?, kategoria_id = ?, foto = ?
+    WHERE id = ?
+  `;
+
+  const vlerat = [emri, pershkrimi, isbn, kategoria_id, filename, id];
 
   db.query(q, vlerat, (err, data) => {
     if (err) return res.json(err);

@@ -1,6 +1,12 @@
 import express from "express";
 import multer from "multer";
-import { shtoLiber, merrLibrat, merrLibrin, shlyejLibrin, editoLibrin } from "../controllers/librat.js";
+import {
+  shtoLiber,
+  merrLibrat,
+  merrLibrin,
+  shlyejLibrin,
+  editoLibrin,
+} from "../controllers/librat.js";
 
 const router = express.Router();
 
@@ -17,8 +23,8 @@ const upload = multer({ storage });
 
 router.get("/", merrLibrat);
 router.get("/:id", merrLibrin);
-router.post("/", upload.single('image'), shtoLiber); // Add upload middleware here
+router.post("/", upload.single("image"), shtoLiber);
 router.delete("/:id", shlyejLibrin);
-router.put("/:id", editoLibrin);
+router.put("/:id", upload.single("image"), editoLibrin);
 
 export default router;

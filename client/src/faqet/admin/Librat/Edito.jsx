@@ -5,13 +5,19 @@ import axios from "axios";
 const Edito = () => {
   const [inputs, setInputs] = useState({
     emri: "",
+    tipi: "",
     isbn: "",
+    autori: "",
+    kategoria: "",
     pershkrimi: "",
+    image: null, // Add image to the state
   });
 
   const [errors, setErrors] = useState({
     emri: "",
+    tipi: "",
     isbn: "",
+    autori: "",
     kategoria: "",
     pershkrimi: "",
   });
@@ -30,10 +36,26 @@ const Edito = () => {
     const validationErrors = validateInputs(inputs);
     if (Object.values(validationErrors).every((error) => !error)) {
       try {
-        await axios.put("http://localhost:8800/api/librat/" + libriId, inputs);
+        const formData = new FormData();
+        for (const key in inputs) {
+          formData.append(key, inputs[key]);
+        }
+        // Append the image file if it's selected
+        if (inputs.image) {
+          formData.append("image", inputs.image);
+        }
+        await axios.put(
+          "http://localhost:8800/api/librat/" + libriId,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         navigate("/admin/librat/shfaqLibrat");
       } catch (err) {
-        // setError(err.response.data);
+        console.log(err);
       }
     } else {
       setErrors(validationErrors);
@@ -54,12 +76,16 @@ const Edito = () => {
     if (!inputs.kategoria) {
       errors.kategoria = "Kategoria eshte e detyrueshme";
     }
+    if (!inputs.autori) {
+      errors.autori = "Autori eshte i detyrueshem";
+    }
+    if (!inputs.tipi) {
+      errors.tipi = "Tipi eshte i detyrueshem";
+    }
     return errors;
   };
 
   const [libri, setLibrin] = useState({});
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,6 +143,24 @@ const Edito = () => {
               </div>
             </div>
             <div className="form-group row mb-3">
+              <label className="col-sm-2 col-form-label">Tipi</label>
+              <div className="col-sm-10">
+                <select
+                  name="tipi"
+                  onChange={trajtoNdryshimet}
+                  value={inputs.tipi}
+                  className={`form-control ${errors.tipi && "is-invalid"}`}
+                >
+                  <option value="">Zgjedh Tipin</option>
+                  <option value="0">Paperback</option>
+                  <option value="1">Hardcover</option>
+                </select>
+                {errors.tipi && (
+                  <div className="invalid-feedback">{errors.tipi}</div>
+                )}
+              </div>
+            </div>
+            <div className="form-group row mb-3">
               <label className="col-sm-2 col-form-label">ISBN</label>
               <div className="col-sm-10">
                 <input
@@ -129,6 +173,22 @@ const Edito = () => {
                 />
                 {errors.isbn && (
                   <div className="invalid-feedback">{errors.isbn}</div>
+                )}
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label className="col-sm-2 col-form-label">Autori</label>
+              <div className="col-sm-10">
+                <input
+                  type="text"
+                  className={`form-control ${errors.autori && "is-invalid"}`}
+                  placeholder="Autori"
+                  onChange={trajtoNdryshimet}
+                  value={inputs.autori}
+                  name="autori"
+                />
+                {errors.autori && (
+                  <div className="invalid-feedback">{errors.autori}</div>
                 )}
               </div>
             </div>
@@ -170,6 +230,21 @@ const Edito = () => {
                 ></textarea>
                 {errors.pershkrimi && (
                   <div className="invalid-feedback">{errors.pershkrimi}</div>
+                )}
+              </div>
+            </div>
+            <div className="form-group row mb-3">
+              <label className="col-sm-2 col-form-label">Imazhi</label>
+              <div className="col-sm-10">
+                <input
+                  type="file"
+                  className={`form-control ${errors.image && "is-invalid"}`}
+                  onChange={trajtoNdryshimet}
+                  name="image"
+                  accept="image/jpeg, image/png"
+                />
+                {errors.image && (
+                  <div className="invalid-feedback">{errors.image}</div>
                 )}
               </div>
             </div>
