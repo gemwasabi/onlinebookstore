@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import kopertina from "../../assets/img/alittlelife.png";
 
-const CheckoutPage1 = ({ nextStep }) => {
+const CheckoutPage2 = ({ prevStep, nextStep }) => {
     const initialBooks = [
         { id: 1, title: "A little life", author: "Hanya Yanagihara", price: 20.00, quantity: 1 },
         { id: 2, title: "A little life", author: "Hanya Yanagihara", price: 20.00, quantity: 1 },
@@ -18,68 +18,68 @@ const CheckoutPage1 = ({ nextStep }) => {
     return (
         <div className="min-h-screen bg-[#7B8E76] flex items-center justify-center p-4">
             <div className="w-full max-w-6xl bg-[#BCC5B8] shadow-lg rounded-lg p-0">
-                <div className="flex flex-col lg:flex-row">
-                    {/* Detajet personale */}
+                <div className="flex flex-col lg:flex-row sm:flex-col">
+                    {/* Detajet e karteles */}
                     <div className="w-full lg:w-2/3 p-3">
-                        <h2 className="text-xl text-left font-bold mb-2 text-[#757C73]">Detajet personale</h2>
+                        <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">Detajet e kartelës </h2>
                         <p className="text-[#757C73] mb-4"><span className="text-[#EA6464]">* </span> fushë obligative</p>
                         <br></br>
                         <form className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div className="relative">
                                 <input
                                     type="text"
-                                    name="emri"
-                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
+                                    name="emri-karteles"
+                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="emri"
+                                    htmlFor="emri-karteles"
                                     className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Emri
+                                    Emri në kartelë
                                 </label>
                             </div>
 
                             <div className="relative">
                                 <input
-                                    type="text"
-                                    name="mbiemri"
-                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
+                                    type="number"
+                                    name="numri-karteles"
+                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="mbiemri"
+                                    htmlFor="numri-karteles"
                                     className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Mbiemri
+                                    Numri i kartelës
                                 </label>
                             </div>
                             <div className="relative">
                                 <input
-                                    type="tel"
-                                    name="telefoni"
-                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
+                                    type="date"
+                                    name="data-skadimit"
+                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="telefoni"
+                                    htmlFor="data-skadimit"
                                     className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Numri i telefonit
+                                    Data e skadimit
                                 </label>
                             </div>
                             <div className="relative">
                                 <input
-                                    type="email"
-                                    name="email"
-                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
+                                    type="number"
+                                    name="cvv"
+                                    className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="email"
+                                    htmlFor="cvv"
                                     className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Email Adresa
+                                    CVV
                                 </label>
                             </div>
                         </form>
@@ -134,13 +134,20 @@ const CheckoutPage1 = ({ nextStep }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex justify-center">
+                        <div className="flex flex-col justify-center mt-6">
                             <button
-                                className="mt-[116px] w-full rounded-[10px] bg-[#7B8E76] p-2 text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
+                                className="rounded-[10px] bg-[#7B8E76] p-2 text-xl lg:text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
                                 onClick={nextStep}
                             >
                                 Hapi tjetër
                             </button>
+                            <br></br>
+                            <a
+                                className="p-2 text-xl lg:text-2xl text-[#727D6D] align-center text-center hover:text-[#BCC5B8] cursor-pointer"
+                                onClick={prevStep}
+                            >
+                                Shko prapa
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -149,4 +156,4 @@ const CheckoutPage1 = ({ nextStep }) => {
     );
 };
 
-export default CheckoutPage1;
+export default CheckoutPage2;

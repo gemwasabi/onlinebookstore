@@ -6,13 +6,22 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
   const { currentUser, ckycu } = useContext(AuthContext);
   const [isActive, setIsActive] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
     await ckycu();
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const closeDropdown = () => {
+    setIsDropdownOpen(false);
+  };
+
   return (
-    <nav className="bg-[#879C82] flex flex-col md:flex-row justify-between items-center h-auto md:h-[100px] px-4 md:px-8 py-4 sticky top-0 z-10">
+    <nav className="bg-[#879C82] flex flex-col md:flex-row justify-between items-center h-auto md:h-[100px] px-4 md:px-8 py-4 sticky top-0 z-[1000]">
       <div className="flex justify-between items-center w-full md:w-auto">
         <div className="logo">
           <Link to="/">
@@ -27,7 +36,8 @@ const Navbar = () => {
           <img
             src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1713122873/User_yr1eko.svg"
             alt="User Icon"
-            className="h-6 md:h-8"
+            className="h-6 md:h-8 cursor-pointer"
+            onClick={toggleDropdown}
           />
         </div>
       </div>
@@ -44,17 +54,59 @@ const Navbar = () => {
         {!isActive && (
           <img
             className="w-10 h-10 absolute right-0 top-0 mt-1 mr-3"
-            src={search} // replace with actual path to the search icon
+            src={search}
             alt="search ikona"
           />
         )}
       </div>
-      <div className="hidden md:flex items-center">
+      <div className="hidden md:flex items-center relative">
         <img
           src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1713122873/User_yr1eko.svg"
           alt="User Icon"
-          className="h-6 md:h-8"
+          className="h-6 md:h-8 cursor-pointer"
+          onClick={toggleDropdown}
         />
+        {isDropdownOpen && (
+          <div className="absolute right-0 mt-2 w-48 bg-[#7B8E76] rounded-md shadow-lg py-1 z-20">
+            {currentUser ? (
+              <>
+                <Link
+                  to="/settings"
+                  className="block px-4 py-2 text-sm text-[#6e5d5d] hover:bg-[#BDC6BA]"
+                  onClick={closeDropdown}
+                >
+                  Settings
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    closeDropdown();
+                  }}
+                  className="w-full text-left block px-4 py-2 text-sm text-[#6e5d5d] hover:bg-[#BDC6BA]"
+                >
+                  Ckycu
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/kycu"
+                  className="block px-4 py-2 text-sm text-[#6e5d5d] hover:bg-[#BDC6BA]"
+                  onClick={closeDropdown}
+                >
+                  Kycu
+                </Link>
+                <Link
+                  to="/regjistrohu"
+                  className="block px-4 py-2 text-sm text-[#6e5d5d] hover:bg-[#BDC6BA]"
+                  onClick={closeDropdown}
+                >
+                  Regjistrohu
+                </Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );
