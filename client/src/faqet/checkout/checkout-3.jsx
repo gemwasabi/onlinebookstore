@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import kopertina from "../../assets/img/alittlelife.png";
 
-const CheckoutPage1 = ({ nextStep }) => {
+const CheckoutPage3 = ({ prevStep, nextStep }) => {
     const initialBooks = [
         { id: 1, title: "A little life", author: "Hanya Yanagihara", price: 20.00, quantity: 1 },
         { id: 2, title: "A little life", author: "Hanya Yanagihara", price: 20.00, quantity: 1 },
@@ -18,68 +18,81 @@ const CheckoutPage1 = ({ nextStep }) => {
     return (
         <div className="min-h-screen bg-[#7B8E76] flex items-center justify-center p-4">
             <div className="w-full max-w-6xl bg-[#BCC5B8] shadow-lg rounded-lg p-0">
-                <div className="flex flex-col lg:flex-row">
-                    {/* Detajet personale */}
+                <div className="flex flex-col lg:flex-row sm:flex-col">
+                    {/* Detajet e dorezimit */}
                     <div className="w-full lg:w-2/3 p-3">
-                        <h2 className="text-xl text-left font-bold mb-2 text-[#757C73]">Detajet personale</h2>
+                        <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">Detajet e dorëzimit </h2>
                         <p className="text-[#757C73] mb-4"><span className="text-[#EA6464]">* </span> fushë obligative</p>
                         <br></br>
-                        <form className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <form className="grid grid-cols-0 md:grid-cols-2 gap-5">
                             <div className="relative">
                                 <input
                                     type="text"
-                                    name="emri"
+                                    name="Adresa-dorezimit"
                                     className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="emri"
-                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
+                                    htmlFor="Adresa-dorezimit"
+                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[14px] md:text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Emri
+                                    Adresa 1
                                 </label>
                             </div>
 
                             <div className="relative">
                                 <input
                                     type="text"
-                                    name="mbiemri"
+                                    name="adresa-2"
                                     className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="mbiemri"
-                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
+                                    htmlFor="adresa-2"
+                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[14px] md:text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Mbiemri
+                                    Adresa 2
                                 </label>
                             </div>
                             <div className="relative">
                                 <input
-                                    type="tel"
-                                    name="telefoni"
+                                    type="text"
+                                    name="qyteti"
                                     className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="telefoni"
-                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
+                                    htmlFor="qyteti"
+                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[14px] md:text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Numri i telefonit
+                                    Qyteti
                                 </label>
                             </div>
                             <div className="relative">
                                 <input
-                                    type="email"
-                                    name="email"
+                                    type="number"
+                                    name="zip"
                                     className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                                     placeholder=" "
                                 />
                                 <label
-                                    htmlFor="email"
-                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
+                                    htmlFor="zip"
+                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[14px] md:text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                                 >
-                                    Email Adresa
+                                    Kodi postar
+                                </label>
+                            </div>
+                            <div className="relative col-span-2 lg:col-span-2 lg:col-start-1">
+                                <textarea
+                                    name="koment-shtese"
+                                    className="peer h-32 lg:h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] pt-2 text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
+                                    placeholder=" "
+                                />
+                                <label
+                                    htmlFor="koment-shtese"
+                                    className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[14px] md:text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
+                                >
+                                    Koment 
                                 </label>
                             </div>
                         </form>
@@ -134,13 +147,20 @@ const CheckoutPage1 = ({ nextStep }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex justify-center">
+                        <div className="flex flex-col justify-center mt-6">
                             <button
-                                className="mt-[116px] w-full rounded-[10px] bg-[#7B8E76] p-2 text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
+                                className="rounded-[10px] bg-[#7B8E76] p-2 text-xl lg:text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
                                 onClick={nextStep}
                             >
-                                Hapi tjetër
+                                Përfundo blerjen
                             </button>
+                            <br></br>
+                            <a
+                                className="p-2 text-xl lg:text-2xl text-[#727D6D] align-center text-center hover:text-[#BCC5B8] cursor-pointer"
+                                onClick={prevStep}
+                            >
+                                Shko prapa
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -149,4 +169,4 @@ const CheckoutPage1 = ({ nextStep }) => {
     );
 };
 
-export default CheckoutPage1;
+export default CheckoutPage3;

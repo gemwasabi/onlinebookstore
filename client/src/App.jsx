@@ -17,7 +17,7 @@ import SidebarAdmin from "./komponentet/admin/Sidebar";
 import NavbarAdmin from "./komponentet/admin/Navbar";
 import FooterAdmin from "./komponentet/admin/Footer";
 
-import CheckoutPage from "./faqet/checkout/checkout-1";
+import CheckoutProcess from "./faqet/checkout/CheckoutProcess";
 
 import ShtoLiber from "./faqet/admin/Librat/Shto";
 import ShfaqLibrat from "./faqet/admin/Librat/Lista";
@@ -38,15 +38,16 @@ import TufatEdito from "./faqet/admin/Tufat/Edito";
 
 const Struktura = () => {
   return (
-    <>
+    <div>
       <Kerko />
       <Navbar />
-      <Outlet />
+      <div className="pt-[0px]">
+        <Outlet />
+      </div>
       <Footer />
-    </>
+    </div>
   );
 };
-
 const StrukturaNormale = () => {
   return (
     <>
@@ -156,12 +157,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <Struktura />,
+    element: <StrukturaNormale />,
     children: [
       {
-        path: "/checkout",
-        element: <CheckoutPage />,
-      },
+        path: "/procesimi",
+        element: <CheckoutProcess />,
+      }
     ],
   },
 ]);
