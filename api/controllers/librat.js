@@ -72,3 +72,19 @@ export const editoLibrin = (req, res) => {
     return res.status(200).json("Libri u editua me sukses!");
   });
 };
+
+export const kerkoLibrat = (req, res) => {
+  const searchTerm = req.query.query;
+  const q = `
+    SELECT l.*, k.emri as emri_kategorise
+    FROM librat l
+    LEFT JOIN kategorite k ON k.id = l.kategoria_id
+    WHERE l.emri LIKE ? OR l.pershkrimi LIKE ?
+  `;
+  const values = [`%${searchTerm}%`, `%${searchTerm}%`];
+
+  db.query(q, values, (err, data) => {
+    if (err) return res.json(err);
+    return res.status(200).json({ results: data });
+  });
+};

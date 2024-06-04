@@ -34,6 +34,7 @@ import EditoKategorine from "./faqet/admin/Kategorite/Edito";
 import Tufat from "./faqet/admin/Tufat/Lista";
 import TufatShto from "./faqet/admin/Tufat/Shto";
 import TufatEdito from "./faqet/admin/Tufat/Edito";
+import Booksearch from "./komponentet/Booksearch";
 
 
 const Struktura = () => {
@@ -83,10 +84,6 @@ const router = createBrowserRouter([
         path: "/",
         element: <Ballina />,
       },
-      {
-        path: "/libri/:id",
-        element: <Libri />,
-      },
     ],
   },
   {
@@ -100,6 +97,10 @@ const router = createBrowserRouter([
   {
     path: "/shtoLiber",
     element: <LibratShto />,
+  },
+  {
+    path: "/testtest",
+    element: <Booksearch />,
   },
   {
     path: "/admin",
@@ -162,7 +163,11 @@ const router = createBrowserRouter([
       {
         path: "/procesimi",
         element: <CheckoutProcess />,
-      }
+      },
+      {
+        path: "/libri/:id",
+        element: <Libri />,
+      },
     ],
   },
 ]);

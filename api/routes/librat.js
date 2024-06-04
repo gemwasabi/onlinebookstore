@@ -6,6 +6,7 @@ import {
   merrLibrin,
   shlyejLibrin,
   editoLibrin,
+  kerkoLibrat,
 } from "../controllers/librat.js";
 
 const router = express.Router();
@@ -22,6 +23,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.get("/", merrLibrat);
+router.get("/kerko", kerkoLibrat);
 router.get("/:id", merrLibrin);
 router.post("/", upload.single("image"), shtoLiber);
 router.delete("/:id", shlyejLibrin);
