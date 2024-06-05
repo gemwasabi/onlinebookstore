@@ -12,7 +12,7 @@ const Kerko = () => {
 
   const handleSearch = async (query) => {
     if (!query) {
-      setSearchResults([]); // Clear previous results if search query is empty
+      setSearchResults([]);
       return;
     }
 
@@ -20,10 +20,10 @@ const Kerko = () => {
       const response = await axios.get(
         `http://localhost:8800/api/librat/kerko?query=${query}`
       );
-      setSearchResults(response.data.results || []); // Ensure data.results is not undefined
+      setSearchResults(response.data.results || []);
     } catch (error) {
       console.error("Error fetching search results:", error);
-      setSearchResults([]); // Clear results on error
+      setSearchResults([]);
     }
   };
 
@@ -77,7 +77,7 @@ const Kerko = () => {
           )}
 
           {searchTerm && (
-            <div className="overflow-y-auto max-h-[calc(100vh-200px)] w-full bg-[#bcc6bb] rounded-lg shadow-lg m-2">
+            <div className="overflow-y-auto max-h-[calc(100vh-200px)] w-full bg-[#bcc6bb] rounded-lg shadow-lg mt-2">
               {searchResults.map((result, index) => (
                 <Link
                   key={index}

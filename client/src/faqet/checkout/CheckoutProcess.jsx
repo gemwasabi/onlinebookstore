@@ -31,51 +31,56 @@ const CheckoutProcess = () => {
         }
     };
 
-    return (
-        <div className="min-h-screen items-center justify-center bg-[#7B8E76] flex flex-col ">
+   return (
+        <div className="min-h-screen items-center justify-center bg-[#7B8E76] flex flex-col">
             <ProgressBar currentStep={currentStep} />
-            {renderStep()}
+            <div className= "mx-auto w-full lg:p-4">
+                {renderStep()}
+            </div>
         </div>
     );
 };
 
 const ProgressBar = ({ currentStep }) => {
-    return (// Progress bar is not working rly bc pics not changing :3 have to fix again
+    return (
         <div className="flex items-center justify-center md:mt-2 md:mb-2 lg:mt-3 lg:mb-[-50px] p-2 z-10 relative w-full max-w-6xl">
-            
-            <div className={`step relative ${currentStep >= 1 ? 'completed' : ''}`}>
-                {currentStep >= 1 ? <img src={c1} alt="Step 1" className="w-8 h-8 bg-[#96A493] p-1 rounded-full cursor-pointer" /> : <img src={check} alt="Step 1 done" className="w-8 h-8 cursor-pointer" />}
-                
-                <div className="caption absolute bottom-full left-1/2 transform -translate-x-1/2 opacity-0 pointer-events-none bg-white text-gray-700 px-2 py-1 rounded shadow-sm transition-opacity duration-300">
-                    Step 1
-                </div>
+            <Step number={1} currentStep={currentStep} icon={c1} />
+            <Line currentStep={currentStep} />
+            <Step number={2} currentStep={currentStep} icon={c2} />
+            <Line currentStep={currentStep} />
+            <Step number={3} currentStep={currentStep} icon={c3} />
+        </div>
+    );
+};
+
+const Step = ({ number, currentStep, icon }) => {
+    const isCompleted = number < currentStep;
+    const isActive = number === currentStep;
+
+    let iconElement = null;
+    if (isCompleted) {
+        iconElement = <img src={check} alt={`Step ${number} done`} className="w-8 h-8 cursor-pointer" />;
+    } else {
+        iconElement = <img src={icon} alt={`Step ${number}`} className="w-8 h-8 cursor-pointer bg-[#96A493] p-1 rounded-full" />;
+    }
+
+    return (
+        <div className={`step relative ${isCompleted ? 'completed' : ''}`}>
+            {iconElement}
+            <div
+                className="caption absolute bottom-full left-1/2 transform -translate-x-1/2 opacity-0 pointer-events-none bg-white text-gray-700 px-2 py-1 rounded shadow-sm transition-opacity duration-300"
+                style={{ backgroundColor: isActive ? '#4CAF50' : '#96A493' }}
+            >
+                Step {number}
             </div>
-            
-            <div className="line flex-1 h-1 bg-[#96A493] mx-2 relative">
-                
-                <div className={`connector absolute top-0 bottom-0 left-0 ${currentStep >= 2 ? 'bg-green-500' : 'bg-[#96A493]'}`}></div>
-            </div>
-            
-            <div className={`step relative ${currentStep >= 2 ? 'completed' : ''}`}>
-                {currentStep >= 1 ? <img src={c2} alt="Step 2" className="w-8 h-8 bg-[#96A493] p-1 rounded-full  cursor-pointer" /> : <img src={check} alt="Step 2 done" className="w-8 h-8 cursor-pointer" />}
-                
-                <div className="caption absolute bottom-full left-1/2 transform -translate-x-1/2 opacity-0 pointer-events-none bg-white text-gray-700 px-2 py-1 rounded shadow-sm transition-opacity duration-300">
-                    Step 2
-                </div>
-            </div>
-            
-            <div className="line flex-1 h-1 bg-[#96A493] mx-2 relative">
-                
-                <div className={`connector absolute top-0 bottom-0 left-0 ${currentStep >= 3 ? 'bg-green-500' : 'bg-[#96A493]'}`}></div>
-            </div>
-            
-            <div className={`step relative ${currentStep >= 3 ? 'completed' : ''}`}>
-                {currentStep >= 1 ? <img src={c3} alt="Step 3" className="w-8 h-8 bg-[#96A493] p-1 rounded-full cursor-pointer" /> : <img src={check} alt="Step 3 done" className="w-8 h-8 cursor-pointer" />}
-                
-                <div className="caption absolute bottom-full left-1/2 transform -translate-x-1/2 opacity-0 pointer-events-none bg-white text-gray-700 px-2 py-1 rounded shadow-sm transition-opacity duration-300">
-                    Step 3
-                </div>
-            </div>
+        </div>
+    );
+};
+
+const Line = ({ currentStep }) => {
+    return (
+        <div className="line flex-1 h-1 bg-[#96A493] mx-2 relative">
+            <div className={`connector absolute top-0 bottom-0 left-0 ${currentStep >= 2 ? 'bg-green-500' : 'bg-[#96A493]'}`}></div>
         </div>
     );
 };

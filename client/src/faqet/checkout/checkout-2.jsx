@@ -16,15 +16,15 @@ const CheckoutPage2 = ({ prevStep, nextStep }) => {
     };
 
     return (
-        <div className="min-h-screen bg-[#7B8E76] flex items-center justify-center p-4">
-            <div className="w-full max-w-6xl bg-[#BCC5B8] shadow-lg rounded-lg p-0">
+        <div className="min-h-screen bg-[#7B8E76] flex items-center justify-center lg:p-4 md:p-4">
+            <div className="w-full max-w-6xl bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3">
                 <div className="flex flex-col lg:flex-row sm:flex-col">
                     {/* Detajet e karteles */}
-                    <div className="w-full lg:w-2/3 p-3">
+                    <div className="w-full lg:w-2/3 p-3 mb-0">
                         <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">Detajet e kartelës </h2>
                         <p className="text-[#757C73] mb-4"><span className="text-[#EA6464]">* </span> fushë obligative</p>
                         <br></br>
-                        <form className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <form className="grid grid-cols-1 md:grid-cols-2 p-3 gap-5">
                             <div className="relative">
                                 <input
                                     type="text"
@@ -83,9 +83,17 @@ const CheckoutPage2 = ({ prevStep, nextStep }) => {
                                 </label>
                             </div>
                         </form>
+                        <div className="absolute pb-9 bottom-0 mb-[-70px] lg:mb-[-60px] md:mb-[140px]">
+                            <a
+                                className="p-2 text-xl lg:text-2xl text-[#727D6D] align-center hover:no-underline text-center hover:text-[#7B8E76] cursor-pointer"
+                                onClick={prevStep}
+                            >
+                                Shko prapa
+                            </a>
+                        </div>
                     </div>
 
-                    <div className="w-full lg:w-1/3 bg-[#D3DAD1] p-3 shadow-md rounded-lg lg:rounded-l-[1px] lg:mt-0">
+                    <div className="w-full lg:w-1/3 bg-[#D3DAD1] p-3 mt-[80px] shadow-md rounded-lg lg:rounded-l-[1px] lg:mt-0">
                         <h2 className="text-2xl text-center font-bold mb-4 text-[#757C73]">Bleji librat</h2>
                         <div className="space-y-4 overflow-y-scroll" style={{ maxHeight: "180px" }}>
                             {books.map((book, index) => (
@@ -139,16 +147,10 @@ const CheckoutPage2 = ({ prevStep, nextStep }) => {
                                 className="rounded-[10px] bg-[#7B8E76] p-2 text-xl lg:text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
                                 onClick={nextStep}
                             >
-                                Hapi tjetër
+                                Vazhdo
                             </button>
-                            <br></br>
-                            <a
-                                className="p-2 text-xl lg:text-2xl text-[#727D6D] align-center text-center hover:text-[#BCC5B8] cursor-pointer"
-                                onClick={prevStep}
-                            >
-                                Shko prapa
-                            </a>
                         </div>
+                        
                     </div>
                 </div>
             </div>
