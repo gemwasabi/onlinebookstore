@@ -76,14 +76,17 @@ function Sidebar() {
             </Link>
           </li>
 
-          <li
-            className={`sidebar-item ${isActive(
-              "/admin/tufat"
-            )}`}
-          >
+          <li className={`sidebar-item ${isActive("/admin/tufat")}`}>
             <Link className="sidebar-link" to="/admin/tufat">
               <i className="align-middle" data-feather="sliders"></i>
               <span className="align-middle">Tufat</span>
+            </Link>
+          </li>
+
+          <li className={`sidebar-item ${isActive("/admin/slider")}`}>
+            <Link className="sidebar-link" to="/admin/slider">
+              <i className="align-middle" data-feather="sliders"></i>
+              <span className="align-middle">Slider</span>
             </Link>
           </li>
         </ul>

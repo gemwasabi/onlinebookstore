@@ -71,6 +71,13 @@ const Navbar = () => {
             {currentUser ? (
               <>
                 <Link
+                  to="/procesimi"
+                  className="block px-4 py-2 text-sm text-[#6e5d5d] hover:bg-[#BDC6BA]"
+                  onClick={closeDropdown}
+                >
+                  Shporta
+                </Link>
+                <Link
                   to="/settings"
                   className="block px-4 py-2 text-sm text-[#6e5d5d] hover:bg-[#BDC6BA]"
                   onClick={closeDropdown}

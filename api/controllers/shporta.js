@@ -10,3 +10,28 @@ export const shtoLiber = (req, res) => {
     return res.status(200).json("Libri u shtua me sukses.");
   });
 };
+
+export const merrLibrat = (req, res) => {
+  const q = `
+    SELECT librat.*, shporta.id as shporta_id
+    FROM  shporta 
+    LEFT JOIN librat ON shporta.libri_id = librat.id
+    WHERE shporta.perdoruesi_id = ?
+  `;
+
+  const perdoruesiId = 1;
+
+  db.query(q, [perdoruesiId], (err, data) => {
+    if (err) return res.json(err);
+    return res.status(200).json(data);
+  });
+};
+
+export const shlyejLibrin = (req, res) => {
+  const q = "delete from shporta where id = ?";
+
+  db.query(q, [req.params.id], (err, data) => {
+    if (err) return res.json(err);
+    return res.status(200).json("Libri u shlye me sukses!");
+  });
+};

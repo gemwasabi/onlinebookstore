@@ -37,6 +37,9 @@ import TufatShto from "./faqet/admin/Tufat/Shto";
 import TufatEdito from "./faqet/admin/Tufat/Edito";
 import Booksearch from "./komponentet/Booksearch";
 
+import Slider from "./faqet/admin/Slider/Lista";
+import SliderShto from "./faqet/admin/Slider/Shto";
+
 const Struktura = () => {
   return (
     <div>
@@ -154,6 +157,14 @@ const router = createBrowserRouter([
         path: "/admin/shtoTufe",
         element: <TufatShto />,
       },
+      {
+        path: "/admin/slider",
+        element: <Slider />,
+      },
+      {
+        path: "/admin/shtoSlider",
+        element: <SliderShto />,
+      }
     ],
   },
   {

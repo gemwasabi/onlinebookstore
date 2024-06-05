@@ -10,19 +10,28 @@ import Autoslider from "../komponentet/Autoslider";
 const Ballina = () => {
   const { currentUser, ckycu } = useContext(AuthContext);
   const [tufat, setTufat] = useState([]);
+  const [slider, setSlider] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(
+        const resTufat = await axios.get(
           "http://localhost:8800/api/tufat/tufatMeLibra"
         );
-        if (Array.isArray(res.data)) {
-          setTufat(res.data);
+        const resSlider = await axios.get("http://localhost:8800/api/slider");
+
+        if (Array.isArray(resTufat.data)) {
+          setTufat(resTufat.data);
         } else {
           setTufat([]);
+        }
+
+        if (Array.isArray(resSlider.data)) {
+          setSlider(resSlider.data.map(slide => `/assets/img/slider/${slide.foto}`));
+        } else {
+          setSlider([]);
         }
       } catch (error) {
         setError(error);
@@ -50,21 +59,6 @@ const Ballina = () => {
     );
   }
 
-  const books = [
-    { title: "Rest Deck", src: cover },
-    { title: "But What Will People Say?", src: cover },
-    { title: "Burnout", src: cover },
-    { title: "The Body Keeps the Score", src: cover },
-    { title: "The Body is Not an Apology", src: cover },
-    { title: "Good Inside", src: cover },
-    { title: "The Anxious Generation", src: cover },
-    { title: "The Anxious Generation", src: cover },
-    { title: "The Anxious Generation", src: cover },
-    { title: "The Anxious Generation", src: cover },
-    { title: "The Anxious Generation", src: cover },
-    { title: "The Anxious Generation", src: cover },
-  ];
-
   const books_two = [
     {
       title: "Another Last Call: Poems on Addiction and Deliverance",
@@ -80,53 +74,12 @@ const Ballina = () => {
       originalPrice: "18.00",
       imgSrc: cover,
     },
-    {
-      title: "Another Last Call: Poems on Addiction and Deliverance",
-      author: "Kathy Acker & Paul Zelevansky",
-      price: "20.41",
-      originalPrice: "24.95",
-      imgSrc: cover,
-    },
-    {
-      title: "Drunk Mom: A Memoir",
-      author: "Jowita Bydlowska",
-      price: "16.74",
-      originalPrice: "18.00",
-      imgSrc: cover,
-    },
-    {
-      title: "Another Last Call: Poems on Addiction and Deliverance",
-      author: "Kathy Acker & Paul Zelevansky",
-      price: "20.41",
-      originalPrice: "24.95",
-      imgSrc: cover,
-    },
-    {
-      title: "Drunk Mom: A Memoir",
-      author: "Jowita Bydlowska",
-      price: "16.74",
-      originalPrice: "18.00",
-      imgSrc: cover,
-    },
-    {
-      title: "Another Last Call: Poems on Addiction and Deliverance",
-      author: "Kathy Acker & Paul Zelevansky",
-      price: "20.41",
-      originalPrice: "24.95",
-      imgSrc: cover,
-    },
-    {
-      title: "Drunk Mom: A Memoir",
-      author: "Jowita Bydlowska",
-      price: "16.74",
-      originalPrice: "18.00",
-      imgSrc: cover,
-    },
+    // ... other books
   ];
 
   return (
     <>
-      <Autoslider></Autoslider>
+      <Autoslider sliderImages={slider} />
 
       <div className="bg-[#7B8E76] py-9">
         {tufat.map((tufa, index) => (
