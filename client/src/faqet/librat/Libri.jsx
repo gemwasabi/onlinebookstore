@@ -1,29 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../../context/authContext";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const Libri = () => {
-  const [inputs, setInputs] = useState({
-    emri: "",
-    isbn: "",
-    pershkrimi: "",
-  });
-
-  const navigate = useNavigate();
-
+  const { currentUser, ckycu } = useContext(AuthContext);
   const [libri, setLibrin] = useState({});
-
   const location = useLocation();
-
   const libriId = location.pathname.split("/")[2];
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get(
-        "http://localhost:8800/api/librat/" + libriId
-      );
       try {
+        const res = await axios.get(
+          "http://localhost:8800/api/librat/" + libriId
+        );
         setLibrin(res.data);
         window.scroll(0, 0);
       } catch (error) {
@@ -32,6 +26,23 @@ const Libri = () => {
     };
     fetchData();
   }, [libriId]);
+
+  const addToCart = async () => {
+    try {
+      await axios.post("http://localhost:8800/api/shporta", {
+        currentUser,
+        libriId,
+      });
+      toast.success("Libri u shtua në shportë!", {
+        position: "top-right",
+      });
+    } catch (error) {
+      console.error("Error adding book to cart:", error);
+      toast.error("Ka ndodhur nje gabim gjatë procesit!", {
+        position: "top-right",
+      });
+    }
+  };
 
   return (
     <div className="font-sans bg-[#7b8e76] min-h-screen">
@@ -65,7 +76,10 @@ const Libri = () => {
               </select>
             </div>
             <div className="flex space-x-4 mb-6">
-              <button className="bg-[#7b8e76] text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200 hover:bg-[#6d7b69]">
+              <button
+                className="bg-[#7b8e76] text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200 hover:bg-[#6d7b69]"
+                onClick={addToCart}
+              >
                 <img
                   src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1716846152/solar_bag-bold_2_nwtgvx.svg"
                   alt="Add to Cart"
@@ -85,9 +99,7 @@ const Libri = () => {
             <h2 className="text-2xl font-semibold mb-2 text-[#848a81]">
               Pershkrimi:
             </h2>
-            <p className="text-[#848a81] mb-6">
-              {libri.pershkrimi}
-            </p>
+            <p className="text-[#848a81] mb-6">{libri.pershkrimi}</p>
             <div>
               <h2 className="text-[#848a81] text-2xl font-semibold mb-2">
                 Detajet e produktit:
@@ -118,6 +130,7 @@ const Libri = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

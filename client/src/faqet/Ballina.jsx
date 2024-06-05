@@ -138,9 +138,12 @@ const Ballina = () => {
               <h2 className="text-xl md:text-2xl font-bold mb-4 text-[#282c26]">
                 {tufa.emri}
               </h2>
-              <a href="#!" className="text-purple-700 text-lg">
+              <Link
+                className="text-purple-700 text-lg"
+                to={"/pamjaTufes/" + tufa.id}
+              >
                 Shfaq të gjitha ({tufa.librat.length})
-              </a>
+              </Link>
             </div>
             <div className="relative flex items-center">
               <button className="absolute -left-16 p-3 m-3 rounded-full z-10 hidden lg:block">
@@ -179,10 +182,12 @@ const Ballina = () => {
             </a>
           </div>
 
-
           <div className="grid grid-cols-1 min-w-[300px] lg:grid-cols-4 md:grid-cols-2 gap-4 lg:gap-4 md:gap-4">
             {books_two.map((book, index) => (
-              <div key={index} className="m-2 group p-5 bg-white/10 rounded-lg flex flex-col items-center justify-center gap-2 relative after:absolute after:h-full after:bg-[#7B8E76] z-20 shadow-lg after:-z-20 after:w-full after:inset-0 after:rounded-lg transition-all duration-300 hover:transition-all hover:duration-300 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden cursor-pointer after:-translate-y-full after:hover:translate-y-0 [&amp;_p]:delay-200 [&amp;_p]:transition-all">
+              <div
+                key={index}
+                className="m-2 group p-5 bg-white/10 rounded-lg flex flex-col items-center justify-center gap-2 relative after:absolute after:h-full after:bg-[#7B8E76] z-20 shadow-lg after:-z-20 after:w-full after:inset-0 after:rounded-lg transition-all duration-300 hover:transition-all hover:duration-300 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden cursor-pointer after:-translate-y-full after:hover:translate-y-0 [&amp;_p]:delay-200 [&amp;_p]:transition-all"
+              >
                 <img
                   className="w-40 h-40 object-contain rounded-md min-h-40 min-w-40"
                   src={book.imgSrc}
@@ -206,9 +211,6 @@ const Ballina = () => {
             ))}
           </div>
         </div>
-
-
-
       </div>
     </>
   );

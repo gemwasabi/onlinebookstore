@@ -56,7 +56,7 @@ export const merrTufatMeLibra = (req, res) => {
 export const merrTufen = (req, res) => {
   const q1 = "SELECT * FROM tufat WHERE id = ?";
   const q2 = `
-    SELECT librat.id AS libri_id, librat.emri AS libri_emri 
+    SELECT librat.*
     FROM tufat_detal 
     LEFT JOIN librat ON librat.id = tufat_detal.libri_id 
     WHERE tufa_id = ?
@@ -74,10 +74,7 @@ export const merrTufen = (req, res) => {
 
       const tufa = {
         ...tufaData[0],
-        librat: booksData.map((row) => ({
-          id: row.libri_id,
-          emri: row.libri_emri,
-        })),
+        librat: booksData
       };
 
       return res.status(200).json(tufa);

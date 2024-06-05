@@ -37,7 +37,6 @@ import TufatShto from "./faqet/admin/Tufat/Shto";
 import TufatEdito from "./faqet/admin/Tufat/Edito";
 import Booksearch from "./komponentet/Booksearch";
 
-
 const Struktura = () => {
   return (
     <div>
@@ -166,14 +165,13 @@ const router = createBrowserRouter([
         element: <CheckoutProcess />,
       },
       {
-        path: "/shiko",
-        element: <ShikoMeShume />,
-      },
-      {
         path: "/libri/:id",
         element: <Libri />,
       },
-      
+      {
+        path: "/pamjaTufes/:id",
+        element: <ShikoMeShume />,
+      },
     ],
   },
 ]);

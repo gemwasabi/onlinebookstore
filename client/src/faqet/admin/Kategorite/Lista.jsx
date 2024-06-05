@@ -84,7 +84,7 @@ function Lista() {
           </div>
         </div>
       </div>
-      <ToastContainer /> {/* To render toast notifications */}
+      <ToastContainer />
     </div>
   );
 }

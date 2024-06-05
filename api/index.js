@@ -4,6 +4,7 @@ import perdoruesitRoutes from "./routes/perdoruesit.js"
 import libratRoutes from "./routes/librat.js"
 import kategoriteRoutes from "./routes/kategorite.js"
 import tufatRoutes from "./routes/tufat.js"
+import shportaRoutes from "./routes/shporta.js"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 
@@ -18,6 +19,7 @@ app.use("/api/perdoruesit", perdoruesitRoutes)
 app.use("/api/librat", libratRoutes)
 app.use("/api/kategorite", kategoriteRoutes)
 app.use("/api/tufat", tufatRoutes)
+app.use("/api/shporta", shportaRoutes)
 
 app.listen(8800, () => {
     console.log("jeni konektuar!");
