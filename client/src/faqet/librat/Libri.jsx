@@ -25,6 +25,7 @@ const Libri = () => {
       );
       try {
         setLibrin(res.data);
+        window.scroll(0, 0);
       } catch (error) {
         console.log(error);
       }
