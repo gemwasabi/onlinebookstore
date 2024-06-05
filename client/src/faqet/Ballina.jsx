@@ -63,7 +63,6 @@ const Ballina = () => {
     { title: "The Anxious Generation", src: cover },
     { title: "The Anxious Generation", src: cover },
     { title: "The Anxious Generation", src: cover },
-    // Add more books as needed
   ];
 
   const books_two = [
@@ -71,59 +70,58 @@ const Ballina = () => {
       title: "Another Last Call: Poems on Addiction and Deliverance",
       author: "Kathy Acker & Paul Zelevansky",
       price: "$20.41",
-      originalPrice: "$24.95",
+      originalPrice: "24.95",
       imgSrc: cover,
     },
     {
       title: "Drunk Mom: A Memoir",
       author: "Jowita Bydlowska",
-      price: "$16.74",
-      originalPrice: "$18.00",
+      price: "16.74",
+      originalPrice: "18.00",
       imgSrc: cover,
     },
     {
       title: "Another Last Call: Poems on Addiction and Deliverance",
       author: "Kathy Acker & Paul Zelevansky",
-      price: "$20.41",
-      originalPrice: "$24.95",
+      price: "20.41",
+      originalPrice: "24.95",
       imgSrc: cover,
     },
     {
       title: "Drunk Mom: A Memoir",
       author: "Jowita Bydlowska",
-      price: "$16.74",
-      originalPrice: "$18.00",
+      price: "16.74",
+      originalPrice: "18.00",
       imgSrc: cover,
     },
     {
       title: "Another Last Call: Poems on Addiction and Deliverance",
       author: "Kathy Acker & Paul Zelevansky",
-      price: "$20.41",
-      originalPrice: "$24.95",
+      price: "20.41",
+      originalPrice: "24.95",
       imgSrc: cover,
     },
     {
       title: "Drunk Mom: A Memoir",
       author: "Jowita Bydlowska",
-      price: "$16.74",
-      originalPrice: "$18.00",
+      price: "16.74",
+      originalPrice: "18.00",
       imgSrc: cover,
     },
     {
       title: "Another Last Call: Poems on Addiction and Deliverance",
       author: "Kathy Acker & Paul Zelevansky",
-      price: "$20.41",
-      originalPrice: "$24.95",
+      price: "20.41",
+      originalPrice: "24.95",
       imgSrc: cover,
     },
     {
       title: "Drunk Mom: A Memoir",
       author: "Jowita Bydlowska",
-      price: "$16.74",
-      originalPrice: "$18.00",
+      price: "16.74",
+      originalPrice: "18.00",
       imgSrc: cover,
     },
-    // Add more book objects as needed
   ];
 
   return (
@@ -172,44 +170,45 @@ const Ballina = () => {
         ))}
         ;
         <div className="w-full mx-auto lg:container p-5 bg-[#BDC6BA] my-10">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">
+          <div className="mb-8 flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-[#817E82]">
               Recovery: A Journey Toward Wholeness & Balance
             </h1>
-          </div>
-
-          <div className="text-right mb-4">
-            <a href="#" className="text-purple-900 font-semibold">
+            <a href="#" className="text-[#0D78B4] font-semibold">
               View all (95)
             </a>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+          <div className="grid grid-cols-1 min-w-[300px] lg:grid-cols-4 md:grid-cols-2 gap-4 lg:gap-4 md:gap-4">
             {books_two.map((book, index) => (
-              <div key={index} className="flex-shrink-0 flex">
-                <div className="flex justify-between">
-                  <img
-                    className="h-44 w-22 object-cover"
-                    src={book.imgSrc}
-                    alt={book.title}
-                  />
-                  <div>
-                    <h2 className="text-lg font-semibold text-purple-900">
-                      {book.title}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-2">{book.author}</p>
-                    <div className="text-lg font-bold text-purple-900">
-                      {book.price}{" "}
-                      <span className="line-through text-red-600">
-                        {book.originalPrice}
-                      </span>
-                    </div>
-                  </div>
+              <div key={index} className="m-2 group p-5 bg-white/10 rounded-lg flex flex-col items-center justify-center gap-2 relative after:absolute after:h-full after:bg-[#7B8E76] z-20 shadow-lg after:-z-20 after:w-full after:inset-0 after:rounded-lg transition-all duration-300 hover:transition-all hover:duration-300 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden cursor-pointer after:-translate-y-full after:hover:translate-y-0 [&amp;_p]:delay-200 [&amp;_p]:transition-all">
+                <img
+                  className="w-40 h-40 object-contain rounded-md min-h-40 min-w-40"
+                  src={book.imgSrc}
+                  alt={book.title}
+                />
+                <p className="cardtxt font-semibold justify-center text-[#817E82] tracking-wider group-hover:text-gray-700 text-sm h-16 w-auto overflow-hidden">
+                  {book.title}
+                </p>
+                <p className="text-[#5e5d5f] text-xs line-through">
+                  ${book.originalPrice}
+                </p>
+                <p className="blueberry font-semibold text-gray-600 text-xs">
+                  Çmimi i zbritur: ${book.price}
+                </p>
+                <div className="ordernow flex flex-row justify-center items-center w-full">
+                  <p className="btun4 lg:inline-flex items-center gap-3 group-hover:bg-white/10 bg-[#BDC6BA] shadow-[10px_10px_150px_#ff9f0d] cursor-pointer py-2 px-4 text-sm font-semibold rounded-full butn">
+                    Bleje tani
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+
+
       </div>
     </>
   );

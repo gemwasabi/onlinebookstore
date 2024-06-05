@@ -16,6 +16,7 @@ import LibratShto from "./faqet/librat/Shto";
 import SidebarAdmin from "./komponentet/admin/Sidebar";
 import NavbarAdmin from "./komponentet/admin/Navbar";
 import FooterAdmin from "./komponentet/admin/Footer";
+import ShikoMeShume from "./komponentet/shikoMeShume";
 
 import CheckoutProcess from "./faqet/checkout/CheckoutProcess";
 
@@ -165,9 +166,14 @@ const router = createBrowserRouter([
         element: <CheckoutProcess />,
       },
       {
+        path: "/shiko",
+        element: <ShikoMeShume />,
+      },
+      {
         path: "/libri/:id",
         element: <Libri />,
       },
+      
     ],
   },
 ]);
