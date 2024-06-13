@@ -67,10 +67,10 @@ function Sidebar() {
 
           <li
             className={`sidebar-item ${isActive(
-              "/admin/porosite/shfaqPorosite"
+              "/admin/shfaqPorosite"
             )}`}
           >
-            <Link className="sidebar-link" to="/admin/porosite/shfaqPorosite">
+            <Link className="sidebar-link" to="/admin/shfaqPorosite">
               <i className="align-middle" data-feather="sliders"></i>
               <span className="align-middle">Porosite</span>
             </Link>

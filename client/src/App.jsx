@@ -40,6 +40,8 @@ import Booksearch from "./komponentet/Booksearch";
 import Slider from "./faqet/admin/Slider/Lista";
 import SliderShto from "./faqet/admin/Slider/Shto";
 
+import ShfaqPorosite from "./faqet/admin/Porosite/Lista";
+
 const Struktura = () => {
   return (
     <div>
@@ -164,6 +166,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/shtoSlider",
         element: <SliderShto />,
+      },
+      {
+        path: "/admin/shfaqPorosite",
+        element: <ShfaqPorosite />,
       }
     ],
   },

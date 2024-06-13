@@ -9,11 +9,13 @@ import check from "../../assets/img/progress-bar/check.svg";
 import { AuthContext } from "../../context/authContext";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CheckoutProcess = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const { currentUser, ckycu } = useContext(AuthContext);
   const [books, setBooks] = useState([]);
+  const navigate = useNavigate();
 
   const [inputs, setInputs] = useState({
     emri: currentUser.emri,
@@ -29,6 +31,7 @@ const CheckoutProcess = () => {
     qyteti: "",
     kodi_postar: "",
     koment: "",
+    perdoruesi_id: currentUser.id,
   });
 
   const trajtoNdryshimet = (e) => {
@@ -89,7 +92,14 @@ const CheckoutProcess = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post("http://localhost:8800/api/librat", inputs);
+      await axios.post("http://localhost:8800/api/porosite", inputs);
+
+      await axios.delete("http://localhost:8800/api/shporta/pastro", {
+        params: {
+          userId: currentUser.id,
+        },
+      });
+
       navigate("/");
     } catch (err) {
       // setError(err.response.data);

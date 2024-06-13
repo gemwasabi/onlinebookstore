@@ -32,6 +32,15 @@ export const shlyejLibrin = (req, res) => {
 
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.json(err);
-    return res.status(200).json("Libri u shlye me sukses!");
+    return res.status(200).json("test test!");
+  });
+};
+
+export const pastroShporten = (req, res) => {
+  const q = "DELETE FROM shporta WHERE perdoruesi_id = ?";
+
+  db.query(q, [req.query.userId], (err, data) => {
+    if (err) return res.json(err);
+    return res.status(200).json("Shporta u pastrua me sukses!");
   });
 };
