@@ -784,6 +784,10 @@ body {
   margin-right: 2rem;
 }
 
+.mt-0 {
+  margin-top: 0px;
+}
+
 .mt-1 {
   margin-top: 0.25rem;
 }
@@ -2100,11 +2104,6 @@ input:-webkit-autofill:active {
 .hover\:text-\[\#BCC5B8\]:hover {
   --tw-text-opacity: 1;
   color: rgb(188 197 184 / var(--tw-text-opacity));
-}
-
-.hover\:text-gray-400:hover {
-  --tw-text-opacity: 1;
-  color: rgb(156 163 175 / var(--tw-text-opacity));
 }
 
 .hover\:no-underline:hover {

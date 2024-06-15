@@ -58,10 +58,10 @@ const Kategoria = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center bg-[#7B8E76] py-10">
-      <div className="container mx-auto px-4 mb-8">
+    <div className="min-h-screen flex flex-col justify-center bg-[#7B8E76] p-2">
+      <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row justify-between items-center">
-          <h1 className="text-white text-2xl mb-4 lg:mb-0">
+          <h1 className="text-white text-2xl mb-4 lg:mb-0 mt-0">
             {selectedCategory ? `Kategoria: ${selectedCategory}` : "Të gjitha kategoritë"}
           </h1>
           <div className="mb-4 lg:mb-0 lg:ml-auto">
@@ -105,7 +105,7 @@ const Kategoria = () => {
             </div>
           ))}
         </div>
-        <div className="mt-10 flex justify-center">
+        <div className="mt-4 mb-2 flex justify-center">
           {currentPage > 1 && (
             <button
               className="px-3 py-1 bg-[#BDC6BA] text-white rounded-md mr-2"
