@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import logo from "../assets/img/lype.svg";
 import scroll from "../assets/img/scroll.svg";
@@ -51,6 +51,7 @@ const Kerko = () => {
         </div>
       )}
       <div
+      id="search-section"
         className={`min-h-screen w-screen relative flex flex-col items-center ${
           isActive ? "justify-start" : "justify-center"
         }`}

@@ -1,4 +1,3 @@
-import React from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { AuthContextProvider } from "./context/authContext";
 import Regjistrohu from "./faqet/Regjistrohu";
@@ -7,11 +6,11 @@ import Libri from "./faqet/librat/Libri";
 import Ballina from "./faqet/Ballina";
 import Navbar from "./komponentet/Navbar";
 import Footer from "./komponentet/Footer";
-import Librii from "./faqet/Librii";
 import "./output.css";
 /*import "../node_modules/react-grid-layout/css/styles.css";
 import "../node_modules/react-resizable/css/styles.css";*/
 import Kerko from "./faqet/Kerko";
+import Kategoria from "./faqet/Kategoria";
 import LibratShto from "./faqet/librat/Shto";
 import SidebarAdmin from "./komponentet/admin/Sidebar";
 import NavbarAdmin from "./komponentet/admin/Navbar";
@@ -189,6 +188,10 @@ const router = createBrowserRouter([
         path: "/pamjaTufes/:id",
         element: <ShikoMeShume />,
       },
+      {
+        path: "/kategoria",
+        element: <Kategoria />,
+      }
     ],
   },
 ]);

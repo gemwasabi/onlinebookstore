@@ -1,4 +1,15 @@
 import { db } from "../db.js";
+import multer from "multer";
+import path from "path"; 
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.resolve(__dirname, "../client/public/assets/img/bookcovers/")); 
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
 
 export const merrLibrat = (req, res) => {
   const q = `
@@ -32,7 +43,7 @@ export const shtoLiber = (req, res) => {
     req.body.isbn,
     req.body.pershkrimi,
     req.body.kategoria,
-    filename, // Save only the filename
+    filename,
   ];
 
   db.query(q, [vlerat], (err, data) => {
@@ -54,7 +65,6 @@ export const editoLibrin = (req, res) => {
   const { emri, isbn, pershkrimi, kategoria_id, id } = req.body;
   let filename = null;
 
-  // Check if a new file is uploaded
   if (req.file) {
     filename = req.file.filename;
   }

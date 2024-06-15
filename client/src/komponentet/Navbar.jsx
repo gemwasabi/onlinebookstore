@@ -1,11 +1,10 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../context/authContext";
-import search from "../assets/img/Book.svg";
 import { Link } from "react-router-dom";
+import SearchIcon from "../assets/img/search.svg";
 
 const Navbar = () => {
   const { currentUser, ckycu } = useContext(AuthContext);
-  const [isActive, setIsActive] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -41,23 +40,18 @@ const Navbar = () => {
           />
         </div>
       </div>
-      <div className="relative w-full max-w-[438px] my-4 md:my-0">
-        <input
-          type="text"
-          className={`transition-colors duration-200 w-full rounded-3xl border-4 border-[#ADBBAA] bg-[#BDC6BA] hover:drop-shadow-md p-2 outline-none placeholder:p-3 placeholder:text-left placeholder:font-sans placeholder:text-[#858B83] text-[#747474] hover:border-[#FFFFFF] hover:shadow active:border-[#FFFFFF] ${
-            isActive ? "" : "pr-12"
-          }`}
-          placeholder="kërko këtu..."
-          onFocus={() => setIsActive(true)}
-          onBlur={() => setIsActive(false)}
+      <div className="relative gap-4 my-4 md:my-0 flex items-center no-underline">
+      <a href="/#search-section">
+        <img
+          src={SearchIcon}
+          alt="search icon"
+          className="h-6 md:h-8"
         />
-        {!isActive && (
-          <img
-            className="w-10 h-10 absolute right-0 top-0 mt-1 mr-3"
-            src={search}
-            alt="search ikona"
-          />
-        )}
+      </a>
+
+        <Link to="/kategoria" className="text-white text-lg no-underline">
+          Kategoria
+        </Link>
       </div>
       <div className="hidden md:flex items-center relative">
         <img
