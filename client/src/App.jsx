@@ -17,6 +17,8 @@ import NavbarAdmin from "./komponentet/admin/Navbar";
 import FooterAdmin from "./komponentet/admin/Footer";
 import ShikoMeShume from "./komponentet/shikoMeShume";
 
+import Kontakti from "./faqet/Kontakti";
+
 import CheckoutProcess from "./faqet/checkout/CheckoutProcess";
 
 import ShtoLiber from "./faqet/admin/Librat/Shto";
@@ -191,7 +193,11 @@ const router = createBrowserRouter([
       {
         path: "/kategoria",
         element: <Kategoria />,
-      }
+      },
+      {
+        path: "/kontakti",
+        element: <Kontakti />,
+      },
     ],
   },
 ]);
