@@ -1,13 +1,16 @@
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/img/lype.svg";
-import axios from "axios";
 import warning from "../assets/img/warning-icon.svg";
 import { AuthContext } from "../context/authContext";
 
 const Kycu = () => {
+  const location = useLocation();
+  const { state } = location;
+  const regjistrohuEmail = state?.emaili || "";
+
   const [inputs, setInputs] = useState({
-    emaili: "",
+    emaili: regjistrohuEmail,
     fjalekalimi: "",
   });
 
@@ -17,9 +20,20 @@ const Kycu = () => {
   });
 
   const [error, setError] = useState(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
   const { kycu } = useContext(AuthContext);
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("autoLoginEmail");
+    if (storedEmail && !inputs.emaili) {
+      setInputs((prevInputs) => ({
+        ...prevInputs,
+        emaili: storedEmail,
+      }));
+    }
+  }, [inputs.emaili]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,13 +58,15 @@ const Kycu = () => {
   const trajtoNdryshimet = (e) => {
     const { name, value } = e.target;
     setInputs((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: name === "emaili" ? validateEmail(value) : validatePassword(value) }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: name === "emaili" ? validateEmail(value) : validatePassword(value),
+    }));
   };
 
   const trajtoSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form before submission
     const newErrors = {
       emaili: validateEmail(inputs.emaili),
       fjalekalimi: validatePassword(inputs.fjalekalimi),
@@ -58,7 +74,6 @@ const Kycu = () => {
 
     setErrors(newErrors);
 
-    // If there are errors, prevent form submission
     if (newErrors.emaili || newErrors.fjalekalimi) {
       return;
     }
@@ -71,23 +86,17 @@ const Kycu = () => {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      trajtoSubmit(e);
-    }
-  };
-
   return (
     <div className="w-screen bg-[#7B8E76]">
       <div className="flex justify-center">
         <img
-          className="my-[50px] absolute text-center lg:block hidden"
+          className="my-[100px] mt-2 absolute text-center lg:block lg:my-[50px] hidden"
           src={logo}
           alt="Logoja Lype"
         />
       </div>
-      <div className="relative mt-5 flex min-h-screen flex-col items-center justify-center overflow-hidden ">
-        <div className="h-screen w-full rounded-none bg-[#BCC5B8] px-[40px] pb-[30px] shadow-2xl sm:h-auto sm:w-[510px] sm:rounded-2xl">
+      <div className="relative flex mt-5 min-h-screen flex-col items-center justify-center overflow-hidden ">
+        <div className="h-screen w-ful rounded-none bg-[#BCC5B8] px-[40px] pb-[30px] shadow-2xl sm:h-auto sm:w-[510px] sm:rounded-2xl">
           {error && (
             <div className="mt-5 flex h-16 w-full items-center rounded-[10px] bg-[#d6a3a3] px-6 text-[20px] text-[#6e5d5d]">
               <span className="flex items-center">
@@ -101,9 +110,8 @@ const Kycu = () => {
               <input
                 type="email"
                 name="emaili"
-                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
-                  errors.emaili ? "border-red-500" : ""
-                }`}
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${errors.emaili ? "border-red-500" : ""
+                  }`}
                 placeholder="Shkruaj Emailin"
                 value={inputs.emaili}
                 onChange={trajtoNdryshimet}
@@ -124,13 +132,11 @@ const Kycu = () => {
               <input
                 type="password"
                 name="fjalekalimi"
-                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
-                  errors.fjalekalimi ? "border-red-500" : ""
-                }`}
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${errors.fjalekalimi ? "border-red-500" : ""
+                  }`}
                 placeholder="Shkruaj Fjalekalimin"
                 value={inputs.fjalekalimi}
                 onChange={trajtoNdryshimet}
-                onKeyPress={handleKeyPress}
               />
               <label
                 htmlFor=""
@@ -144,16 +150,21 @@ const Kycu = () => {
                 </div>
               )}
             </div>
-            <div className="flex justify-between pt-5 lg:pt-4 md:pt-4">
-              <span className="text-lg text-[#757C73]">
-                <input type="checkbox" className="border-none bg-inherit" /> Më
-                mbaj në mend
-              </span>
+            <div className="flex justify-between pt-5 pb-0 lg:pt-4 md:pt-4">
+              <label className="flex items-center text-lg text-[#757C73]">
+                <input
+                  type="checkbox"
+                  className="border-none bg-inherit"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <span className="ml-2">Më mbaj në mend</span>
+              </label>
               <span className="text-lg text-[#757C73] underline">
                 <a href="#">Ke harruar fjalëkalimin?</a>
               </span>
             </div>
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center">
               <button
                 type="submit"
                 onClick={trajtoSubmit}
@@ -161,6 +172,9 @@ const Kycu = () => {
               >
                 kyçu
               </button>
+              <span className="text-lg text-[#757C73] underline mt-2">
+                <a href="/regjistrohu">Nuk kam llogari</a>
+              </span>
             </div>
           </form>
         </div>
