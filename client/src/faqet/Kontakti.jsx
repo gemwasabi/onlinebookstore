@@ -1,4 +1,3 @@
-import React from 'react';
 import ilustrimi from "../assets/img/kontakt.png";
 import emailIcon from "../assets/img/email.svg";
 import locationIcon from "../assets/img/location.svg";
