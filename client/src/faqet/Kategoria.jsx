@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from "react";
+import {useContext, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../context/authContext";
 import { toast, ToastContainer } from "react-toastify";
+import Select from 'react-select';
 
 const Kategoria = () => {
   const [librat, setLibrat] = useState([]);
   const [filteredLibrat, setFilteredLibrat] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage] = useState(8);
+  const { currentUser } = useContext(AuthContext);
+
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,12 +33,24 @@ const Kategoria = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedCategory === "") {
+    const params = new URLSearchParams(location.search);
+    const selectedCategory = params.get('kategoria');
+    if (selectedCategory) {
+      setSelectedCategories([{ value: selectedCategory, label: selectedCategory }]);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (selectedCategories.length === 0) {
       setFilteredLibrat(librat);
     } else {
-      setFilteredLibrat(librat.filter((libri) => libri.emri_kategorise === selectedCategory));
+      setFilteredLibrat(
+        librat.filter((libri) =>
+          selectedCategories.some((category) => category.value === libri.emri_kategorise)
+        )
+      );
     }
-  }, [selectedCategory, librat]);
+  }, [selectedCategories, librat]);
 
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
@@ -57,25 +75,34 @@ const Kategoria = () => {
     }
   };
 
+  const handleCategoryChange = (selectedOptions) => {
+    setSelectedCategories(selectedOptions || []);
+  };
+
+  const options = categories
+    .map((category) => ({
+      value: category.emri,
+      label: category.emri,
+    }))
+    .filter((option) => !selectedCategories.some((category) => category.value === option.value));
+
   return (
     <div className="min-h-screen flex flex-col justify-center bg-[#7B8E76] p-2">
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row justify-between items-center">
           <h1 className="text-white text-2xl mb-4 lg:mb-0 mt-0">
-            {selectedCategory ? `Kategoria: ${selectedCategory}` : "Të gjitha kategoritë"}
+            {selectedCategories.length > 0
+              ? `Kategoriat: ${selectedCategories.map(cat => cat.label).join(', ')}`
+              : "Të gjitha kategoritë"}
           </h1>
-          <div className="mb-4 lg:mb-0 lg:ml-auto">
-            <select
-              className="px-3 py-2 bg-[#BDC6BA] text-white rounded-md"
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="">Zgjedh kategorinë</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.emri}>
-                  {category.emri}
-                </option>
-              ))}
-            </select>
+          <div className="mb-4 lg:mb-0 lg:ml-auto w-full lg:w-auto">
+            <Select
+              options={options}
+              onChange={handleCategoryChange}
+              placeholder="Zgjedh kategoritë"
+              isMulti
+              className="w-full lg:w-64 z-30"
+            />
           </div>
         </div>
       </div>
@@ -97,9 +124,9 @@ const Kategoria = () => {
               <div className="ordernow flex flex-row justify-center items-center w-full">
                 <p
                   className="btun4 lg:inline-flex items-center gap-3 group-hover:bg-white/10 bg-[#BDC6BA] shadow-[10px_10px_150px_#ff9f0d] cursor-pointer py-2 px-4 text-sm font-semibold rounded-full butn"
-                  onClick={() => handleAddToCart(libri)}
-                >
-                  Bleje tani
+                  onClick={() => handleAddToCart(libri.id)}
+                  >
+                    Shto në shportë
                 </p>
               </div>
             </div>

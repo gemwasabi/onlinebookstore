@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/authContext";
 import { Link } from "react-router-dom";
 import SearchIcon from "../assets/img/search.svg";
+import Filter from "../assets/img/filter.svg";
 
 const Navbar = () => {
   const { currentUser, ckycu } = useContext(AuthContext);
@@ -48,10 +49,13 @@ const Navbar = () => {
           className="h-6 md:h-8"
         />
       </a>
-
-        <Link to="/kategoria" className="text-white text-lg no-underline">
-          Kategoria
-        </Link>
+      <a href="/kategoria">
+        <img
+          src={Filter}
+          alt="search icon"
+          className="h-6 md:h-8"
+        />
+      </a>
       </div>
       <div className="hidden md:flex items-center relative">
         <img

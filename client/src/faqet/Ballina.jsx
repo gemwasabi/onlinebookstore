@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/authContext";
 import { Link } from "react-router-dom";
+import CategoryLinks from "../faqet/KategoriLink";
 import axios from "axios";
 import Slider from "react-slick";
 import cover from "../assets/img/bookcover.jpg";
@@ -93,6 +94,7 @@ const Ballina = () => {
 
   return (
     <>
+    <CategoryLinks />
       <Autoslider sliderImages={slider} />
 
       <div className="bg-[#7B8E76] py-9">
