@@ -1,5 +1,5 @@
-import {useContext, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import  {useContext, useState, useEffect } from "react";
+import {useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/authContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,6 +13,7 @@ const Kategoria = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage] = useState(8);
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const location = useLocation();
 
@@ -57,23 +58,6 @@ const Kategoria = () => {
   const currentBooks = filteredLibrat.slice(indexOfFirstBook, indexOfLastBook);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const handleAddToCart = async (book) => {
-    try {
-      await axios.post("http://localhost:8800/api/shporta", {
-        currentUser,
-        book,
-      });
-      toast.success("Libri u shtua në shportë!", {
-        position: "top-right",
-      });
-    } catch (error) {
-      console.error("Error adding book to cart:", error);
-      toast.error("Ka ndodhur nje gabim gjatë procesit!", {
-        position: "top-right",
-      });
-    }
-  };
 
   const handleCategoryChange = (selectedOptions) => {
     setSelectedCategories(selectedOptions || []);
@@ -124,9 +108,9 @@ const Kategoria = () => {
               <div className="ordernow flex flex-row justify-center items-center w-full">
                 <p
                   className="btun4 lg:inline-flex items-center gap-3 group-hover:bg-white/10 bg-[#BDC6BA] shadow-[10px_10px_150px_#ff9f0d] cursor-pointer py-2 px-4 text-sm font-semibold rounded-full butn"
-                  onClick={() => handleAddToCart(libri.id)}
+                  onClick={() => navigate(`/libri/${libri.id}`)}
                   >
-                    Shto në shportë
+                    Detajet
                 </p>
               </div>
             </div>
