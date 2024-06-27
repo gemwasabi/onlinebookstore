@@ -1,5 +1,11 @@
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import React from "react";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet
+} from "react-router-dom";
 import { AuthContextProvider } from "./context/authContext";
+import FAQ from "./faqet/FAQ"; // Import the FAQ component here
 import Regjistrohu from "./faqet/Regjistrohu";
 import Kycu from "./faqet/Kycu";
 import Libri from "./faqet/librat/Libri";
@@ -16,31 +22,23 @@ import SidebarAdmin from "./komponentet/admin/Sidebar";
 import NavbarAdmin from "./komponentet/admin/Navbar";
 import FooterAdmin from "./komponentet/admin/Footer";
 import ShikoMeShume from "./komponentet/shikoMeShume";
-
 import Kontakti from "./faqet/Kontakti";
-
 import CheckoutProcess from "./faqet/checkout/CheckoutProcess";
-
 import ShtoLiber from "./faqet/admin/Librat/Shto";
 import ShfaqLibrat from "./faqet/admin/Librat/Lista";
 import EditoLibrin from "./faqet/admin/Librat/Edito";
-
 import ShtoPerdorues from "./faqet/admin/Perdoruesit/Shto";
 import ShfaqPerdoruesin from "./faqet/admin/Perdoruesit/Lista";
 import EditoPerdoruesin from "./faqet/admin/Perdoruesit/Edito";
-
 import ShtoKategori from "./faqet/admin/Kategorite/Shto";
 import ShfaqKategorite from "./faqet/admin/Kategorite/Lista";
 import EditoKategorine from "./faqet/admin/Kategorite/Edito";
-
 import Tufat from "./faqet/admin/Tufat/Lista";
 import TufatShto from "./faqet/admin/Tufat/Shto";
 import TufatEdito from "./faqet/admin/Tufat/Edito";
 import Booksearch from "./komponentet/Booksearch";
-
 import Slider from "./faqet/admin/Slider/Lista";
 import SliderShto from "./faqet/admin/Slider/Shto";
-
 import ShfaqPorosite from "./faqet/admin/Porosite/Lista";
 
 const Struktura = () => {
@@ -55,6 +53,7 @@ const Struktura = () => {
     </div>
   );
 };
+
 const StrukturaNormale = () => {
   return (
     <>
@@ -64,6 +63,7 @@ const StrukturaNormale = () => {
     </>
   );
 };
+
 const StrukturaAdmin = () => {
   return (
     <div className="wrapper">
@@ -89,6 +89,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Ballina />,
+      },
+      {
+        path: "/faq",
+        element: <FAQ />, // Add FAQ component route
       },
     ],
   },
