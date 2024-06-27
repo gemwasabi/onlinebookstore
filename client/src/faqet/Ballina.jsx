@@ -97,7 +97,7 @@ const Ballina = () => {
     <CategoryLinks />
       <Autoslider sliderImages={slider} />
 
-      <div className="bg-[#7B8E76] py-9">
+      <div className="py-9">
         {tufat.map((tufa, index) => (
           <div
             className="w-full mx-auto lg:container p-10 bg-[#BDC6BA] rounded-2xl shadow sm:rounded-none my-5"

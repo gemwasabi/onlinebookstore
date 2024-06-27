@@ -14,12 +14,16 @@ export const shtoLiber = (req, res) => {
 export const merrLibrat = (req, res) => {
   const q = `
     SELECT librat.*, shporta.id as shporta_id
-    FROM  shporta 
+    FROM shporta 
     LEFT JOIN librat ON shporta.libri_id = librat.id
     WHERE shporta.perdoruesi_id = ?
   `;
 
-  const perdoruesiId = 1;
+  const perdoruesiId = req.query.userId;
+
+  if (!perdoruesiId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
 
   db.query(q, [perdoruesiId], (err, data) => {
     if (err) return res.json(err);

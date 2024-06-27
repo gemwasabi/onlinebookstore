@@ -15,6 +15,18 @@ const Autoslider = ({ sliderImages }) => {
     arrows: false,
   };
 
+  if (sliderImages.length === 1) {
+    return (
+      <div className="w-full min-h-[600px] h-[600px]">
+        <img
+          src={sliderImages[0]}
+          alt="Single Slide"
+          className="w-full h-full object-cover filter grayscale"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <Slider {...settings}>

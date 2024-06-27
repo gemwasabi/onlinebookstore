@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Outlet
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import { AuthContextProvider } from "./context/authContext";
 import FAQ from "./faqet/FAQ"; // Import the FAQ component here
 import Regjistrohu from "./faqet/Regjistrohu";
@@ -40,6 +36,7 @@ import Booksearch from "./komponentet/Booksearch";
 import Slider from "./faqet/admin/Slider/Lista";
 import SliderShto from "./faqet/admin/Slider/Shto";
 import ShfaqPorosite from "./faqet/admin/Porosite/Lista";
+import UserSettings from "./faqet/UserSettings";
 
 const Struktura = () => {
   return (
@@ -92,7 +89,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/faq",
-        element: <FAQ />, // Add FAQ component route
+        element: <FAQ />,
       },
     ],
   },
@@ -175,7 +172,7 @@ const router = createBrowserRouter([
       {
         path: "/admin/shfaqPorosite",
         element: <ShfaqPorosite />,
-      }
+      },
     ],
   },
   {
@@ -201,6 +198,10 @@ const router = createBrowserRouter([
       {
         path: "/kontakti",
         element: <Kontakti />,
+      },
+      {
+        path: "/sfondi",
+        element: <UserSettings />,
       },
     ],
   },

@@ -9,7 +9,7 @@ import check from "../../assets/img/progress-bar/check.svg";
 import { AuthContext } from "../../context/authContext";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 
 const CheckoutProcess = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -17,11 +17,17 @@ const CheckoutProcess = () => {
   const [books, setBooks] = useState([]);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/");
+    }
+  }, [currentUser, navigate]);
+
   const [inputs, setInputs] = useState({
-    emri: currentUser.emri,
-    mbiemri: currentUser.mbiemri,
+    emri: currentUser ? currentUser.emri : "",
+    mbiemri: currentUser ? currentUser.mbiemri : "",
     numri_telefonit: "",
-    emaili: currentUser.emaili,
+    emaili: currentUser ? currentUser.emaili : "",
     emri_ne_kartele: "",
     numri_karteles: "",
     data_skadimit: "",
@@ -31,11 +37,13 @@ const CheckoutProcess = () => {
     qyteti: "",
     kodi_postar: "",
     koment: "",
-    perdoruesi_id: currentUser.id,
+    perdoruesi_id: currentUser ? currentUser.id : "",
   });
 
   const trajtoNdryshimet = (e) => {
-    setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (currentUser) {
+      setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    }
   };
 
   const nextStep = () => {

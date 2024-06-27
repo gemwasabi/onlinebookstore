@@ -123,12 +123,12 @@ const Kycu = () => {
                 Emaili
               </label>
               {errors.emaili && (
-                <div className="text-sm text-red-500 ml-[10px] mt-1 absolute left-0">
+                <div className="text-sm text-red-500 ml-[10px] mt-1 left-0">
                   {errors.emaili}
                 </div>
               )}
             </div>
-            <div className="relative py-[20px]">
+            <div className="relative">
               <input
                 type="password"
                 name="fjalekalimi"
@@ -145,12 +145,12 @@ const Kycu = () => {
                 Fjalëkalimi
               </label>
               {errors.fjalekalimi && (
-                <div className="text-sm text-red-500 ml-[10px] mt-1 absolute left-0 bottom-[-40px] lg:bottom-[-20px] md:bottom-[-20px]">
+                <div className="text-sm text-red-500 ml-[10px] mt-1 left-0 bottom-[-40px] lg:bottom-[-20px] md:bottom-[-20px]">
                   {errors.fjalekalimi}
                 </div>
               )}
             </div>
-            <div className="flex justify-between pt-5 pb-0 lg:pt-4 md:pt-4">
+            <div className="flex justify-between pb-0 lg:pt-4 md:pt-4">
               <label className="flex items-center text-lg text-[#757C73]">
                 <input
                   type="checkbox"

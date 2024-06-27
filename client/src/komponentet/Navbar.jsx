@@ -42,20 +42,12 @@ const Navbar = () => {
         </div>
       </div>
       <div className="relative gap-4 my-4 md:my-0 flex items-center no-underline">
-      <a href="/#search-section">
-        <img
-          src={SearchIcon}
-          alt="search icon"
-          className="h-6 md:h-8"
-        />
-      </a>
-      <a href="/kategoria">
-        <img
-          src={Filter}
-          alt="search icon"
-          className="h-6 md:h-8"
-        />
-      </a>
+        <a href="/#search-section">
+          <img src={SearchIcon} alt="search icon" className="h-6 md:h-8" />
+        </a>
+        <a href="/kategoria">
+          <img src={Filter} alt="search icon" className="h-6 md:h-8" />
+        </a>
       </div>
       <div className="hidden md:flex items-center relative">
         <img
@@ -76,11 +68,11 @@ const Navbar = () => {
                   Shporta
                 </Link>
                 <Link
-                  to="/settings"
+                  to="/sfondi"
                   className="block px-4 py-2 text-sm text-[#6e5d5d] hover:bg-[#BDC6BA]"
                   onClick={closeDropdown}
                 >
-                  Settings
+                  Sfondi
                 </Link>
                 <button
                   onClick={() => {

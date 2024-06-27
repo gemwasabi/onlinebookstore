@@ -9,10 +9,18 @@ const CategoryLinks = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:8800/api/kategorite");
-        setCategories(response.data || []);
+        const response = await axios.get(
+          "http://localhost:8800/api/kategorite"
+        );
+        console.log("Fetched categories data:", response.data); // Log the response data
+        if (Array.isArray(response.data)) {
+          setCategories(response.data);
+        } else {
+          setCategories([]); // Set to an empty array if the data is not an array
+        }
       } catch (error) {
         console.log(error);
+        setCategories([]); // Set to an empty array in case of error
       }
     };
     fetchCategories();
