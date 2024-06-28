@@ -203,17 +203,13 @@ const CheckoutProcess = () => {
   };
 
   return (
-    <div className="min-h-screen items-center justify-center bg-[#7B8E76] flex flex-col">
+    <div className="min-h-screen overflow-y-hidden m-4 items-center flex flex-col p-2">
       <ProgressBar currentStep={currentStep} />
-      <div className="mx-auto w-full lg:p-4">
-        <div className="min-h-screen bg-[#7B8E76] flex items-center justify-center lg:p-4 md:p-4">
-          <div className="w-full max-w-6xl bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3">
-            <div className="flex flex-col lg:flex-row sm:flex-col">
-              <div
-                className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 1 ? "" : "hidden"
-                  }`}
-                id="detajetPersonale"
-              >
+      <div className=" w-4/5 h-min ">
+        <div className="bg-[#7B8E76] flex justify-center">
+          <div className="w-full bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3">
+            <div className="flex flex-col lg:flex-row">
+              <div className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 1 ? "" : "hidden"}`} id="detajetPersonale">
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
@@ -305,11 +301,7 @@ const CheckoutProcess = () => {
                 </div>
               </div>
 
-              <div
-                className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 2 ? "" : "hidden"
-                  }`}
-                id="detajetKarteles"
-              >
+              <div className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 2 ? "" : "hidden"}`} id="detajetKarteles">
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
@@ -400,11 +392,7 @@ const CheckoutProcess = () => {
                 </div>
               </div>
 
-              <div
-                className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 3 ? "" : "hidden"
-                  }`}
-                id="detajetAdreses"
-              >
+              <div className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 3 ? "" : "hidden"}`} id="detajetAdreses">
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
@@ -622,7 +610,7 @@ const CheckoutProcess = () => {
 
 const ProgressBar = ({ currentStep }) => {
   return (
-    <div className="flex items-center justify-center md:mt-2 md:mb-2 lg:mt-3 lg:mb-[-50px] p-2 z-10 relative w-full max-w-6xl">
+    <div className="flex items-center justify-center z-10 relative m-4 w-4/5">
       <Step number={1} currentStep={currentStep} icon={c1} />
       <Line currentStep={currentStep} />
       <Step number={2} currentStep={currentStep} icon={c2} />
