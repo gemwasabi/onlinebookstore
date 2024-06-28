@@ -73,72 +73,50 @@ const CheckoutProcess = () => {
 
 
   const validateInputs = () => {
-    let newErrors = {};
-
-    if (!inputs.emri.trim()) {
-      newErrors.emri = "Emri është i detyrueshëm.";
-    } else if (!/^[a-zA-ZëçÇ\s]+$/.test(inputs.emri.trim())) {
-      newErrors.emri = "Emri duhet të përmbajë vetëm shkronja.";
-    }
-
-    if (!inputs.mbiemri.trim()) {
-      newErrors.mbiemri = "Mbiemri është i detyrueshëm.";
-    } else if (!/^[a-zA-ZëçÇ\s]+$/.test(inputs.mbiemri.trim())) {
-      newErrors.mbiemri = "Mbiemri duhet të përmbajë vetëm shkronja.";
-    }
-
-    console.log("Input value:", inputs.numri_telefonit.trim());
-    if (!inputs.numri_telefonit.trim()) {
-      newErrors.numri_telefonit = "Numri i telefonit nuk është i plotësuar.";
-    } else if (!/^\+?\d{10,14}$/.test(inputs.numri_telefonit.trim())) {
-      newErrors.numri_telefonit = "Numri i telefonit nuk është në formatin e duhur.";
-    }
-
-
-    if (!inputs.emaili.trim()) {
-      newErrors.emaili = "Emaili është i detyrueshëm.";
-    } else if (!/\S+@\S+\.\S+/.test(inputs.emaili.trim())) {
-      newErrors.emaili = "Emaili duhet të jetë në formatin e duhur.";
-    }
-
-    if (!inputs.emri_ne_kartele.trim()) {
-      newErrors.emri_ne_kartele = "Emri në kartelë është i detyrueshëm.";
-    } else if (!/^[a-zA-ZëçÇ\s]+$/.test(inputs.emri_ne_kartele.trim())) {
-      newErrors.emri_ne_kartele = "Emri në kartelë duhet të përmbajë vetëm shkronja dhe hapsira.";
-    }
-
-    if (!inputs.numri_karteles.trim() || !/^\d{16}$/.test(inputs.numri_karteles.trim())) {
-      newErrors.numri_karteles = "Numri i kartelës është i detyrueshëm dhe duhet të jetë saktësisht 16 numra.";
-    }
-
-    if (!inputs.data_skadimit.trim()) {
-      newErrors.data_skadimit = "Data e skadimit është e detyrueshme.";
-    } else {
-      const skadimiDate = new Date(inputs.data_skadimit);
-      const today = new Date();
-      if (skadimiDate <= today) {
-        newErrors.data_skadimit = "Data e skadimit duhet të jetë pas datës së sotme.";
+    const newErrors = {};
+    if (currentStep === 1) {
+      if (!inputs.emri || inputs.emri.length < 2 || /\d/.test(inputs.emri)) {
+        newErrors.emri = 'Emri duhet të ketë të paktën 2 karaktere dhe nuk duhet të përmbajë numra';
+      }
+      if (!inputs.mbiemri || inputs.mbiemri.length < 2 || /\d/.test(inputs.mbiemri)) {
+        newErrors.mbiemri = 'Mbiemri duhet të ketë të paktën 2 karaktere dhe nuk duhet të përmbajë numra';
+      }
+      if (!/^\d+$/.test(inputs.numri_telefonit)) {
+        newErrors.numri_telefonit = 'Numri i telefonit duhet të përmbajë vetëm numra';
+      }
+      if (!/\S+@\S+\.\S+/.test(inputs.emaili)) {
+        newErrors.emaili = 'Email adresa duhet të jetë e vlefshme';
+      }
+    } else if (currentStep === 2) {
+      if (!inputs.emri_ne_kartele || /\d/.test(inputs.emri_ne_kartele) || inputs.emri_ne_kartele.split(' ').length < 2) {
+        newErrors.emri_ne_kartele = 'Emri në kartelë duhet të ketë të paktën 2 fjalë dhe nuk duhet të përmbajë numra';
+      }
+      if (!/^\d{16}$/.test(inputs.numri_karteles)) {
+        newErrors.numri_karteles = 'Numri i kartelës duhet të ketë 16 numra';
+      }
+      if (!/^\d{3}$/.test(inputs.cvv)) {
+        newErrors.cvv = 'CVV duhet të ketë 3 numra';
+      }
+      if (new Date(inputs.data_skadimit) <= new Date()) {
+        newErrors.data_skadimit = 'Data e skadimit duhet të jetë pas datës së sotme';
+      }
+    } else if (currentStep === 3) {
+      if (!inputs.adresa_1) {
+        newErrors.adresa_1 = 'Adresa 1 është fushë obligative';
+      }
+      if (!/^\d{6}$/.test(inputs.kodi_postar)) {
+        newErrors.kodi_postar = 'Kodi postar duhet të ketë 6 numra';
+      }
+      if (!inputs.qyteti) {
+        newErrors.qyteti = 'Qyteti është fushë obligative';
       }
     }
-
-    if (!inputs.cvv.trim() || !/^\d{3}$/.test(inputs.cvv.trim())) {
-      newErrors.cvv = "CVV është i detyrueshëm dhe duhet të jetë saktësisht 3 numra.";
-    }
-
-    if (!inputs.adresa_1.trim()) {
-      newErrors.adresa_1 = "Adresa 1 është e detyrueshme.";
-    }
-
-    if (!inputs.qyteti.trim()) {
-      newErrors.qyteti = "Qyteti është i detyrueshëm.";
-    }
-
-    if (!inputs.kodi_postar.trim() || !/^\d{1,6}$/.test(inputs.kodi_postar.trim())) {
-      newErrors.kodi_postar = "Kodi postar është i detyrueshëm dhe duhet të jetë deri në 6 numra.";
-    }
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
+  
 
   useEffect(() => {
     fetchBooks();
