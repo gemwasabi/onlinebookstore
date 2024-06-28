@@ -2,7 +2,7 @@ import  {useContext, useState, useEffect } from "react";
 import {useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/authContext";
-import { toast, ToastContainer } from "react-toastify";
+import {ToastContainer } from "react-toastify";
 import Select from 'react-select';
 
 const Kategoria = () => {

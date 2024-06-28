@@ -1,7 +1,4 @@
 import { useState, useContext, useEffect } from "react";
-import CheckoutPage1 from "./checkout-1";
-import CheckoutPage2 from "./checkout-2";
-import CheckoutPage3 from "./checkout-3";
 import c1 from "../../assets/img/progress-bar/c1.svg";
 import c2 from "../../assets/img/progress-bar/c2.svg";
 import c3 from "../../assets/img/progress-bar/c3.svg";
@@ -17,11 +14,7 @@ const CheckoutProcess = () => {
   const [books, setBooks] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!currentUser) {
-      navigate("/");
-    }
-  }, [currentUser, navigate]);
+  const [errors, setErrors] = useState({});
 
   const [inputs, setInputs] = useState({
     emri: currentUser ? currentUser.emri : "",
@@ -40,23 +33,116 @@ const CheckoutProcess = () => {
     perdoruesi_id: currentUser ? currentUser.id : "",
   });
 
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/");
+    }
+  }, [currentUser, navigate]);
+
   const trajtoNdryshimet = (e) => {
-    if (currentUser) {
-      setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    }
+    const { name, value } = e.target;
+    setInputs((prevInputs) => ({
+      ...prevInputs,
+      [name]: value,
+    }));
   };
 
-  const nextStep = () => {
-    if (currentStep < 3) {
-      setCurrentStep((prevStep) => prevStep + 1);
+  const handleSubmit = async () => {
+    const isValid = validateInputs();
+    if (isValid) {
+      try {
+        await axios.post("http://localhost:8800/api/porosite", inputs);
+        await axios.delete("http://localhost:8800/api/shporta/pastro", {
+          params: {
+            userId: currentUser.id,
+          },
+        });
+        navigate("/");
+      } catch (err) {
+        console.error("Error submitting form:", err);
+        toast.error("Ka ndodhur një gabim gjatë dorëzimit!", {
+          position: "top-right",
+        });
+      }
     } else {
-      handleSubmit();
+      toast.error("Ju lutem korrigjoni fushat e dërgimit!", {
+        position: "top-right",
+      });
     }
   };
 
-  const prevStep = () => {
-    setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
+
+  const validateInputs = () => {
+    let newErrors = {};
+
+    if (!inputs.emri.trim()) {
+      newErrors.emri = "Emri është i detyrueshëm.";
+    } else if (!/^[a-zA-ZëçÇ\s]+$/.test(inputs.emri.trim())) {
+      newErrors.emri = "Emri duhet të përmbajë vetëm shkronja.";
+    }
+
+    if (!inputs.mbiemri.trim()) {
+      newErrors.mbiemri = "Mbiemri është i detyrueshëm.";
+    } else if (!/^[a-zA-ZëçÇ\s]+$/.test(inputs.mbiemri.trim())) {
+      newErrors.mbiemri = "Mbiemri duhet të përmbajë vetëm shkronja.";
+    }
+
+    console.log("Input value:", inputs.numri_telefonit.trim());
+    if (!inputs.numri_telefonit.trim()) {
+      newErrors.numri_telefonit = "Numri i telefonit nuk është i plotësuar.";
+    } else if (!/^\+?\d{10,14}$/.test(inputs.numri_telefonit.trim())) {
+      newErrors.numri_telefonit = "Numri i telefonit nuk është në formatin e duhur.";
+    }
+
+
+    if (!inputs.emaili.trim()) {
+      newErrors.emaili = "Emaili është i detyrueshëm.";
+    } else if (!/\S+@\S+\.\S+/.test(inputs.emaili.trim())) {
+      newErrors.emaili = "Emaili duhet të jetë në formatin e duhur.";
+    }
+
+    if (!inputs.emri_ne_kartele.trim()) {
+      newErrors.emri_ne_kartele = "Emri në kartelë është i detyrueshëm.";
+    } else if (!/^[a-zA-ZëçÇ\s]+$/.test(inputs.emri_ne_kartele.trim())) {
+      newErrors.emri_ne_kartele = "Emri në kartelë duhet të përmbajë vetëm shkronja dhe hapsira.";
+    }
+
+    if (!inputs.numri_karteles.trim() || !/^\d{16}$/.test(inputs.numri_karteles.trim())) {
+      newErrors.numri_karteles = "Numri i kartelës është i detyrueshëm dhe duhet të jetë saktësisht 16 numra.";
+    }
+
+    if (!inputs.data_skadimit.trim()) {
+      newErrors.data_skadimit = "Data e skadimit është e detyrueshme.";
+    } else {
+      const skadimiDate = new Date(inputs.data_skadimit);
+      const today = new Date();
+      if (skadimiDate <= today) {
+        newErrors.data_skadimit = "Data e skadimit duhet të jetë pas datës së sotme.";
+      }
+    }
+
+    if (!inputs.cvv.trim() || !/^\d{3}$/.test(inputs.cvv.trim())) {
+      newErrors.cvv = "CVV është i detyrueshëm dhe duhet të jetë saktësisht 3 numra.";
+    }
+
+    if (!inputs.adresa_1.trim()) {
+      newErrors.adresa_1 = "Adresa 1 është e detyrueshme.";
+    }
+
+    if (!inputs.qyteti.trim()) {
+      newErrors.qyteti = "Qyteti është i detyrueshëm.";
+    }
+
+    if (!inputs.kodi_postar.trim() || !/^\d{1,6}$/.test(inputs.kodi_postar.trim())) {
+      newErrors.kodi_postar = "Kodi postar është i detyrueshëm dhe duhet të jetë deri në 6 numra.";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
 
   const fetchBooks = async () => {
     try {
@@ -98,25 +184,23 @@ const CheckoutProcess = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      await axios.post("http://localhost:8800/api/porosite", inputs);
-
-      await axios.delete("http://localhost:8800/api/shporta/pastro", {
-        params: {
-          userId: currentUser.id,
-        },
-      });
-
-      navigate("/");
-    } catch (err) {
-      // setError(err.response.data);
+  const nextStep = () => {
+    if (currentStep < 3) {
+      if (validateInputs()) {
+        setCurrentStep((prevStep) => prevStep + 1);
+      } else {
+        toast.error("Ju lutem korrigjoni fushat e dërgimit!", {
+          position: "top-right",
+        });
+      }
+    } else {
+      handleSubmit();
     }
   };
 
-  useEffect(() => {
-    fetchBooks();
-  }, []);
+  const prevStep = () => {
+    setCurrentStep((prevStep) => Math.max(prevStep - 1, 1));
+  };
 
   return (
     <div className="min-h-screen items-center justify-center bg-[#7B8E76] flex flex-col">
@@ -126,18 +210,17 @@ const CheckoutProcess = () => {
           <div className="w-full max-w-6xl bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3">
             <div className="flex flex-col lg:flex-row sm:flex-col">
               <div
-                className={`w-full lg:w-2/3 p-3 mb-0 ${
-                  currentStep === 1 ? "" : "hidden"
-                }`}
+                className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 1 ? "" : "hidden"
+                  }`}
                 id="detajetPersonale"
               >
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
                 <p className="text-[#757C73] mb-4">
-                  <span className="text-[#EA6464]">* </span> fushë obligative
+                  <span className="text-[#EA6464]">*</span> fushë obligative
                 </p>
-                <br></br>
+                <br />
                 <div className="grid grid-cols-1 md:grid-cols-2 p-3 gap-5">
                   <div className="relative">
                     <input
@@ -154,6 +237,9 @@ const CheckoutProcess = () => {
                     >
                       Emri
                     </label>
+                    {errors.emri && (
+                      <span className="text-red-500">{errors.emri}</span>
+                    )}
                   </div>
                   <div className="relative">
                     <input
@@ -170,22 +256,33 @@ const CheckoutProcess = () => {
                     >
                       Mbiemri
                     </label>
+                    {errors.mbiemri && (
+                      <span className="text-red-500">{errors.mbiemri}</span>
+                    )}
                   </div>
                   <div className="relative">
                     <input
                       type="tel"
-                      name="telefoni"
+                      name="numri_telefonit"
                       className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
                       placeholder=" "
+                      value={inputs.numri_telefonit}
                       onChange={trajtoNdryshimet}
                     />
+
                     <label
                       htmlFor="telefoni"
                       className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
                     >
                       Numri i telefonit
                     </label>
+                    {errors.numri_telefonit && (
+                      <span className="text-red-500">
+                        {errors.numri_telefonit}
+                      </span>
+                    )}
                   </div>
+
                   <div className="relative">
                     <input
                       type="email"
@@ -201,23 +298,25 @@ const CheckoutProcess = () => {
                     >
                       Email Adresa
                     </label>
+                    {errors.emaili && (
+                      <span className="text-red-500">{errors.emaili}</span>
+                    )}
                   </div>
                 </div>
               </div>
 
               <div
-                className={`w-full lg:w-2/3 p-3 mb-0 ${
-                  currentStep === 2 ? "" : "hidden"
-                }`}
+                className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 2 ? "" : "hidden"
+                  }`}
                 id="detajetKarteles"
               >
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
                 <p className="text-[#757C73] mb-4">
-                  <span className="text-[#EA6464]">* </span> fushë obligative
+                  <span className="text-[#EA6464]">*</span> fushë obligative
                 </p>
-                <br></br>
+                <br />
                 <div className="grid grid-cols-1 md:grid-cols-2 p-3 gap-5">
                   <div className="relative">
                     <input
@@ -233,6 +332,11 @@ const CheckoutProcess = () => {
                     >
                       Emri në kartelë
                     </label>
+                    {errors.emri_ne_kartele && (
+                      <span className="text-red-500">
+                        {errors.emri_ne_kartele}
+                      </span>
+                    )}
                   </div>
 
                   <div className="relative">
@@ -249,6 +353,11 @@ const CheckoutProcess = () => {
                     >
                       Numri i kartelës
                     </label>
+                    {errors.numri_karteles && (
+                      <span className="text-red-500">
+                        {errors.numri_karteles}
+                      </span>
+                    )}
                   </div>
                   <div className="relative">
                     <input
@@ -264,6 +373,11 @@ const CheckoutProcess = () => {
                     >
                       Data e skadimit
                     </label>
+                    {errors.data_skadimit && (
+                      <span className="text-red-500">
+                        {errors.data_skadimit}
+                      </span>
+                    )}
                   </div>
                   <div className="relative">
                     <input
@@ -279,23 +393,25 @@ const CheckoutProcess = () => {
                     >
                       CVV
                     </label>
+                    {errors.cvv && (
+                      <span className="text-red-500">{errors.cvv}</span>
+                    )}
                   </div>
                 </div>
               </div>
 
               <div
-                className={`w-full lg:w-2/3 p-3 mb-0 ${
-                  currentStep === 3 ? "" : "hidden"
-                }`}
+                className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 3 ? "" : "hidden"
+                  }`}
                 id="detajetAdreses"
               >
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
                 <p className="text-[#757C73] mb-4">
-                  <span className="text-[#EA6464]">* </span> fushë obligative
+                  <span className="text-[#EA6464]">*</span> fushë obligative
                 </p>
-                <br></br>
+                <br />
                 <div className="grid grid-cols-1 md:grid-cols-2 p-3 gap-5">
                   <div className="relative">
                     <input
@@ -311,6 +427,9 @@ const CheckoutProcess = () => {
                     >
                       Adresa 1
                     </label>
+                    {errors.adresa_1 && (
+                      <span className="text-red-500">{errors.adresa_1}</span>
+                    )}
                   </div>
 
                   <div className="relative">
@@ -342,6 +461,9 @@ const CheckoutProcess = () => {
                     >
                       Qyteti
                     </label>
+                    {errors.qyteti && (
+                      <span className="text-red-500">{errors.qyteti}</span>
+                    )}
                   </div>
                   <div className="relative">
                     <input
@@ -357,6 +479,9 @@ const CheckoutProcess = () => {
                     >
                       Kodi postar
                     </label>
+                    {errors.kodi_postar && (
+                      <span className="text-red-500">{errors.kodi_postar}</span>
+                    )}
                   </div>
                   <div className="relative col-span-1 md:col-span-2 lg:col-span-2 lg:col-start-1">
                     <textarea
@@ -374,7 +499,6 @@ const CheckoutProcess = () => {
                   </div>
                 </div>
               </div>
-
               <div className="w-full lg:w-1/3 bg-[#D3DAD1] p-3 mt-[80px] shadow-md rounded-lg lg:rounded-l-[1px] lg:mt-0">
                 <h2 className="text-2xl text-center font-bold mb-4 text-[#757C73]">
                   Bleji librat
@@ -548,9 +672,8 @@ const Line = ({ currentStep }) => {
   return (
     <div className="line flex-1 h-1 bg-[#96A493] mx-2 relative">
       <div
-        className={`connector absolute top-0 bottom-0 left-0 ${
-          currentStep >= 2 ? "bg-green-500" : "bg-[#96A493]"
-        }`}
+        className={`connector absolute top-0 bottom-0 left-0 ${currentStep >= 2 ? "bg-green-500" : "bg-[#96A493]"
+          }`}
       ></div>
     </div>
   );
