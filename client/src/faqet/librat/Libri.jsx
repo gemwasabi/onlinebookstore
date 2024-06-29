@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import{ useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
@@ -86,14 +86,6 @@ const Libri = () => {
                   className="h-5 w-5 mr-2"
                 />
                 Shto në shportë
-              </button>
-              <button className="bg-[#7b8e76] text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200 hover:bg-[#6d7b69]">
-                <img
-                  src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1716846152/Vector_jca2na.svg"
-                  alt="Rent"
-                  className="h-5 w-5 mr-2"
-                />
-                Merr me qera
               </button>
             </div>
             <h2 className="text-2xl font-semibold mb-2 text-[#848a81]">

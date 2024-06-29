@@ -111,12 +111,12 @@ const CheckoutProcess = () => {
         newErrors.qyteti = 'Qyteti është fushë obligative';
       }
     }
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
-  
+
+
 
   useEffect(() => {
     fetchBooks();
@@ -183,9 +183,9 @@ const CheckoutProcess = () => {
   return (
     <div className="min-h-screen overflow-y-hidden m-4 items-center flex flex-col p-2">
       <ProgressBar currentStep={currentStep} />
-      <div className="w-4/5">
-        <div className="bg-[#7B8E76] flex justify-center">
-          <div className="w-full bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3">
+      <div className="w-4/5 ">
+        <div className="bg-[#7B8E76] flex justify-center h-96">
+          <div className="w-full bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3 h-96 ">
             <div className="flex flex-col lg:flex-row">
               <div className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 1 ? "" : "hidden"}`} id="detajetPersonale">
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
@@ -465,75 +465,52 @@ const CheckoutProcess = () => {
                   </div>
                 </div>
               </div>
-              <div className="w-full lg:w-1/3 bg-[#D3DAD1] p-3 mt-[80px] shadow-md rounded-lg lg:rounded-l-[1px] lg:mt-0">
-                <h2 className="text-2xl text-center font-bold mb-4 text-[#757C73]">
-                  Bleji librat
-                </h2>
-                <div
-                  className="space-y-4 overflow-y-scroll"
-                  style={{ maxHeight: "180px" }}
-                >
-                  {books.map((book, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center border-b py-1"
-                    >
-                      <div className="flex items-center">
-                        <img
-                          src={`/assets/img/bookcovers/${book.foto}`}
-                          alt="A little life"
-                          className="w-12 h-12 mr-4"
-                        />
-                        <div>
-                          <p className="text-sm text-[#697367] font-bold">
-                            {book.emri}
-                          </p>
-                          <p className="text-[#727D6D] text-xs">
-                            {book.autori}
-                          </p>
-                          <p
-                            className="text-[#EA6464] text-xs cursor-pointer"
-                            onClick={() => handleLargoLibrin(book.shporta_id)}
-                          >
-                            Largo
-                          </p>
+              <div className="w-full lg:w-1/3 h-96 max-h-96 bg-[#D3DAD1] p-3 mt-[80px] shadow-md rounded-lg lg:rounded-l-[1px] lg:mt-0 flex flex-col">
+                <div className="flex-grow overflow-y-scroll">
+                  <h2 className="text-2xl text-center font-bold mb-4 text-[#757C73]">
+                    Bleji librat
+                  </h2>
+                  <div className="space-y-4">
+                    {books.map((book, index) => (
+                      <div key={index} className="flex justify-between items-center border-b py-1">
+                        <div className="flex items-center">
+                          <img
+                            src={`/assets/img/bookcovers/${book.foto}`}
+                            alt="A little life"
+                            className="w-12 h-12 mr-4"
+                          />
+                          <div>
+                            <p className="text-sm text-[#697367] font-bold">{book.emri}</p>
+                            <p className="text-[#727D6D] text-xs">{book.autori}</p>
+                            <p
+                              className="text-[#EA6464] text-xs cursor-pointer"
+                              onClick={() => handleLargoLibrin(book.shporta_id)}
+                            >
+                              Largo
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col flex-wrap-reverse items-end">
+                          <p className="text-[#727D6D]">{(book.quantity * book.price).toFixed(2)}€</p>
+                          <input
+                            type="number"
+                            value="1"
+                            min="1"
+                            onChange={(e) => handleQuantityChange(book.id, parseInt(e.target.value))}
+                            className="w-12 text-center border border-gray-300 rounded mt-2"
+                          />
                         </div>
                       </div>
-                      <div className="flex flex-col flex-wrap-reverse items-end">
-                        <p className="text-[#727D6D]">
-                          {(book.quantity * book.price).toFixed(2)}€
-                        </p>
-                        <input
-                          type="number"
-                          value="1"
-                          min="1"
-                          onChange={(e) =>
-                            handleQuantityChange(
-                              book.id,
-                              parseInt(e.target.value)
-                            )
-                          }
-                          className="w-12 text-center border border-gray-300 rounded mt-2"
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-                <div className="mt-4">
-                  <p className="text-sm text-blue-500 cursor-pointer">
-                    Keni kupon?
-                  </p>
+                <div className="mt-auto">
+                  <p className="text-sm text-blue-500 cursor-pointer">Keni kupon?</p>
                   <div className="mt-2">
                     <div className="flex justify-between">
                       <span>Nëntotali</span>
                       <span>
-                        {books
-                          .reduce(
-                            (acc, book) => acc + book.price * book.quantity,
-                            0
-                          )
-                          .toFixed(2)}
-                        €
+                        {books.reduce((acc, book) => acc + book.price * book.quantity, 0).toFixed(2)}€
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -547,36 +524,30 @@ const CheckoutProcess = () => {
                     <div className="flex justify-between font-bold">
                       <span>Totali</span>
                       <span>
-                        {(
-                          books.reduce(
-                            (acc, book) => acc + book.price * book.quantity,
-                            0
-                          ) + 1.0
-                        ).toFixed(2)}
-                        €
+                        {(books.reduce((acc, book) => acc + book.price * book.quantity, 0) + 1.0).toFixed(2)}€
                       </span>
                     </div>
                   </div>
-                </div>
-                <div className="flex flex-col justify-center mt-6">
-                  {currentStep !== 1 && (
-                    <div className="text-center">
+                  <div className="text-center mt-2">
+                    {currentStep !== 1 && (
                       <a
                         className="p-2 text-xl lg:text-2xl text-[#727D6D] align-center text-center hover:text-[#BCC5B8] cursor-pointer"
                         onClick={prevStep}
                       >
                         Shko prapa
                       </a>
-                    </div>
-                  )}
+                    )}
                   <button
-                    className="rounded-[10px] bg-[#7B8E76] p-2 text-xl lg:text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
+                    className="rounded-[10px] bg-[#7B8E76] py-2 px-14 text-xl lg:text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
                     onClick={nextStep}
                   >
                     Hapi tjetër
                   </button>
+                  </div>
                 </div>
               </div>
+
+
             </div>
           </div>
           <ToastContainer />
