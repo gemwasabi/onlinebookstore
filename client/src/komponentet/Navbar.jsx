@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { AuthContext } from "../context/authContext";
 import { Link } from "react-router-dom";
 import SearchIcon from "../assets/img/search.svg";
@@ -7,6 +7,21 @@ import Filter from "../assets/img/filter.svg";
 const Navbar = () => {
   const { currentUser, ckycu } = useContext(AuthContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await ckycu();
@@ -49,7 +64,7 @@ const Navbar = () => {
           <img src={Filter} alt="search icon" className="h-6 md:h-8" />
         </a>
       </div>
-      <div className="hidden md:flex items-center relative">
+      <div className="hidden md:flex items-center relative" ref={dropdownRef}>
         <img
           src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1713122873/User_yr1eko.svg"
           alt="User Icon"

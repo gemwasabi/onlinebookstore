@@ -183,7 +183,7 @@ const CheckoutProcess = () => {
   return (
     <div className="min-h-screen overflow-y-hidden m-4 items-center flex flex-col p-2">
       <ProgressBar currentStep={currentStep} />
-      <div className=" w-4/5 h-min ">
+      <div className="w-4/5">
         <div className="bg-[#7B8E76] flex justify-center">
           <div className="w-full bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3">
             <div className="flex flex-col lg:flex-row">
