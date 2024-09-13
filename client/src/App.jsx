@@ -37,6 +37,7 @@ import Slider from "./faqet/admin/Slider/Lista";
 import SliderShto from "./faqet/admin/Slider/Shto";
 import ShfaqPorosite from "./faqet/admin/Porosite/Lista";
 import UserSettings from "./faqet/UserSettings";
+import UserSettings2 from "./faqet/UserSettings2";
 
 const Struktura = () => {
   return (
@@ -86,10 +87,6 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Ballina />,
-      },
-      {
-        path: "/faq",
-        element: <FAQ />,
       },
     ],
   },
@@ -173,6 +170,10 @@ const router = createBrowserRouter([
         path: "/admin/shfaqPorosite",
         element: <ShfaqPorosite />,
       },
+      {
+        path: "/admin/porosia/:id",
+        element: <ShfaqPorosite />,
+      },
     ],
   },
   {
@@ -202,6 +203,14 @@ const router = createBrowserRouter([
       {
         path: "/sfondi",
         element: <UserSettings />,
+      },
+      {
+        path: "/sfondi/adresa",
+        element: <UserSettings2 />,
+      },
+      {
+        path: "/faq",
+        element: <FAQ />,
       },
     ],
   },

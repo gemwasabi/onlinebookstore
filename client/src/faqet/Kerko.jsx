@@ -51,7 +51,7 @@ const Kerko = () => {
         </div>
       )}
       <div
-      id="search-section"
+        id="search-section"
         className={`min-h-screen w-screen relative flex flex-col items-center ${
           isActive ? "justify-start" : "justify-center"
         }`}
