@@ -18,9 +18,10 @@ export const regjistrohu = (req, res) => {
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(req.body.fjalekalimi, salt);
 
-    const q = "insert into perdoruesit (emaili, fjalekalimi) VALUES (?)";
+    const q =
+      "insert into perdoruesit (emri, mbiemri, emaili, fjalekalimi) VALUES (?)";
 
-    const vlerat = [req.body.emaili, hash];
+    const vlerat = [req.body.emri, req.body.mbiemri, req.body.emaili, hash];
 
     db.query(q, [vlerat], (err, data) => {
       if (err) return res.json(err);

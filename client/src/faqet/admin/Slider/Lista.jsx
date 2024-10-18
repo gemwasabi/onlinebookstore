@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import DataTable from "react-data-table-component";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router-dom";
 
 function Lista() {
   const { currentUser, ckycu } = useContext(AuthContext);
@@ -41,6 +42,48 @@ function Lista() {
     fetchData();
   }, []);
 
+  const columns = [
+    { name: "#", selector: (row, index) => index + 1, sortable: true },
+    {
+      name: "Foto",
+      selector: (row) => (
+        <img
+          src={`/assets/img/slider/${row.foto}`}
+          alt="Slider"
+          style={{
+            width: "100px",
+            height: "auto",
+            objectFit: "cover",
+          }}
+        />
+      ),
+      sortable: false,
+    },
+    {
+      name: "Aksion",
+      cell: (row) => (
+        <div style={{ display: "flex", gap: "5px" }}>
+          <button
+            className=""
+            onClick={() => shlyejSlider(row.id)}
+            title="Shlyej"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "5px 10px",
+            }}
+          >
+            <i
+              className="fas fa-trash text-danger"
+              style={{ fontSize: "16px" }}
+            ></i>
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="row">
       <div className="col-12">
@@ -49,41 +92,7 @@ function Lista() {
             <Link to="/admin/shtoSlider" className="btn btn-info mb-3">
               + Shto Foto
             </Link>
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Foto</th>
-                  <th scope="col">Aksion</th>
-                </tr>
-              </thead>
-              <tbody>
-                {slider.map((s, index) => (
-                  <tr key={s.id}>
-                    <th scope="row">{index + 1}</th>
-                    <td>
-                      <img
-                        src={`/assets/img/slider/${s.foto}`}
-                        alt="Slider"
-                        style={{
-                          width: "100px",
-                          height: "auto",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </td>
-                    <td>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => shlyejSlider(s.id)}
-                      >
-                        Shlyej
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable columns={columns} data={slider} pagination />
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/img/lype.svg";
 import warning from "../assets/img/warning-icon.svg";
@@ -25,19 +25,9 @@ const Kycu = () => {
   const navigate = useNavigate();
   const { kycu } = useContext(AuthContext);
 
-  useEffect(() => {
-    const storedEmail = localStorage.getItem("autoLoginEmail");
-    if (storedEmail && !inputs.emaili) {
-      setInputs((prevInputs) => ({
-        ...prevInputs,
-        emaili: storedEmail,
-      }));
-    }
-  }, [inputs.emaili]);
-
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim()) {
+    if (email.trim() === "") {
       return "Emaili nuk mund të jetë bosh.";
     } else if (!emailRegex.test(email)) {
       return "Emaili duhet të jetë në formatin e duhur.";
@@ -46,11 +36,8 @@ const Kycu = () => {
   };
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-    if (!password.trim()) {
+    if (password.trim() === "") {
       return "Fjalëkalimi nuk mund të jetë bosh.";
-    } else if (!passwordRegex.test(password)) {
-      return "Fjalëkalimi duhet të jetë të paktën 8 karaktere dhe të përmbajë një shkronjë, një numër dhe një simbol.";
     }
     return "";
   };
@@ -60,7 +47,8 @@ const Kycu = () => {
     setInputs((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({
       ...prev,
-      [name]: name === "emaili" ? validateEmail(value) : validatePassword(value),
+      [name]:
+        name === "emaili" ? validateEmail(value) : validatePassword(value),
     }));
   };
 
@@ -82,7 +70,9 @@ const Kycu = () => {
       await kycu(inputs);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data || "Diçka shkoi keq. Ju lutem provoni përsëri.");
+      setError(
+        err.response?.data || "Diçka shkoi keq. Ju lutem provoni përsëri."
+      );
     }
   };
 
@@ -90,12 +80,12 @@ const Kycu = () => {
     <div className="w-screen bg-[#7B8E76]">
       <div className="flex justify-center">
         <img
-          className="my-[100px] mt-2 absolute text-center lg:block lg:my-[50px] hidden"
+          className="mt-20 absolute text-center md:block hidden"
           src={logo}
           alt="Logoja Lype"
         />
       </div>
-      <div className="relative flex mt-5 min-h-screen flex-col items-center justify-center overflow-hidden ">
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
         <div className="h-screen w-ful rounded-none bg-[#BCC5B8] px-[40px] pb-[30px] shadow-2xl sm:h-auto sm:w-[510px] sm:rounded-2xl">
           {error && (
             <div className="mt-5 flex h-16 w-full items-center rounded-[10px] bg-[#d6a3a3] px-6 text-[20px] text-[#6e5d5d]">
@@ -110,8 +100,9 @@ const Kycu = () => {
               <input
                 type="email"
                 name="emaili"
-                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${errors.emaili ? "border-red-500" : ""
-                  }`}
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors.emaili ? "border-red-500" : ""
+                }`}
                 placeholder="Shkruaj Emailin"
                 value={inputs.emaili}
                 onChange={trajtoNdryshimet}
@@ -132,8 +123,9 @@ const Kycu = () => {
               <input
                 type="password"
                 name="fjalekalimi"
-                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${errors.fjalekalimi ? "border-red-500" : ""
-                  }`}
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors.fjalekalimi ? "border-red-500" : ""
+                }`}
                 placeholder="Shkruaj Fjalekalimin"
                 value={inputs.fjalekalimi}
                 onChange={trajtoNdryshimet}

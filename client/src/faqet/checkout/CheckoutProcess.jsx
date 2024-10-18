@@ -51,13 +51,27 @@ const CheckoutProcess = () => {
     const isValid = validateInputs();
     if (isValid) {
       try {
-        await axios.post("http://localhost:8800/api/porosite", inputs);
-        await axios.delete("http://localhost:8800/api/shporta/pastro", {
-          params: {
-            userId: currentUser.id,
-          },
+        let temporaryArray = [];
+
+        booksInCart.forEach((book) => {
+          temporaryArray.push({
+            bookId: book.id,
+            bookPrice: book.price,
+          });
         });
-        navigate("/");
+
+        // Clone the inputs and add the temporary array to it
+        let updatedInputs = { ...inputs, books: temporaryArray };
+
+        console.log(updatedInputs);
+
+        // await axios.post("http://localhost:8800/api/porosite", inputs);
+        // await axios.delete("http://localhost:8800/api/shporta/pastro", {
+        //   params: {
+        //     userId: currentUser.id,
+        //   },
+        // });
+        // navigate("/");
       } catch (err) {
         console.error("Error submitting form:", err);
         toast.error("Ka ndodhur një gabim gjatë dorëzimit!", {
@@ -71,52 +85,62 @@ const CheckoutProcess = () => {
     }
   };
 
-
   const validateInputs = () => {
     const newErrors = {};
     if (currentStep === 1) {
       if (!inputs.emri || inputs.emri.length < 2 || /\d/.test(inputs.emri)) {
-        newErrors.emri = 'Emri duhet të ketë të paktën 2 karaktere dhe nuk duhet të përmbajë numra';
+        newErrors.emri =
+          "Emri duhet të ketë të paktën 2 karaktere dhe nuk duhet të përmbajë numra";
       }
-      if (!inputs.mbiemri || inputs.mbiemri.length < 2 || /\d/.test(inputs.mbiemri)) {
-        newErrors.mbiemri = 'Mbiemri duhet të ketë të paktën 2 karaktere dhe nuk duhet të përmbajë numra';
+      if (
+        !inputs.mbiemri ||
+        inputs.mbiemri.length < 2 ||
+        /\d/.test(inputs.mbiemri)
+      ) {
+        newErrors.mbiemri =
+          "Mbiemri duhet të ketë të paktën 2 karaktere dhe nuk duhet të përmbajë numra";
       }
-      if (!/^\d+$/.test(inputs.numri_telefonit)) {
-        newErrors.numri_telefonit = 'Numri i telefonit duhet të përmbajë vetëm numra';
-      }
+      // if (!/^\d+$/.test(inputs.numri_telefonit)) {
+      //   newErrors.numri_telefonit =
+      //     "Numri i telefonit duhet të përmbajë vetëm numra";
+      // }
       if (!/\S+@\S+\.\S+/.test(inputs.emaili)) {
-        newErrors.emaili = 'Email adresa duhet të jetë e vlefshme';
+        newErrors.emaili = "Email adresa duhet të jetë e vlefshme";
       }
     } else if (currentStep === 2) {
-      if (!inputs.emri_ne_kartele || /\d/.test(inputs.emri_ne_kartele) || inputs.emri_ne_kartele.split(' ').length < 2) {
-        newErrors.emri_ne_kartele = 'Emri në kartelë duhet të ketë të paktën 2 fjalë dhe nuk duhet të përmbajë numra';
+      if (
+        !inputs.emri_ne_kartele ||
+        /\d/.test(inputs.emri_ne_kartele) ||
+        inputs.emri_ne_kartele.split(" ").length < 2
+      ) {
+        newErrors.emri_ne_kartele =
+          "Emri në kartelë duhet të ketë të paktën 2 fjalë dhe nuk duhet të përmbajë numra";
       }
       if (!/^\d{16}$/.test(inputs.numri_karteles)) {
-        newErrors.numri_karteles = 'Numri i kartelës duhet të ketë 16 numra';
+        newErrors.numri_karteles = "Numri i kartelës duhet të ketë 16 numra";
       }
       if (!/^\d{3}$/.test(inputs.cvv)) {
-        newErrors.cvv = 'CVV duhet të ketë 3 numra';
+        newErrors.cvv = "CVV duhet të ketë 3 numra";
       }
       if (new Date(inputs.data_skadimit) <= new Date()) {
-        newErrors.data_skadimit = 'Data e skadimit duhet të jetë pas datës së sotme';
+        newErrors.data_skadimit =
+          "Data e skadimit duhet të jetë pas datës së sotme";
       }
     } else if (currentStep === 3) {
       if (!inputs.adresa_1) {
-        newErrors.adresa_1 = 'Adresa 1 është fushë obligative';
+        newErrors.adresa_1 = "Adresa 1 është fushë obligative";
       }
       if (!/^\d{6}$/.test(inputs.kodi_postar)) {
-        newErrors.kodi_postar = 'Kodi postar duhet të ketë 6 numra';
+        newErrors.kodi_postar = "Kodi postar duhet të ketë 6 numra";
       }
       if (!inputs.qyteti) {
-        newErrors.qyteti = 'Qyteti është fushë obligative';
+        newErrors.qyteti = "Qyteti është fushë obligative";
       }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-
 
   useEffect(() => {
     fetchBooks();
@@ -181,20 +205,26 @@ const CheckoutProcess = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-y-hidden m-4 items-center flex flex-col p-2">
+    <div className="min-h-screen flex flex-col items-center p-2">
       <ProgressBar currentStep={currentStep} />
-      <div className="w-4/5 ">
-        <div className="bg-[#7B8E76] flex justify-center h-96">
-          <div className="w-full bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3 h-96 ">
+
+      {/* Use flex-grow to make this div expand to fill the available vertical space */}
+      <div className="w-4/5 flex-grow">
+        <div className="bg-[#7B8E76] flex justify-center min-h-full">
+          <div className="w-full bg-[#BCC5B8] shadow-lg rounded-lg p-0 sm:p-3 flex-grow">
             <div className="flex flex-col lg:flex-row">
-              <div className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 1 ? "" : "hidden"}`} id="detajetPersonale">
+              <div
+                className={`w-full lg:w-2/3 p-3 mb-0 ${
+                  currentStep === 1 ? "" : "hidden"
+                }`}
+                id="detajetPersonale"
+              >
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
                 <p className="text-[#757C73] mb-4">
                   <span className="text-[#EA6464]">*</span> fushë obligative
                 </p>
-                <br />
                 <div className="grid grid-cols-1 md:grid-cols-2 p-3 gap-5">
                   <div className="relative">
                     <input
@@ -234,28 +264,6 @@ const CheckoutProcess = () => {
                       <span className="text-red-500">{errors.mbiemri}</span>
                     )}
                   </div>
-                  <div className="relative">
-                    <input
-                      type="tel"
-                      name="numri_telefonit"
-                      className="peer h-14 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-base md:text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0"
-                      placeholder=" "
-                      value={inputs.numri_telefonit}
-                      onChange={trajtoNdryshimet}
-                    />
-
-                    <label
-                      htmlFor="telefoni"
-                      className="absolute left-0 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
-                    >
-                      Numri i telefonit
-                    </label>
-                    {errors.numri_telefonit && (
-                      <span className="text-red-500">
-                        {errors.numri_telefonit}
-                      </span>
-                    )}
-                  </div>
 
                   <div className="relative">
                     <input
@@ -279,7 +287,12 @@ const CheckoutProcess = () => {
                 </div>
               </div>
 
-              <div className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 2 ? "" : "hidden"}`} id="detajetKarteles">
+              <div
+                className={`w-full lg:w-2/3 p-3 mb-0 ${
+                  currentStep === 2 ? "" : "hidden"
+                }`}
+                id="detajetKarteles"
+              >
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
@@ -370,7 +383,12 @@ const CheckoutProcess = () => {
                 </div>
               </div>
 
-              <div className={`w-full lg:w-2/3 p-3 mb-0 ${currentStep === 3 ? "" : "hidden"}`} id="detajetAdreses">
+              <div
+                className={`w-full lg:w-2/3 p-3 mb-0 ${
+                  currentStep === 3 ? "" : "hidden"
+                }`}
+                id="detajetAdreses"
+              >
                 <h2 className="text-lg lg:text-2xl text-left font-bold mb-2 text-[#757C73]">
                   Detajet e kartelës{" "}
                 </h2>
@@ -472,7 +490,10 @@ const CheckoutProcess = () => {
                   </h2>
                   <div className="space-y-4">
                     {books.map((book, index) => (
-                      <div key={index} className="flex justify-between items-center border-b py-1">
+                      <div
+                        key={index}
+                        className="flex justify-between items-center border-b py-1"
+                      >
                         <div className="flex items-center">
                           <img
                             src={`/assets/img/bookcovers/${book.foto}`}
@@ -480,8 +501,12 @@ const CheckoutProcess = () => {
                             className="w-12 h-12 mr-4"
                           />
                           <div>
-                            <p className="text-sm text-[#697367] font-bold">{book.emri}</p>
-                            <p className="text-[#727D6D] text-xs">{book.autori}</p>
+                            <p className="text-sm text-[#697367] font-bold">
+                              {book.emri}
+                            </p>
+                            <p className="text-[#727D6D] text-xs">
+                              {book.autori}
+                            </p>
                             <p
                               className="text-[#EA6464] text-xs cursor-pointer"
                               onClick={() => handleLargoLibrin(book.shporta_id)}
@@ -491,12 +516,19 @@ const CheckoutProcess = () => {
                           </div>
                         </div>
                         <div className="flex flex-col flex-wrap-reverse items-end">
-                          <p className="text-[#727D6D]">{(book.quantity * book.price).toFixed(2)}€</p>
+                          <p className="text-[#727D6D]">
+                            {(book.quantity * book.price).toFixed(2)}€
+                          </p>
                           <input
                             type="number"
                             value="1"
                             min="1"
-                            onChange={(e) => handleQuantityChange(book.id, parseInt(e.target.value))}
+                            onChange={(e) =>
+                              handleQuantityChange(
+                                book.id,
+                                parseInt(e.target.value)
+                              )
+                            }
                             className="w-12 text-center border border-gray-300 rounded mt-2"
                           />
                         </div>
@@ -505,12 +537,20 @@ const CheckoutProcess = () => {
                   </div>
                 </div>
                 <div className="mt-auto">
-                  <p className="text-sm text-blue-500 cursor-pointer">Keni kupon?</p>
+                  <p className="text-sm text-blue-500 cursor-pointer">
+                    Keni kupon?
+                  </p>
                   <div className="mt-2">
                     <div className="flex justify-between">
                       <span>Nëntotali</span>
                       <span>
-                        {books.reduce((acc, book) => acc + book.price * book.quantity, 0).toFixed(2)}€
+                        {books
+                          .reduce(
+                            (acc, book) => acc + book.price * book.quantity,
+                            0
+                          )
+                          .toFixed(2)}
+                        €
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -524,7 +564,13 @@ const CheckoutProcess = () => {
                     <div className="flex justify-between font-bold">
                       <span>Totali</span>
                       <span>
-                        {(books.reduce((acc, book) => acc + book.price * book.quantity, 0) + 1.0).toFixed(2)}€
+                        {(
+                          books.reduce(
+                            (acc, book) => acc + book.price * book.quantity,
+                            0
+                          ) + 1.0
+                        ).toFixed(2)}
+                        €
                       </span>
                     </div>
                   </div>
@@ -537,17 +583,15 @@ const CheckoutProcess = () => {
                         Shko prapa
                       </a>
                     )}
-                  <button
-                    className="rounded-[10px] bg-[#7B8E76] py-2 px-14 text-xl lg:text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
-                    onClick={nextStep}
-                  >
-                    Hapi tjetër
-                  </button>
+                    <button
+                      className="rounded-[10px] bg-[#7B8E76] py-2 px-14 text-xl lg:text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
+                      onClick={nextStep}
+                    >
+                      Hapi tjetër
+                    </button>
                   </div>
                 </div>
               </div>
-
-
             </div>
           </div>
           <ToastContainer />
@@ -609,8 +653,9 @@ const Line = ({ currentStep }) => {
   return (
     <div className="line flex-1 h-1 bg-[#96A493] mx-2 relative">
       <div
-        className={`connector absolute top-0 bottom-0 left-0 ${currentStep >= 2 ? "bg-green-500" : "bg-[#96A493]"
-          }`}
+        className={`connector absolute top-0 bottom-0 left-0 ${
+          currentStep >= 2 ? "bg-green-500" : "bg-[#96A493]"
+        }`}
       ></div>
     </div>
   );

@@ -42,10 +42,7 @@ function Lista() {
       <div className="col-12">
         <div className="card">
           <div className="card-body">
-            <Link
-              to="/admin/perdoruesit/shtoPerdorues"
-              className="btn btn-info mb-3"
-            >
+            <Link to="/admin/shtoPerdorues" className="btn btn-info mb-3">
               + Shto Perdorues
             </Link>
             <table className="table table-hover">
@@ -55,6 +52,7 @@ function Lista() {
                   <th scope="col">Emri</th>
                   <th scope="col">Mbiemri</th>
                   <th scope="col">Emaili</th>
+                  <th scope="col">Grupi</th>
                   <th scope="col">Aksion</th>
                 </tr>
               </thead>
@@ -65,21 +63,22 @@ function Lista() {
                     <td>{perdoruesi.emri}</td>
                     <td>{perdoruesi.mbiemri}</td>
                     <td>{perdoruesi.emaili}</td>
+                    <td>{perdoruesi.grupi == 0 ? "Perdorues" : "Admin"}</td>
                     <td>
                       <Link
-                        to={
-                          "/admin/perdoruesit/editoPerdoruesin/" + perdoruesi.id
-                        }
+                        to={"/admin/editoPerdoruesin/" + perdoruesi.id}
                         className="btn btn-info"
                       >
                         Edito
                       </Link>{" "}
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => shlyejPerdoruesin(perdoruesi.id)}
-                      >
-                        Shlyej
-                      </button>
+                      {perdoruesi.grupi == 0 && (
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => shlyejPerdoruesin(perdoruesi.id)}
+                        >
+                          Shlyej
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -1,13 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import DataTable from "react-data-table-component";
+import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Lista() {
   const { currentUser, ckycu } = useContext(AuthContext);
   const [librat, setLibrat] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   const shlyejLibrin = async (id) => {
     try {
@@ -37,46 +39,98 @@ function Lista() {
     fetchData();
   }, []);
 
+  const columns = [
+    { name: "#", selector: (row, index) => index + 1, sortable: true },
+    { name: "Titulli", selector: (row) => row.titulli, sortable: true },
+    { name: "Autori", selector: (row) => row.autori, sortable: true },
+    { name: "ISBN", selector: (row) => row.isbn, sortable: true },
+    { name: "Cmimi", selector: (row) => row.cmimi, sortable: true },
+    { name: "Gjuha", selector: (row) => row.gjuha, sortable: true },
+    {
+      name: "Data Publikimit",
+      selector: (row) => row.data_publikimit,
+      sortable: true,
+    },
+    { name: "Tipi", selector: (row) => row.tipi, sortable: true },
+    { name: "Pershkrimi", selector: (row) => row.pershkrimi, sortable: true },
+    {
+      name: "Foto",
+      cell: (row) =>
+        row.foto ? (
+          <img
+            src={`/assets/img/bookcovers/${row.foto}`}
+            alt={row.titulli}
+            style={{ width: "100px", height: "auto" }}
+          />
+        ) : null,
+    },
+    {
+      name: "Aksion",
+      cell: (row) => (
+        <div style={{ display: "flex", gap: "5px" }}>
+          <Link
+            to={`/admin/editoLibrin/${row.id}`}
+            className=""
+            title="Edito"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "5px 10px",
+            }}
+          >
+            <i className="fas fa-pen text-primary" style={{ fontSize: "16px" }}></i>
+          </Link>
+          <span
+            className=""
+            onClick={() => shlyejLibrin(row.id)}
+            title="Shlyej"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "5px 10px",
+            }}
+          >
+            <i className="fas fa-trash text-danger" style={{ fontSize: "16px" }}></i>
+          </span>
+        </div>
+      ),
+    },
+  ];
+
+  const filteredData = librat.filter(
+    (liber) =>
+      liber.titulli.toLowerCase().includes(searchText.toLowerCase()) ||
+      liber.autori.toLowerCase().includes(searchText.toLowerCase()) ||
+      liber.isbn.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <div className="row">
       <div className="col-12">
         <div className="card">
           <div className="card-body">
-            <Link to="/admin/librat/shtoLiber" className="btn btn-info mb-3">
-              + Shto Liber
-            </Link>
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Emri</th>
-                  <th scope="col">ISBN</th>
-                  <th scope="col">Kategoria</th>
-                  <th scope="col">Pershkrimi</th>
-                  <th scope="col">Aksion</th>
-                </tr>
-              </thead>
-              <tbody>
-                {librat.map((libri, index) => (
-                  <tr key={libri.id}>
-                    <th scope="row">{index + 1}</th>
-                    <td>{libri.emri}</td>
-                    <td>{libri.isbn}</td>
-                    <td>{libri.emri_kategorise}</td>
-                    <td>{libri.pershkrimi}</td>
-                    <td>
-                      <Link to={'/admin/librat/editoLibrin/' + libri.id} className="btn btn-info">Edito</Link>{" "}
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => shlyejLibrin(libri.id)}
-                      >
-                        Shlyej
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="d-flex justify-content-between mb-3">
+              <Link to="/admin/shtoLiber" className="btn btn-info">
+                + Shto Liber
+              </Link>
+              <input
+                type="text"
+                placeholder="Search..."
+                onChange={(e) => setSearchText(e.target.value)}
+                className="form-control"
+                style={{ width: "300px" }}
+              />
+            </div>
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              pagination
+              paginationPerPage={10}
+              paginationRowsPerPageOptions={[10, 20, 30]}
+              subHeader
+            />
           </div>
         </div>
       </div>

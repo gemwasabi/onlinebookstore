@@ -27,9 +27,18 @@ function Lista() {
   const fetchData = async () => {
     try {
       const res = await axios.get("http://localhost:8800/api/tufat");
-      setTufat(res.data);
+      console.log("API Response Data:", res.data); // Debug: Log API response data
+
+      // Ensure res.data is an array
+      if (Array.isArray(res.data)) {
+        setTufat(res.data);
+      } else {
+        console.error("Unexpected API response format:", res.data);
+        setTufat([]); // Default to an empty array in case of unexpected format
+      }
     } catch (error) {
       console.log(error);
+      setTufat([]); // Default to an empty array in case of error
     }
   };
 
@@ -55,33 +64,39 @@ function Lista() {
                 </tr>
               </thead>
               <tbody>
-                {tufat.map((tufa, index) => (
-                  <tr key={tufa.id}>
-                    <th scope="row">{index + 1}</th>
-                    <td>{tufa.emri}</td>
-                    <td>
-                      {tufa.statusi === 0 ? (
-                        <span className="badge bg-success">Aktive</span>
-                      ) : (
-                        <span className="badge bg-secondary">Jo Aktive</span>
-                      )}
-                    </td>
-                    <td>
-                      <Link
-                        to={"/admin/editoTufen/" + tufa.id}
-                        className="btn btn-info"
-                      >
-                        Edito
-                      </Link>{" "}
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => shlyejTufen(tufa.id)}
-                      >
-                        Shlyej
-                      </button>
-                    </td>
+                {tufat.length > 0 ? (
+                  tufat.map((tufa, index) => (
+                    <tr key={tufa.id}>
+                      <th scope="row">{index + 1}</th>
+                      <td>{tufa.emri}</td>
+                      <td>
+                        {tufa.statusi === 0 ? (
+                          <span className="badge bg-success">Aktive</span>
+                        ) : (
+                          <span className="badge bg-secondary">Jo Aktive</span>
+                        )}
+                      </td>
+                      <td>
+                        <Link
+                          to={"/admin/editoTufen/" + tufa.id}
+                          className="btn btn-info"
+                        >
+                          Edito
+                        </Link>{" "}
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => shlyejTufen(tufa.id)}
+                        >
+                          Shlyej
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4">Nuk ka të dhëna për të treguar.</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

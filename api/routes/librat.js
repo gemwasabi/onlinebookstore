@@ -26,8 +26,8 @@ const upload = multer({ storage });
 router.get("/", merrLibrat);
 router.get("/kerko", kerkoLibrat);
 router.get("/:id", merrLibrin);
-router.post("/", upload.single("image"), shtoLiber);
+router.post("/", upload.single("foto"), shtoLiber);
 router.delete("/:id", shlyejLibrin);
-router.put("/:id", upload.single("image"), editoLibrin);
+router.put("/:id", upload.single("foto"), editoLibrin);
 
 export default router;

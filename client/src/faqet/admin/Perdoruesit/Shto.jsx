@@ -32,7 +32,7 @@ function Shto() {
     if (Object.values(validationErrors).every((error) => !error)) {
       try {
         await axios.post("http://localhost:8800/api/perdoruesit", inputs);
-        navigate("/admin/perdoruesit/shfaqPerdoruesit");
+        navigate("/admin/shfaqPerdoruesit");
       } catch (err) {
         console.log(err);
       }
@@ -124,9 +124,8 @@ function Shto() {
                   onChange={trajtoNdryshimet}
                   className={`form-control ${errors.grupi && "is-invalid"}`}
                 >
-                  <option value="">Zgjedh grupin</option>
-                  <option value="0">Admin</option>
-                  <option value="1">Perdorues</option>
+                  <option value="0">Perdorues</option>
+                  <option value="1">Admin</option>
                 </select>
                 {errors.grupi && (
                   <div className="invalid-feedback">{errors.grupi}</div>

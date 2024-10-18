@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
-    <footer className="bg-[#a3b39c] text-[#72856e] py-5 bottom-0">
+    <footer className="bg-[#a3b39c] text-[#72856e] py-5">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <div className="left-side mx-5 md:mx-0 mb-4 md:mb-0 md:mr-4">
           <div className="company-info">

@@ -1,46 +1,100 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
-import { useState, useContext, useEffect } from "react";
 import axios from "axios";
+import SfondiSiderbar from "./SfondiSiderbar";
 
 const UserSettings = () => {
-  const { currentUser, ckycu } = useContext(AuthContext);
-  const { currentUserData, setCurrentUserData } = useState([]);
+  const { currentUser } = useContext(AuthContext);
+
+  const [currentUserData, setCurrentUserData] = useState([]);
+  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({
+    emri: "",
+    mbiemri: "",
+    emaili: "",
+    fjalekalimi: "",
+    kfjalekalimi: "",
+  });
   const [inputs, setInputs] = useState({
     emri: currentUser ? currentUser.emri : "",
     mbiemri: currentUser ? currentUser.mbiemri : "",
-    numri_telefonit: "",
     emaili: currentUser ? currentUser.emaili : "",
-    emri_ne_kartele: "",
-    numri_karteles: "",
-    data_skadimit: "",
-    cvv: "",
-    adresa_1: "",
-    adresa_2: "",
-    qyteti: "",
-    kodi_postar: "",
-    koment: "",
+    fjalekalimi: "", // Initialize fjalekalimi
+    kfjalekalimi: "", // Initialize kfjalekalimi
     perdoruesi_id: currentUser ? currentUser.id : "",
   });
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [currentUser.id]);
+
+  const validateEmri = (value) => (value ? "" : "Emri është i detyrueshëm");
+  const validateMbiemri = (value) =>
+    value ? "" : "Mbiemri është i detyrueshëm";
+  const validateEmail = (value) =>
+    /\S+@\S+\.\S+/.test(value) ? "" : "Emaili nuk është i vlefshëm";
+  const validatePassword = (value) =>
+    !value || value.length >= 6
+      ? ""
+      : "Fjalëkalimi duhet të ketë të paktën 6 karaktere";
+  const validateConfirmPassword = (value) =>
+    !value || value === inputs.fjalekalimi ? "" : "Fjalëkalimet nuk përputhen";
+
+  const trajtoSubmit = async (e) => {
+    e.preventDefault();
+
+    const newErrors = {
+      emri: validateEmri(inputs.emri),
+      mbiemri: validateMbiemri(inputs.mbiemri),
+      emaili: validateEmail(inputs.emaili),
+      fjalekalimi: validatePassword(inputs.fjalekalimi),
+      kfjalekalimi: validateConfirmPassword(inputs.kfjalekalimi),
+    };
+
+    setErrors(newErrors);
+
+    if (
+      newErrors.emri ||
+      newErrors.mbiemri ||
+      newErrors.emaili ||
+      newErrors.fjalekalimi ||
+      newErrors.kfjalekalimi
+    ) {
+      return;
+    }
+
+    try {
+      await axios.put("http://localhost:8800/api/perdoruesit", {
+        ...inputs,
+        perdoruesi_id: currentUser.id,
+      });
+      alert("Profile updated successfully.");
+      fetchUser(); // Refetch user data after update
+    } catch (err) {
+      setError(err.response.data);
+    }
+  };
 
   const fetchUser = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8800/api/perdoruesit/" + currentUser.id
+        `http://localhost:8800/api/perdoruesit/${currentUser.id}`
       );
 
-      if (Array.isArray(response.data)) {
+      if (response.data) {
         setCurrentUserData(response.data);
-      } else {
-        // setCurrentUserData([]);
+        setInputs({
+          emri: response.data.emri || "",
+          mbiemri: response.data.mbiemri || "",
+          emaili: response.data.emaili || "",
+          fjalekalimi: "",
+          kfjalekalimi: "",
+          perdoruesi_id: currentUser.id,
+        });
       }
     } catch (error) {
-      console.error("Error fetching books:", error);
+      console.error("Error fetching user data:", error);
     }
   };
 
@@ -53,142 +107,58 @@ const UserSettings = () => {
   };
 
   return (
-    <div className="w-full h-full bg-[#8E9A83] shadow-lg rounded-lg flex flex-col lg:flex-row">
-      <div className="w-full lg:w-1/4 lg:max-w-96 bg-[#60725c] p-4 text-[#c3c9be] h-full">
-        <h2 className="text-xl lg:text-2xl text-left font-bold mb-4 lg:mb-10 text-[#c3c9be]">
-          Settings
-        </h2>
-        <button className="block w-full text-left px-3 py-2 mb-2 lg:mb-4 bg-[#8E9A83] transition-colors rounded">
-          Përdoruesi
-        </button>
-        <Link to={"/sfondi/adresa"}>
-          <button className="block w-full text-left px-3 py-2 mb-2 lg:mb-4 hover:bg-[#8E9A83] transition-colors rounded">
-            Adresat
-          </button>
-        </Link>
-        <button className="block w-full text-left px-3 py-2 mb-2 lg:mb-4 hover:bg-[#8E9A83] transition-colors rounded">
-          Kartela bankare
-        </button>
-        <button
-          type="button"
-          className="block w-full text-left px-3 py-2 mb-2 lg:mb-4 hover:bg-red-400 text-red-300 hover:text-white transition-colors rounded-lg"
-        >
-          Fshij Profilin
-        </button>
-      </div>
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#8E9A83]">
+      <SfondiSiderbar />
 
-      <div className="w-full p-4 lg:p-10 bg-[#7b8f76] h-full">
-        <h3 className="text-2xl font-bold text-center mb-4 lg:mb-8"></h3>
-        <form>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6 px-2">
-            <div className="col-span-1 lg:col-span-2">
-              <h3 className="text-xl font-bold text-[#c3c9be] mb-4">
-                Detajet e llogarisë
-              </h3>
-            </div>
-            <div>
-              <label
-                htmlFor="first_name"
-                className="block mb-2 text-sm font-medium text-[#5a6856]"
-              >
-                Emri
-              </label>
+      <div className="flex-1 p-4 lg:p-10 bg-[#BCC5B8] flex flex-col">
+        <form className="w-full max-w-lg mx-auto" onSubmit={trajtoSubmit}>
+          {[
+            { name: "emri", placeholder: "Emri", type: "text" },
+            { name: "mbiemri", placeholder: "Mbiemri", type: "text" },
+            { name: "emaili", placeholder: "Emaili", type: "email" },
+            {
+              name: "fjalekalimi",
+              placeholder: "Fjalekalimi",
+              type: "password",
+            },
+            {
+              name: "kfjalekalimi",
+              placeholder: "Konfirmo Fjalekalimin",
+              type: "password",
+            },
+          ].map((field) => (
+            <div key={field.name} className="relative my-6">
               <input
-                type="text"
-                id="first_name"
-                name="emri"
+                type={field.type}
+                name={field.name}
+                className={`peer w-full h-16 rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors[field.name] ? "border-red-500" : ""
+                }`}
+                placeholder={"Shkruaj " + field.placeholder + "n"}
+                value={inputs[field.name]}
                 onChange={trajtoNdryshimet}
-                value={inputs.emri}
-                className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 text-gray-900"
-                placeholder="Filane Fisteku"
-                required
               />
-            </div>
-            <div>
-              <label className="block mb-2 text-sm font-medium text-[#5a6856]">
-                Mbiemri
-              </label>
-              <input
-                type="text"
-                name="mbiemri"
-                onChange={trajtoNdryshimet}
-                value={inputs.mbiemri}
-                className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 text-gray-900"
-                placeholder="Filane Fisteku"
-                required
-              />
-            </div>
-            <div>
+
               <label
-                htmlFor="last_name"
-                className="block mb-2 text-sm font-medium text-[#5a6856]"
+                htmlFor=""
+                className="absolute left-0 z-50 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
               >
-                Nr. i tel
+                {field.placeholder}
               </label>
-              <input
-                type="text"
-                id="last_name"
-                className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 text-gray-900"
-                placeholder="+383"
-                required
-              />
+              {errors[field.name] && (
+                <div className="text-sm text-red-500 ml-[10px] mt-1 absolute left-0">
+                  {errors[field.name]}
+                </div>
+              )}
             </div>
-            <div>
-              <label
-                htmlFor="company"
-                className="block mb-2 text-sm font-medium text-[#5a6856]"
-              >
-                E-mail adresa
-              </label>
-              <input
-                type="text"
-                id="company"
-                value={inputs.emaili}
-                className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 text-gray-900"
-                placeholder="example@example.com"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="phone"
-                className="block mb-2 text-sm font-medium text-[#5a6856]"
-              >
-                Fjalekalimi
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 text-gray-900"
-                placeholder="********"
-                pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="website"
-                className="block mb-2 text-sm font-medium text-[#5a6856]"
-              >
-                Nr.personal
-              </label>
-              <input
-                type="url"
-                id="website"
-                className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 text-gray-900"
-                placeholder="00000000"
-                required
-              />
-            </div>
-          </div>
-          <div className="flex justify-center space-x-4 mt-6">
-            <button
-              type="button"
-              className="text-white bg-[#60725c] hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-[#4e5e4b] font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
-            >
-              Edito Profilin
-            </button>
-          </div>
+          ))}
+          <button
+            type="submit"
+            onClick={trajtoSubmit}
+            className="w-full rounded-[10px] bg-[#7B8E76] p-2 text-2xl text-[#BCC5B8] transition-all hover:shadow-[inset_0_10px_23px_-15px_rgba(0,0,0,1)]"
+          >
+            përditëso
+          </button>
         </form>
       </div>
     </div>

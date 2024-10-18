@@ -57,9 +57,7 @@ const Kerko = () => {
         }`}
       >
         <div
-          className={`relative w-full max-w-[800px] transition-all duration-1000 ${
-            isActive ? "mt-5" : ""
-          }`}
+          className={`relative w-full max-w-[800px] ${isActive ? "mt-5" : ""}`}
         >
           <input
             type="text"
@@ -77,7 +75,7 @@ const Kerko = () => {
             />
           )}
 
-          {searchTerm && (
+          {searchTerm && isActive && (
             <div className="overflow-y-auto max-h-[calc(100vh-200px)] w-full bg-[#bcc6bb] rounded-lg shadow-lg mt-2">
               {searchResults.map((result, index) => (
                 <Link
@@ -89,12 +87,12 @@ const Kerko = () => {
                     <div className="flex">
                       <img
                         src={`/assets/img/bookcovers/${result.foto}`}
-                        alt={result.emri}
+                        alt={result.titulli}
                         className="w-16 h-20 mr-4"
                       />
                       <div>
                         <h2 className="text-xl text-[#768075] font-bold no-underline">
-                          {result.emri}
+                          {result.titulli}
                         </h2>
                         <p className="text-sm text-[#768075] no-underline">
                           Nga {result.autori}
@@ -102,7 +100,18 @@ const Kerko = () => {
                       </div>
                     </div>
                     <div className="text-[#768075] font-bold text-xl">
-                      {result.cmimi}€
+                      <h2 className="text-xl text-[#768075] font-bold no-underline pr-10">
+                        {result.cmimi_vjeter ? (
+                          <>
+                            <span>{result.cmimi}€</span>{" "}
+                            <span style={{ textDecoration: "line-through" }}>
+                              <s>{result.cmimi_vjeter}€</s>
+                            </span>
+                          </>
+                        ) : (
+                          <span>{result.cmimi}€</span>
+                        )}
+                      </h2>
                     </div>
                   </div>
                 </Link>

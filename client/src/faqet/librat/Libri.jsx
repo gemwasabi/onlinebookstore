@@ -1,4 +1,4 @@
-import{ useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
@@ -45,36 +45,23 @@ const Libri = () => {
   };
 
   return (
-    <div className="font-sans bg-[#7b8e76] min-h-screen">
-      <div className="container mx-auto p-4">
+    <div className="font-sans bg-[#7b8e76] min-h-screen flex flex-col">
+      <div className="container mx-auto p-4 flex-grow">
         <div className="flex flex-col md:flex-row items-start">
           <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-4">
             <img
               className="w-32 md:w-48"
               src={`/assets/img/bookcovers/${libri.foto}`}
-              alt="The Tenant of Wildfell Hall by Anne Brontë"
+              alt={libri.titulli || "Libri pa titull"}
             />
           </div>
-          <div className="bg-[#bcc5b8] p-6 rounded-lg shadow-lg flex-grow">
+          <div className="bg-[#bcc5b8] px-6 py-3 rounded-lg shadow-lg flex-grow min-h-full">
             <h1 className="text-[#848a81] text-2xl md:text-3xl font-bold mb-2">
-              {libri.emri}
+              {libri.titulli}
             </h1>
             <h2 className="text-lg md:text-xl text-[#848a81] mb-4">
               nga {libri.autori}
             </h2>
-            <div className="mb-4">
-              <label htmlFor="format" className="block text-[#848a81]">
-                Formati
-              </label>
-              <select
-                id="format"
-                className="h-10 w-full text-[#848a81] rounded-lg border-2 border-[#848a81] bg-transparent px-4 text-lg focus:border-[#848a81] focus:outline-none"
-              >
-                <option>Zgjidh llojin</option>
-                <option>Paperback</option>
-                <option>Hardcover</option>
-              </select>
-            </div>
             <div className="flex space-x-4 mb-6">
               <button
                 className="bg-[#7b8e76] text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200 hover:bg-[#6d7b69]"
@@ -108,14 +95,14 @@ const Libri = () => {
                   <li>EAN/UPC:</li>
                 </ul>
                 <ul className="text-[#848a81] text-left">
-                  <li>15.00€</li>
-                  <li>Penguin</li>
-                  <li>2015</li>
-                  <li>386</li>
-                  <li>12.7cm x 20.3cm</li>
-                  <li>Anglisht</li>
-                  <li>Paperback</li>
-                  <li>1111111111111</li>
+                  <li>{libri.cmimi ? `${libri.cmimi}€` : "N/A"}</li>
+                  <li>{libri.botuesi || "N/A"}</li>
+                  <li>{libri.data_botimit || "N/A"}</li>
+                  <li>{libri.nr_faqeve || "N/A"}</li>
+                  <li>{libri.dimensionet || "N/A"}</li>
+                  <li>{libri.gjuha || "N/A"}</li>
+                  <li>{libri.lloji || "N/A"}</li>
+                  <li>{libri.ean_upc || "N/A"}</li>
                 </ul>
               </div>
             </div>

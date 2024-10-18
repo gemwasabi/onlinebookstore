@@ -3,7 +3,7 @@ import {
   editoPerdoruesin,
   merrPerdoruesin,
   merrPerdoruesit,
-  shlyejPerdoruesin,
+  shlyejProfilin,
   shtoPerdorues,
 } from "../controllers/perdoruesit.js";
 
@@ -12,7 +12,7 @@ const router = express.Router();
 router.get("/", merrPerdoruesit);
 router.get("/:id", merrPerdoruesin);
 router.post("/", shtoPerdorues);
-router.delete("/:id", shlyejPerdoruesin);
-router.put("/:id", editoPerdoruesin);
+router.delete("/:id", shlyejProfilin);
+router.put("/", editoPerdoruesin);
 
 export default router;

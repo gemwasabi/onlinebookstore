@@ -20,7 +20,7 @@ function Sidebar() {
           <li className="sidebar-header">Kryesore</li>
 
           <li className={`sidebar-item ${isActive("/")}`}>
-            <Link className="sidebar-link" to="/admin/ballina">
+            <Link className="sidebar-link" to="/admin">
               <i className="align-middle" data-feather="sliders"></i>
               <span className="align-middle">Ballina</span>
             </Link>
@@ -28,12 +28,12 @@ function Sidebar() {
 
           <li
             className={`sidebar-item ${isActive(
-              "/admin/perdoruesit/shfaqPerdoruesit"
+              "/admin/shfaqPerdoruesit"
             )}`}
           >
             <Link
               className="sidebar-link"
-              to="/admin/perdoruesit/shfaqPerdoruesit"
+              to="/admin/shfaqPerdoruesit"
             >
               <i className="align-middle" data-feather="sliders"></i>
               <span className="align-middle">Perdoruesit</span>
@@ -43,9 +43,9 @@ function Sidebar() {
           <li className="sidebar-header">Faqet</li>
 
           <li
-            className={`sidebar-item ${isActive("/admin/librat/shfaqLibrat")}`}
+            className={`sidebar-item ${isActive("/admin/shfaqLibrat")}`}
           >
-            <Link className="sidebar-link" to="/admin/librat/shfaqLibrat">
+            <Link className="sidebar-link" to="/admin/shfaqLibrat">
               <i className="align-middle" data-feather="sliders"></i>
               <span className="align-middle">Librat</span>
             </Link>
@@ -53,12 +53,12 @@ function Sidebar() {
 
           <li
             className={`sidebar-item ${isActive(
-              "/admin/kategorite/shfaqKategorite"
+              "/admin/shfaqKategorite"
             )}`}
           >
             <Link
               className="sidebar-link"
-              to="/admin/kategorite/shfaqKategorite"
+              to="/admin/shfaqKategorite"
             >
               <i className="align-middle" data-feather="sliders"></i>
               <span className="align-middle">Kategorite</span>

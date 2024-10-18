@@ -8,12 +8,16 @@ const Regjistrohu = () => {
   const navigate = useNavigate();
 
   const [inputs, setInputs] = useState({
+    emri: "",
+    mbiemri: "",
     emaili: "",
     fjalekalimi: "",
     kfjalekalimi: "",
   });
 
   const [errors, setErrors] = useState({
+    emri: "",
+    mbiemri: "",
     emaili: "",
     fjalekalimi: "",
     kfjalekalimi: "",
@@ -29,6 +33,10 @@ const Regjistrohu = () => {
 
   const validateInput = (name, value) => {
     switch (name) {
+      case "emri":
+        return validateEmri(value);
+      case "mbiemri":
+        return validateEmri(value);
       case "emaili":
         return validateEmail(value);
       case "fjalekalimi":
@@ -38,6 +46,26 @@ const Regjistrohu = () => {
       default:
         return "";
     }
+  };
+
+  const validateEmri = (emri) => {
+    const nameRegex = /^[A-Za-z\s\-]+$/; // Allows letters, spaces, and hyphens
+    if (!emri.trim()) {
+      return "Emri nuk mund të jetë bosh.";
+    } else if (!nameRegex.test(emri)) {
+      return "Emri duhet të përmbajë vetëm shkronja, hapësira ose ndonjë vizë.";
+    }
+    return "";
+  };
+
+  const validateMbiemri = (mbi) => {
+    const nameRegex = /^[A-Za-z\s\-]+$/; // Allows letters, spaces, and hyphens
+    if (!mbi.trim()) {
+      return "Mbiemri nuk mund të jetë bosh.";
+    } else if (!nameRegex.test(mbi)) {
+      return "Mbiemri duhet të përmbajë vetëm shkronja, hapësira ose ndonjë vizë.";
+    }
+    return "";
   };
 
   const validateEmail = (email) => {
@@ -51,7 +79,8 @@ const Regjistrohu = () => {
   };
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!password.trim()) {
       return "Fjalëkalimi nuk mund të jetë bosh.";
     } else if (!passwordRegex.test(password)) {
@@ -71,6 +100,8 @@ const Regjistrohu = () => {
     e.preventDefault();
 
     const newErrors = {
+      emri: validateEmri(inputs.emri),
+      mbiemri: validateMbiemri(inputs.mbiemri),
       emaili: validateEmail(inputs.emaili),
       fjalekalimi: validatePassword(inputs.fjalekalimi),
       kfjalekalimi: validateConfirmPassword(inputs.kfjalekalimi),
@@ -78,14 +109,18 @@ const Regjistrohu = () => {
 
     setErrors(newErrors);
 
-    if (newErrors.emaili || newErrors.fjalekalimi || newErrors.kfjalekalimi) {
+    if (
+      newErrors.emri ||
+      newErrors.mbiemri ||
+      newErrors.emaili ||
+      newErrors.fjalekalimi ||
+      newErrors.kfjalekalimi
+    ) {
       return;
     }
 
     try {
       await axios.post("http://localhost:8800/api/auth/regjistrohu", inputs);
-
-      localStorage.setItem("autoLoginEmail", inputs.emaili);
 
       navigate("/kycu");
     } catch (err) {
@@ -95,14 +130,7 @@ const Regjistrohu = () => {
 
   return (
     <div className="w-screen bg-[#7B8E76]">
-      <div className="flex justify-center">
-        <img
-          className="my-[100px] mt-2 absolute text-center lg:block lg:my-[50px] hidden"
-          src={logo}
-          alt="Logoja Lype"
-        />
-      </div>
-      <div className="relative flex mt-5 min-h-screen flex-col items-center justify-center overflow-hidden ">
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden ">
         <div className="h-screen w-ful rounded-none bg-[#BCC5B8] px-[40px] pb-[30px] shadow-2xl sm:h-auto sm:w-[510px] sm:rounded-2xl">
           {error && (
             <div className="mt-5 flex h-16 w-full items-center rounded-[10px] bg-[#d6a3a3] px-6 text-[20px] text-[#6e5d5d]">
@@ -115,10 +143,57 @@ const Regjistrohu = () => {
           <form>
             <div className="relative py-[50px]">
               <input
+                type="text"
+                name="emri"
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors.emri ? "border-red-500" : ""
+                }`}
+                placeholder="Shkruaj Emrin"
+                value={inputs.emri}
+                onChange={trajtoNdryshimet}
+              />
+              <label
+                htmlFor=""
+                className="absolute left-0 z-50 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
+              >
+                Emri
+              </label>
+              {errors.emri && (
+                <div className="text-sm text-red-500 ml-[10px] mt-1 absolute left-0">
+                  {errors.emri}
+                </div>
+              )}
+            </div>
+            <div className="relative pb-[50px]">
+              <input
+                type="text"
+                name="mbiemri"
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors.mbiemri ? "border-red-500" : ""
+                }`}
+                placeholder="Shkruaj Mbiemrin"
+                value={inputs.mbiemri}
+                onChange={trajtoNdryshimet}
+              />
+              <label
+                htmlFor=""
+                className="absolute left-0 z-50 ml-[20px] -translate-y-4 bg-[#BCC5B8] px-3 text-[20px] text-[#757C73] peer-focus:text-[#51584F]"
+              >
+                Mbiemri
+              </label>
+              {errors.mbiemri && (
+                <div className="text-sm text-red-500 ml-[10px] mt-1 absolute left-0">
+                  {errors.mbiemri}
+                </div>
+              )}
+            </div>
+            <div className="relative pb-[50px]">
+              <input
                 type="email"
                 name="emaili"
-                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${errors.emaili ? "border-red-500" : ""
-                  }`}
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors.emaili ? "border-red-500" : ""
+                }`}
                 placeholder="Shkruaj Emailin"
                 value={inputs.emaili}
                 onChange={trajtoNdryshimet}
@@ -139,8 +214,9 @@ const Regjistrohu = () => {
               <input
                 type="password"
                 name="fjalekalimi"
-                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${errors.fjalekalimi ? "border-red-500" : ""
-                  }`}
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors.fjalekalimi ? "border-red-500" : ""
+                }`}
                 placeholder="Shkruaj Fjalekalimin"
                 value={inputs.fjalekalimi}
                 onChange={trajtoNdryshimet}
@@ -161,8 +237,9 @@ const Regjistrohu = () => {
               <input
                 type="password"
                 name="kfjalekalimi"
-                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${errors.kfjalekalimi ? "border-red-500" : ""
-                  }`}
+                className={`peer h-16 w-full rounded-[10px] border-2 border-[#757C73] bg-inherit px-[16px] text-lg transition-colors duration-100 focus:border-[#51584F] focus:outline-none focus:ring-0 ${
+                  errors.kfjalekalimi ? "border-red-500" : ""
+                }`}
                 placeholder="Konfirmo Fjalekalimin"
                 value={inputs.kfjalekalimi}
                 onChange={trajtoNdryshimet}

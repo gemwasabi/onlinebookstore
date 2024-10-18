@@ -67,7 +67,7 @@ function Shto() {
       setLibratOptions(
         res.data.map((libri) => ({
           value: libri.id,
-          label: libri.emri,
+          label: libri.titulli,
         }))
       );
     } catch (error) {

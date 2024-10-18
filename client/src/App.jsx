@@ -38,6 +38,7 @@ import SliderShto from "./faqet/admin/Slider/Shto";
 import ShfaqPorosite from "./faqet/admin/Porosite/Lista";
 import UserSettings from "./faqet/UserSettings";
 import UserSettings2 from "./faqet/UserSettings2";
+import UserSettings3 from "./faqet/UserSettings3";
 
 const Struktura = () => {
   return (
@@ -111,39 +112,39 @@ const router = createBrowserRouter([
     element: <StrukturaAdmin />,
     children: [
       {
-        path: "/admin/librat/shtoLiber",
+        path: "/admin/shtoLiber",
         element: <ShtoLiber />,
       },
       {
-        path: "/admin/librat/shfaqLibrat",
+        path: "/admin/shfaqLibrat",
         element: <ShfaqLibrat />,
       },
       {
-        path: "/admin/librat/editoLibrin/:id",
+        path: "/admin/editoLibrin/:id",
         element: <EditoLibrin />,
       },
       {
-        path: "/admin/perdoruesit/shtoPerdorues",
+        path: "/admin/shtoPerdorues",
         element: <ShtoPerdorues />,
       },
       {
-        path: "/admin/perdoruesit/shfaqPerdoruesit",
+        path: "/admin/shfaqPerdoruesit",
         element: <ShfaqPerdoruesin />,
       },
       {
-        path: "/admin/perdoruesit/editoPerdoruesin/:id",
+        path: "/admin/editoPerdoruesin/:id",
         element: <EditoPerdoruesin />,
       },
       {
-        path: "/admin/kategorite/shtoKategori",
+        path: "/admin/shtoKategorine",
         element: <ShtoKategori />,
       },
       {
-        path: "/admin/kategorite/shfaqKategorite",
+        path: "/admin/shfaqKategorite",
         element: <ShfaqKategorite />,
       },
       {
-        path: "/admin/kategorite/editoKategorine/:id",
+        path: "/admin/editoKategorine/:id",
         element: <EditoKategorine />,
       },
       {
@@ -205,8 +206,12 @@ const router = createBrowserRouter([
         element: <UserSettings />,
       },
       {
-        path: "/sfondi/adresa",
+        path: "/sfondi/adresat",
         element: <UserSettings2 />,
+      },
+      {
+        path: "/sfondi/kartelat",
+        element: <UserSettings3 />,
       },
       {
         path: "/faq",

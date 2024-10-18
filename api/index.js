@@ -7,6 +7,8 @@ import tufatRoutes from "./routes/tufat.js";
 import shportaRoutes from "./routes/shporta.js";
 import sliderRoutes from "./routes/slider.js";
 import porositeRoutes from "./routes/porosite.js";
+import adresatRoutes from "./routes/adresat.js";
+import kartelatRoutes from "./routes/kartelat.js";
 
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -25,6 +27,8 @@ app.use("/api/tufat", tufatRoutes);
 app.use("/api/shporta", shportaRoutes);
 app.use("/api/slider", sliderRoutes);
 app.use("/api/porosite", porositeRoutes);
+app.use("/api/adresat", adresatRoutes);
+app.use("/api/kartela", kartelatRoutes);
 
 app.listen(8800, () => {
   console.log("jeni konektuar!");

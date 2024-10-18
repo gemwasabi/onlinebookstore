@@ -4,36 +4,47 @@ import axios from "axios";
 
 const Edito = () => {
   const [inputs, setInputs] = useState({
-    emri: "",
-    pershkrimi: "",
+    emri: "", // Ensure default value is an empty string
   });
 
   const [errors, setErrors] = useState({
     emri: "",
-    pershkrimi: "",
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const kategoriaID = location.pathname.split("/")[3];
 
-  const trajtoNdryshimet = (e) => {
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8800/api/kategorite/${kategoriaID}`
+        );
+        setInputs(res.data || { emri: "" }); // Ensure default values are set
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchCategory();
+  }, [kategoriaID]);
+
+  const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-  const location = useLocation();
 
-  const kategoriaID = location.pathname.split("/")[4];
-
-  const trajtoSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateInputs(inputs);
     if (Object.values(validationErrors).every((error) => !error)) {
       try {
         await axios.put(
-          "http://localhost:8800/api/kategorite/" + kategoriaID,
+          `http://localhost:8800/api/kategorite/${kategoriaID}`,
           inputs
         );
-        navigate("/admin/kategorite/shfaqKategorite");
+        navigate("/admin/shfaqKategorite");
       } catch (err) {
-        // setError(err.response.data);
+        console.log(err);
       }
     } else {
       setErrors(validationErrors);
@@ -45,43 +56,8 @@ const Edito = () => {
     if (!inputs.emri) {
       errors.emri = "Emri eshte i detyrueshem";
     }
-    if (!inputs.pershkrimi) {
-      errors.pershkrimi = "Pershkrimi eshte i detyrueshem";
-    }
     return errors;
   };
-
-  const [libri, setLibrin] = useState({});
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await axios.get(
-        "http://localhost:8800/api/kategorite/" + kategoriaID
-      );
-      try {
-        setLibrin(res.data);
-        setInputs(res.data); // Update inputs with fetched data
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, [kategoriaID]);
-
-  const [kategorite, setKategorite] = useState([]);
-
-  const fetchData = async () => {
-    try {
-      const res = await axios.get("http://localhost:8800/api/kategorite");
-      setKategorite(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <div className="row justify-content-center">
@@ -92,47 +68,27 @@ const Edito = () => {
             <span className="text-danger">* Obligueshme</span>
           </div>
           <div className="card-body">
-            <div className="form-group row mb-3">
-              <label className="col-sm-2 col-form-label">Emri</label>
-              <div className="col-sm-10">
-                <input
-                  type="text"
-                  className={`form-control ${errors.emri && "is-invalid"}`}
-                  placeholder="Emri"
-                  onChange={trajtoNdryshimet}
-                  name="emri"
-                  value={inputs.emri}
-                />
-                {errors.emri && (
-                  <div className="invalid-feedback">{errors.emri}</div>
-                )}
+            <form onSubmit={handleSubmit}>
+              <div className="form-group row mb-3">
+                <label className="col-sm-2 col-form-label">Emri</label>
+                <div className="col-sm-10">
+                  <input
+                    type="text"
+                    className={`form-control ${errors.emri && "is-invalid"}`}
+                    placeholder="Emri"
+                    onChange={handleChange}
+                    name="emri"
+                    value={inputs.emri || ""} // Ensure the value is always a string
+                  />
+                  {errors.emri && (
+                    <div className="invalid-feedback">{errors.emri}</div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="form-group row mb-3">
-              <label className="col-sm-2 col-form-label">Pershkrimi</label>
-              <div className="col-sm-10">
-                <textarea
-                  className={`form-control ${
-                    errors.pershkrimi && "is-invalid"
-                  }`}
-                  placeholder="Pershkrimi"
-                  onChange={trajtoNdryshimet}
-                  name="pershkrimi"
-                  value={inputs.pershkrimi}
-                  rows="3"
-                ></textarea>
-                {errors.pershkrimi && (
-                  <div className="invalid-feedback">{errors.pershkrimi}</div>
-                )}
-              </div>
-            </div>
-            <button
-              className="btn btn-primary"
-              type="submit"
-              onClick={trajtoSubmit}
-            >
-              Perditeso Kategorine
-            </button>
+              <button className="btn btn-primary" type="submit">
+                Perditeso Kategorine
+              </button>
+            </form>
           </div>
         </div>
       </div>
