@@ -91,7 +91,7 @@ const Navbar = () => {
           />
 
           {currentUser && (
-            <Link to="/procesimi">
+            <Link to="/pagesa">
               <img src={Checkout} alt="Checkout Icon" className="h-6 md:h-8" />
             </Link>
           )}
