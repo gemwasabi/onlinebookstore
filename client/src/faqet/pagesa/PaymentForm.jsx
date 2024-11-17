@@ -14,7 +14,6 @@ const PaymentForm = () => {
   const stripe = useStripe();
   const elements = useElements();
   const [cartItems, setCartItems] = useState([]);
-  const [clientSecret, setClientSecret] = useState("");
   const [totalAmount, setTotalAmount] = useState(0);
   const [paymentStatus, setPaymentStatus] = useState("");
   const [shippingInfo, setShippingInfo] = useState({
@@ -30,10 +29,10 @@ const PaymentForm = () => {
     kodi_postar: "",
     telefoni: "",
   });
-
+  const [isPayButtonDisabled, setIsPayButtonDisabled] = useState(true);
 
   useEffect(() => {
-    const fetchCartAndSecret = async () => {
+    const fetchCart = async () => {
       try {
         const cartResponse = await axios.get(`http://localhost:8800/api/shporta?userId=${userId}`);
         console.log("Cart Items:", cartResponse.data);
@@ -47,15 +46,8 @@ const PaymentForm = () => {
         const calculateTotal = (items) =>
           items.reduce((total, item) => total + item.cmimi * item.quantity, 0);
         setTotalAmount(calculateTotal(itemsWithQuantity));
-
-        const secretResponse = await axios.post("http://localhost:8800/api/porosite/pagesa", {
-          amount: calculateTotal(itemsWithQuantity),
-          currency: "euro",
-        });
-
-        setClientSecret(secretResponse.data.clientSecret);
       } catch (error) {
-        console.error("Error setting up payment:", error);
+        console.error("Error fetching cart:", error);
       }
     };
 
@@ -67,9 +59,54 @@ const PaymentForm = () => {
         console.error("Error fetching addresses:", error);
       }
     };
-    fetchCartAndSecret();
+
+    fetchCart();
     if (userId) fetchAddresses();
   }, [userId]);
+
+  useEffect(() => {
+    const calculateTotal = (items) =>
+      items.reduce((total, item) => total + item.cmimi * item.quantity, 0);
+    setTotalAmount(calculateTotal(cartItems));
+  }, [cartItems]);
+
+  useEffect(() => {
+    const validateForm = () => {
+      const isShippingInfoValid = () => {
+        const { name, email } = shippingInfo;
+        return name.trim() !== "" && email.trim() !== "";
+      };
+
+      const isAddressValid = () => {
+        if (selectedAddressId === "new") {
+          const { shteti, qyteti, adresa, kodi_postar, telefoni } = newAddress;
+          return (
+            shteti.trim() !== "" &&
+            qyteti.trim() !== "" &&
+            adresa.trim() !== "" &&
+            kodi_postar.trim() !== "" &&
+            telefoni.trim() !== ""
+          );
+        }
+        return selectedAddressId !== "";
+      };
+
+      const isCardValid = () => {
+        const cardElement = elements.getElement(CardElement);
+        return cardElement && !cardElement.empty;
+      };
+
+      const isValid = isShippingInfoValid() && isAddressValid() && isCardValid();
+      setIsPayButtonDisabled(!isValid);
+    };
+
+    validateForm();
+  }, [shippingInfo, selectedAddressId, newAddress, elements]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setShippingInfo({ ...shippingInfo, [name]: value });
+  };
 
   const handleNewAddressChange = (e) => {
     const { name, value } = e.target;
@@ -82,20 +119,13 @@ const PaymentForm = () => {
         ...newAddress,
         perdoruesi_id: userId,
       });
-      alert("New address added!");
+      alert("Adresa e re u shtua!");
       setSavedAddresses((prev) => [...prev, response.data]);
       setNewAddress({ shteti: "", qyteti: "", adresa: "", kodi_postar: "", telefoni: "" });
     } catch (error) {
       console.error("Error adding new address:", error);
     }
   };
-
-  useEffect(() => {
-    const calculateTotal = (items) =>
-      items.reduce((total, item) => total + item.cmimi * item.quantity, 0);
-    setTotalAmount(calculateTotal(cartItems));
-  }, [cartItems]);
-
 
   const handleQuantityChange = (bookId, change) => {
     setCartItems((prevItems) =>
@@ -107,45 +137,40 @@ const PaymentForm = () => {
     );
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setShippingInfo({ ...shippingInfo, [name]: value });
-  };
-
-  useEffect(() => {
-    setShippingInfo((prevInfo) => ({
-      ...prevInfo,
-      name: currentUser?.emri || "",
-      email: currentUser?.emaili || "",
-    }));
-  }, [currentUser]);
-
-
   const handlePayment = async () => {
-    if (!stripe || !elements || !clientSecret) return;
+    if (!stripe || !elements) return;
 
-    setPaymentStatus("Processing...");
+    setPaymentStatus("Duke u procesuar...");
 
-    const cardElement = elements.getElement(CardElement);
+    try {
+      const secretResponse = await axios.post("http://localhost:8800/api/porosite/pagesa", {
+        amount: totalAmount,
+        currency: "eur",
+      });
 
-    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: cardElement,
-      },
-    });
+      const cardElement = elements.getElement(CardElement);
 
-    if (error) {
-      setPaymentStatus(`Payment failed: ${error.message}`);
-    } else if (paymentIntent.status === "succeeded") {
-      setPaymentStatus("Payment successful!");
-      console.log("PaymentIntent:", paymentIntent);
+      const { error, paymentIntent } = await stripe.confirmCardPayment(secretResponse.data.clientSecret, {
+        payment_method: {
+          card: cardElement,
+        },
+      });
+
+      if (error) {
+        setPaymentStatus(`Payment failed: ${error.message}`);
+      } else if (paymentIntent.status === "succeeded") {
+        setPaymentStatus("Payment successful!");
+        console.log("PaymentIntent:", paymentIntent);
+      }
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      setPaymentStatus("Payment failed. Please try again.");
     }
   };
 
   if (!userId) {
-    return <p>Ju lutem kyçyni para se të vazhdoni me blerjen. </p>;
+    return <p>Ju lutem kyçyni para se të vazhdoni me blerjen.</p>;
   }
-
   return (
     <div className="payment-container">
       <h2>Checkout</h2>
@@ -176,6 +201,7 @@ const PaymentForm = () => {
           value={shippingInfo.name}
           placeholder="Full Name"
           onChange={handleInputChange}
+          style={{ borderColor: shippingInfo.name.trim() === "" ? "red" : "" }}
         />
         <input
           type="email"
@@ -183,6 +209,7 @@ const PaymentForm = () => {
           value={shippingInfo.email}
           placeholder="Email"
           onChange={handleInputChange}
+          style={{ borderColor: shippingInfo.email.trim() === "" ? "red" : "" }}
         />
       </div>
 
@@ -209,6 +236,7 @@ const PaymentForm = () => {
               value={newAddress.shteti}
               placeholder="Country"
               onChange={handleNewAddressChange}
+              style={{ borderColor: newAddress.shteti.trim() === "" ? "red" : "" }}
             />
             <input
               type="text"
@@ -216,6 +244,7 @@ const PaymentForm = () => {
               value={newAddress.qyteti}
               placeholder="City"
               onChange={handleNewAddressChange}
+              style={{ borderColor: newAddress.qyteti.trim() === "" ? "red" : "" }}
             />
             <input
               type="text"
@@ -223,6 +252,7 @@ const PaymentForm = () => {
               value={newAddress.adresa}
               placeholder="Address"
               onChange={handleNewAddressChange}
+              style={{ borderColor: newAddress.adresa.trim() === "" ? "red" : "" }}
             />
             <input
               type="text"
@@ -230,6 +260,7 @@ const PaymentForm = () => {
               value={newAddress.kodi_postar}
               placeholder="Postal Code"
               onChange={handleNewAddressChange}
+              style={{ borderColor: newAddress.kodi_postar.trim() === "" ? "red" : "" }}
             />
             <input
               type="text"
@@ -237,23 +268,21 @@ const PaymentForm = () => {
               value={newAddress.telefoni}
               placeholder="Phone"
               onChange={handleNewAddressChange}
+              style={{ borderColor: newAddress.telefoni.trim() === "" ? "red" : "" }}
             />
-            <button onClick={handleAddNewAddress}>Add Address</button>
-          </div>
-        )}
+            <button onClick={handleAddNewAddress}>Shto adresën e re</button>
+          </div>)}
       </div>
 
       <div className="payment-section">
         <h3>Total: ${totalAmount.toFixed(2)}</h3>
         <CardElement />
-        <button onClick={handlePayment} disabled={!stripe || !clientSecret}>
+        <button onClick={handlePayment} disabled={isPayButtonDisabled}>
           Pay
         </button>
       </div>
-
       {paymentStatus && <p>{paymentStatus}</p>}
-    </div>
-  );
+    </div>);
 };
 
 const PaymentPage = () => (
