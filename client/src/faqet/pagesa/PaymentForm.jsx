@@ -139,34 +139,67 @@ const PaymentForm = () => {
 
   const handlePayment = async () => {
     if (!stripe || !elements) return;
-
-    setPaymentStatus("Duke u procesuar...");
-
+  
+    setPaymentStatus("Processing...");
+  
     try {
       const secretResponse = await axios.post("http://localhost:8800/api/porosite/pagesa", {
         amount: totalAmount,
         currency: "eur",
       });
-
+  
       const cardElement = elements.getElement(CardElement);
-
+  
       const { error, paymentIntent } = await stripe.confirmCardPayment(secretResponse.data.clientSecret, {
         payment_method: {
           card: cardElement,
         },
       });
-
+  
       if (error) {
         setPaymentStatus(`Payment failed: ${error.message}`);
       } else if (paymentIntent.status === "succeeded") {
         setPaymentStatus("Payment successful!");
         console.log("PaymentIntent:", paymentIntent);
+  
+        // Save the order
+        await saveOrder(paymentIntent.id);
       }
     } catch (error) {
       console.error("Error processing payment:", error);
       setPaymentStatus("Payment failed. Please try again.");
     }
   };
+  
+  const saveOrder = async (paymentIntentId) => {
+    if (!shippingInfo.address || !shippingInfo.city || !shippingInfo.postalCode) {
+      setPaymentStatus("Please complete all required shipping information.");
+      return;
+    }
+  
+    try {
+      const response = await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", {
+        userId,
+        totalAmount,
+        cartItems,
+        shippingInfo: {
+          address: shippingInfo.address,
+          address2: shippingInfo.address2 || "",
+          city: shippingInfo.city,
+          postalCode: shippingInfo.postalCode,
+          comment: shippingInfo.comment || "",
+        },
+        paymentIntentId,
+      });
+  
+      console.log("Order saved:", response.data);
+      setPaymentStatus("Order saved successfully!");
+    } catch (error) {
+      console.error("Error saving order:", error);
+      setPaymentStatus("Error saving order.");
+    }
+  };
+  
 
   if (!userId) {
     return <p>Ju lutem kyçyni para se të vazhdoni me blerjen.</p>;
