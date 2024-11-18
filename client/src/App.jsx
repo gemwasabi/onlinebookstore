@@ -39,6 +39,7 @@ import ShfaqPorosite from "./faqet/admin/Porosite/Lista";
 import UserSettings from "./faqet/UserSettings";
 import UserSettings2 from "./faqet/UserSettings2";
 import UserSettings3 from "./faqet/UserSettings3";
+import PaymentPage from "./faqet/pagesa/PaymentForm";
 
 const Struktura = () => {
   return (
@@ -184,6 +185,10 @@ const router = createBrowserRouter([
       {
         path: "/procesimi",
         element: <CheckoutProcess />,
+      },
+      {
+        path: "/pagesa",
+        element: <PaymentPage />,
       },
       {
         path: "/libri/:id",

@@ -1,9 +1,9 @@
 import express from "express";
-import { shtoPorosi, merrPorosite } from "../controllers/porosite.js";
+import { krijoPagesen, saveOrder } from "../controllers/porosite.js";
 
 const router = express.Router();
 
-router.get("/", merrPorosite);
-router.post("/", shtoPorosi);
+router.post("/pagesa", krijoPagesen);
+router.post("/ruaj-porosine", saveOrder);
 
 export default router;

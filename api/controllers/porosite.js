@@ -1,35 +1,76 @@
+import stripe from "../config/stripe.js";
+
+export const krijoPagesen = async (req, res) => {
+  try {
+    const { amount, currency } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100),
+      currency,
+      payment_method_types: ["card"],
+    });
+
+    res.status(200).json({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 import { db } from "../db.js";
 
-export const merrPorosite = (req, res) => {
-  const q = "select * from porosite";
+export const saveOrder = async (req, res) => {
+  const { userId, totalAmount, cartItems, shippingInfo } = req.body;
 
-  db.query(q, (err, data) => {
-    if (err) return res.json(err);
-    return res.status(200).json(data);
-  });
-};
+  if (!userId || !cartItems || cartItems.length === 0 || !shippingInfo) {
+    return res.status(400).json({ error: "Invalid order data." });
+  }
 
-export const shtoPorosi = (req, res) => {
-  const q =
-    "insert into porosite (perdoruesi_id, totali, statusi, emrui_karteles, numri_karteles, data_skadimit, cvv, adresa_1, adresa_2, qyteti, kodi_postar, komenti_shtese) values (?)";
+  // Validate shipping info fields
+  const { address, city, postalCode } = shippingInfo;
+  if (!address || !city || !postalCode) {
+    return res.status(400).json({ error: "Shipping information is incomplete." });
+  }
 
-  const vlerat = [
-    req.body.perdoruesi_id,
-    0,
-    0,
-    req.body.emri_ne_kartele,
-    req.body.numri_karteles,
-    req.body.data_skadimit,
-    req.body.cvv,
-    req.body.adresa_1,
-    req.body.adresa_2,
-    req.body.qyteti,
-    req.body.kodi_postar,
-    req.body.koment,
-  ];
+  try {
+    await db.beginTransaction();
 
-  db.query(q, [vlerat], (err, data) => {
-    if (err) return res.json(err);
-    return res.status(200).json("Libri u shtua me sukses.");
-  });
+    const orderQuery = `
+      INSERT INTO porosite (perdoruesi_id, data, totali, statusi, adresa_1, adresa_2, qyteti, kodi_postar, komenti_shtese)
+      VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const orderValues = [
+      userId,
+      totalAmount,
+      0, // statusi (default pending)
+      address,
+      shippingInfo.address2 || "",
+      city,
+      postalCode,
+      shippingInfo.comment || "",
+    ];
+
+    const [orderResult] = await db.query(orderQuery, orderValues);
+    const orderId = orderResult.insertId;
+
+    const orderItemsQuery = `
+      INSERT INTO order_items (order_id, book_id, quantity, price)
+      VALUES ?
+    `;
+    const orderItemsValues = cartItems.map((item) => [
+      orderId,
+      item.id,
+      item.quantity,
+      item.cmimi,
+    ]);
+    await db.query(orderItemsQuery, [orderItemsValues]);
+
+    await db.commit();
+
+    res.status(201).json({ message: "Order saved successfully", orderId });
+  } catch (err) {
+    await db.rollback();
+    console.error("Error saving order:", err);
+    res.status(500).json({ error: "Error saving order." });
+  }
 };
