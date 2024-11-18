@@ -1,4 +1,5 @@
 import stripe from "../config/stripe.js";
+import { db } from "../db.js";
 
 export const krijoPagesen = async (req, res) => {
   try {
@@ -17,23 +18,48 @@ export const krijoPagesen = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-import { db } from "../db.js";
+
+import { promisify } from "util";
+
+const query = promisify(db.query).bind(db);
 
 export const saveOrder = async (req, res) => {
-  const { userId, totalAmount, cartItems, shippingInfo } = req.body;
+  const { userId, totalAmount, cartItems, shippingInfo, paymentIntentId } = req.body;
+
+  console.log("Received order data:", req.body);
 
   if (!userId || !cartItems || cartItems.length === 0 || !shippingInfo) {
+    console.error("Invalid order data:", { userId, totalAmount, cartItems, shippingInfo });
     return res.status(400).json({ error: "Invalid order data." });
   }
 
-  // Validate shipping info fields
-  const { address, city, postalCode } = shippingInfo;
-  if (!address || !city || !postalCode) {
-    return res.status(400).json({ error: "Shipping information is incomplete." });
-  }
-
   try {
-    await db.beginTransaction();
+    await query("START TRANSACTION");
+
+    let addressId = shippingInfo.id;
+    if (!addressId) {
+      const addressQuery = `
+        INSERT INTO adresat (perdoruesi_id, adresa, qyteti, kodi_postar, telefoni, shteti)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      const addressValues = [
+        userId,
+        shippingInfo.address || "",
+        shippingInfo.city || "",
+        shippingInfo.postalCode || "",
+        shippingInfo.phone || "",
+        shippingInfo.shteti || "",
+      ];
+
+      const addressResult = await query(addressQuery, addressValues);
+
+      if (!addressResult.insertId) {
+        throw new Error("Failed to insert address.");
+      }
+      addressId = addressResult.insertId;
+    }
+
+    console.log("Address ID:", addressId);
 
     const orderQuery = `
       INSERT INTO porosite (perdoruesi_id, data, totali, statusi, adresa_1, adresa_2, qyteti, kodi_postar, komenti_shtese)
@@ -42,16 +68,22 @@ export const saveOrder = async (req, res) => {
     const orderValues = [
       userId,
       totalAmount,
-      0, // statusi (default pending)
-      address,
+      0,
+      shippingInfo.address,
       shippingInfo.address2 || "",
-      city,
-      postalCode,
+      shippingInfo.city,
+      shippingInfo.postalCode,
       shippingInfo.comment || "",
     ];
 
-    const [orderResult] = await db.query(orderQuery, orderValues);
+    const orderResult = await query(orderQuery, orderValues);
+
+    if (!orderResult.insertId) {
+      throw new Error("Failed to insert order.");
+    }
     const orderId = orderResult.insertId;
+
+    console.log("Order ID:", orderId);
 
     const orderItemsQuery = `
       INSERT INTO order_items (order_id, book_id, quantity, price)
@@ -63,14 +95,19 @@ export const saveOrder = async (req, res) => {
       item.quantity,
       item.cmimi,
     ]);
-    await db.query(orderItemsQuery, [orderItemsValues]);
 
-    await db.commit();
+    if (orderItemsValues.length > 0) {
+      await query(orderItemsQuery, [orderItemsValues]);
+    }
+
+    console.log("Order items inserted successfully.");
+
+    await query("COMMIT");
 
     res.status(201).json({ message: "Order saved successfully", orderId });
-  } catch (err) {
-    await db.rollback();
-    console.error("Error saving order:", err);
-    res.status(500).json({ error: "Error saving order." });
+  } catch (error) {
+    await query("ROLLBACK");
+    console.error("Error saving order:", error);
+    res.status(500).json({ error: error.message });
   }
 };

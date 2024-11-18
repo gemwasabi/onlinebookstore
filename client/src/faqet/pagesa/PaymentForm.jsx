@@ -73,11 +73,6 @@ const PaymentForm = () => {
   useEffect(() => {
     const validateForm = () => {
       const isShippingInfoValid = () => {
-        const { name, email } = shippingInfo;
-        return name.trim() !== "" && email.trim() !== "";
-      };
-
-      const isAddressValid = () => {
         if (selectedAddressId === "new") {
           const { shteti, qyteti, adresa, kodi_postar, telefoni } = newAddress;
           return (
@@ -88,21 +83,29 @@ const PaymentForm = () => {
             telefoni.trim() !== ""
           );
         }
-        return selectedAddressId !== "";
+        const selectedAddress = savedAddresses.find(
+          (address) => address.id === parseInt(selectedAddressId)
+        );
+        return (
+          selectedAddress &&
+          selectedAddress.adresa.trim() !== "" &&
+          selectedAddress.qyteti.trim() !== "" &&
+          selectedAddress.kodi_postar.trim() !== ""
+        );
       };
-
+  
       const isCardValid = () => {
         const cardElement = elements.getElement(CardElement);
         return cardElement && !cardElement.empty;
       };
-
-      const isValid = isShippingInfoValid() && isAddressValid() && isCardValid();
+  
+      const isValid = isShippingInfoValid() && isCardValid();
       setIsPayButtonDisabled(!isValid);
     };
-
+  
     validateForm();
-  }, [shippingInfo, selectedAddressId, newAddress, elements]);
-
+  }, [shippingInfo, selectedAddressId, newAddress, elements, savedAddresses]);
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setShippingInfo({ ...shippingInfo, [name]: value });
@@ -110,22 +113,34 @@ const PaymentForm = () => {
 
   const handleNewAddressChange = (e) => {
     const { name, value } = e.target;
-    setNewAddress({ ...newAddress, [name]: value });
+    setNewAddress((prev) => ({ ...prev, [name]: value }));
   };
-
+  
   const handleAddNewAddress = async () => {
+    if (
+      newAddress.shteti.trim() === "" ||
+      newAddress.qyteti.trim() === "" ||
+      newAddress.adresa.trim() === "" ||
+      newAddress.kodi_postar.trim() === "" ||
+      newAddress.telefoni.trim() === ""
+    ) {
+      alert("Please fill in all the address fields.");
+      return;
+    }
+  
     try {
       const response = await axios.post("http://localhost:8800/api/adresat", {
         ...newAddress,
         perdoruesi_id: userId,
       });
-      alert("Adresa e re u shtua!");
+      alert("New address added successfully!");
       setSavedAddresses((prev) => [...prev, response.data]);
       setNewAddress({ shteti: "", qyteti: "", adresa: "", kodi_postar: "", telefoni: "" });
     } catch (error) {
       console.error("Error adding new address:", error);
     }
   };
+  
 
   const handleQuantityChange = (bookId, change) => {
     setCartItems((prevItems) =>
@@ -162,7 +177,6 @@ const PaymentForm = () => {
         setPaymentStatus("Payment successful!");
         console.log("PaymentIntent:", paymentIntent);
   
-        // Save the order
         await saveOrder(paymentIntent.id);
       }
     } catch (error) {
@@ -172,26 +186,43 @@ const PaymentForm = () => {
   };
   
   const saveOrder = async (paymentIntentId) => {
-    if (!shippingInfo.address || !shippingInfo.city || !shippingInfo.postalCode) {
-      setPaymentStatus("Please complete all required shipping information.");
+    const shippingInfo =
+      selectedAddressId === "new"
+        ? {
+            address: newAddress.adresa,
+            address2: newAddress.address2 || "",
+            city: newAddress.qyteti,
+            postalCode: newAddress.kodi_postar,
+            phone: newAddress.telefoni,
+            shteti: newAddress.shteti,
+          }
+        : {
+            address: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).adresa,
+            address2: "",
+            city: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).qyteti,
+            postalCode: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).kodi_postar,
+            phone: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).telefoni,
+            shteti: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).shteti,
+          };
+  
+    if (!shippingInfo || !shippingInfo.address || !shippingInfo.city || !shippingInfo.postalCode) {
+      console.error("Invalid shipping information:", shippingInfo);
+      setPaymentStatus("Please select or provide valid shipping information.");
       return;
     }
   
-    try {
-      const response = await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", {
-        userId,
-        totalAmount,
-        cartItems,
-        shippingInfo: {
-          address: shippingInfo.address,
-          address2: shippingInfo.address2 || "",
-          city: shippingInfo.city,
-          postalCode: shippingInfo.postalCode,
-          comment: shippingInfo.comment || "",
-        },
-        paymentIntentId,
-      });
+    const orderData = {
+      userId,
+      totalAmount,
+      cartItems,
+      shippingInfo,
+      paymentIntentId,
+    };
   
+    console.log("Order data being sent:", orderData); 
+  
+    try {
+      const response = await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
       console.log("Order saved:", response.data);
       setPaymentStatus("Order saved successfully!");
     } catch (error) {
@@ -200,7 +231,6 @@ const PaymentForm = () => {
     }
   };
   
-
   if (!userId) {
     return <p>Ju lutem kyçyni para se të vazhdoni me blerjen.</p>;
   }
