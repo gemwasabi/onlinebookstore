@@ -30,7 +30,12 @@ const PaymentForm = () => {
     telefoni: "",
   });
   const [isPayButtonDisabled, setIsPayButtonDisabled] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState(1);
 
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
+  };
+  
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -141,6 +146,22 @@ const PaymentForm = () => {
     }
   };
   
+  const handleAddressChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedAddressId(selectedId);
+  
+    if (selectedId !== "new") {
+      // Reset new address form
+      setNewAddress({
+        shteti: "",
+        qyteti: "",
+        adresa: "",
+        kodi_postar: "",
+        telefoni: "",
+      });
+    }
+  };
+  
 
   const handleQuantityChange = (bookId, change) => {
     setCartItems((prevItems) =>
@@ -153,62 +174,91 @@ const PaymentForm = () => {
   };
 
   const handlePayment = async () => {
-    if (!stripe || !elements) return;
+    if (paymentMethod === "stripe") {
+      if (!stripe || !elements) return;
   
-    setPaymentStatus("Processing...");
+      setPaymentStatus("Processing...");
   
-    try {
-      const secretResponse = await axios.post("http://localhost:8800/api/porosite/pagesa", {
-        amount: totalAmount,
-        currency: "eur",
-      });
+      try {
+        const secretResponse = await axios.post("http://localhost:8800/api/porosite/pagesa", {
+          amount: totalAmount,
+          currency: "eur",
+        });
   
-      const cardElement = elements.getElement(CardElement);
+        const cardElement = elements.getElement(CardElement);
   
-      const { error, paymentIntent } = await stripe.confirmCardPayment(secretResponse.data.clientSecret, {
-        payment_method: {
-          card: cardElement,
-        },
-      });
+        const { error, paymentIntent } = await stripe.confirmCardPayment(secretResponse.data.clientSecret, {
+          payment_method: {
+            card: cardElement,
+          },
+        });
+        if (paymentIntent.status === "succeeded") {
+          setPaymentStatus("completed");
+        } else {
+          setPaymentStatus("failed");
+        }
+        
   
-      if (error) {
-        setPaymentStatus(`Payment failed: ${error.message}`);
-      } else if (paymentIntent.status === "succeeded") {
-        setPaymentStatus("Payment successful!");
-        console.log("PaymentIntent:", paymentIntent);
+        if (error) {
+          setPaymentStatus(`Payment failed: ${error.message}`);
+        } else if (paymentIntent.status === "succeeded") {
+          setPaymentStatus("Payment successful!");
+          console.log("PaymentIntent:", paymentIntent);
   
-        await saveOrder(paymentIntent.id);
+          await saveOrder(paymentIntent.id);
+        }
+      } catch (error) {
+        console.error("Error processing payment:", error);
+        setPaymentStatus("Payment failed. Please try again.");
       }
-    } catch (error) {
-      console.error("Error processing payment:", error);
-      setPaymentStatus("Payment failed. Please try again.");
+    } else if (paymentMethod === "cash") {
+      try {
+        setPaymentStatus("Processing Cash on Delivery...");
+  
+        await saveOrder(null); // No paymentIntentId for cash orders
+  
+        setPaymentStatus("Order placed successfully! Pay cash on delivery.");
+      } catch (error) {
+        console.error("Error processing cash order:", error);
+        setPaymentStatus("Error placing cash order. Please try again.");
+      }
     }
   };
   
   const saveOrder = async (paymentIntentId) => {
-    const shippingInfo =
-      selectedAddressId === "new"
-        ? {
-            address: newAddress.adresa,
-            address2: newAddress.address2 || "",
-            city: newAddress.qyteti,
-            postalCode: newAddress.kodi_postar,
-            phone: newAddress.telefoni,
-            shteti: newAddress.shteti,
-          }
-        : {
-            address: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).adresa,
-            address2: "",
-            city: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).qyteti,
-            postalCode: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).kodi_postar,
-            phone: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).telefoni,
-            shteti: savedAddresses.find((address) => address.id === parseInt(selectedAddressId)).shteti,
-          };
+    let shippingInfo;
   
-    if (!shippingInfo || !shippingInfo.address || !shippingInfo.city || !shippingInfo.postalCode) {
-      console.error("Invalid shipping information:", shippingInfo);
-      setPaymentStatus("Please select or provide valid shipping information.");
-      return;
+    if (selectedAddressId === "new") {
+      // New address provided
+      shippingInfo = {
+        address: newAddress.adresa,
+        address2: newAddress.address2 || "",
+        city: newAddress.qyteti,
+        postalCode: newAddress.kodi_postar,
+        phone: newAddress.telefoni,
+        shteti: newAddress.shteti,
+      };
+    } else {
+      // Use existing address
+      const selectedAddress = savedAddresses.find(
+        (address) => address.id === parseInt(selectedAddressId)
+      );
+  
+      if (!selectedAddress) {
+        console.error("Selected address not found in saved addresses.");
+        setPaymentStatus("Invalid address selection.");
+        return;
+      }
+  
+      shippingInfo = {
+        id: selectedAddress.id, // Include address ID to indicate it's an existing address
+        address: selectedAddress.adresa,
+        address2: selectedAddress.address2 || "",
+        city: selectedAddress.qyteti,
+        postalCode: selectedAddress.kodi_postar,
+        phone: selectedAddress.telefoni,
+        shteti: selectedAddress.shteti,
+      };
     }
   
     const orderData = {
@@ -219,10 +269,13 @@ const PaymentForm = () => {
       paymentIntentId,
     };
   
-    console.log("Order data being sent:", orderData); 
+    console.log("Order data being sent:", orderData);
   
     try {
-      const response = await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
+      const response = await axios.post(
+        "http://localhost:8800/api/porosite/ruaj-porosine",
+        orderData
+      );
       console.log("Order saved:", response.data);
       setPaymentStatus("Order saved successfully!");
     } catch (error) {
@@ -279,17 +332,18 @@ const PaymentForm = () => {
       <div className="address-info">
         <h3>Shipping Address</h3>
         <select
-          value={selectedAddressId}
-          onChange={(e) => setSelectedAddressId(e.target.value)}
-        >
-          <option value="">Select an Address</option>
-          {savedAddresses.map((address) => (
-            <option key={address.id} value={address.id}>
-              {`${address.adresa}, ${address.qyteti}, ${address.shteti} (${address.kodi_postar})`}
-            </option>
-          ))}
-          <option value="new">Add New Address</option>
-        </select>
+  value={selectedAddressId}
+  onChange={handleAddressChange}
+>
+  <option value="">Select an Address</option>
+  {savedAddresses.map((address) => (
+    <option key={address.id} value={address.id}>
+      {`${address.adresa}, ${address.qyteti}, ${address.shteti} (${address.kodi_postar})`}
+    </option>
+  ))}
+  <option value="new">Add New Address</option>
+</select>
+
 
         {selectedAddressId === "new" && (
           <div className="new-address-form">
@@ -336,6 +390,17 @@ const PaymentForm = () => {
             <button onClick={handleAddNewAddress}>Shto adresën e re</button>
           </div>)}
       </div>
+      <div className="payment-method">
+  <h3>Payment Method</h3>
+  <select value={paymentMethod} onChange={handlePaymentMethodChange}>
+    <option value="stripe">Pay Online (Stripe)</option>
+    <option value="cash">Cash on Delivery</option>
+  </select>
+</div>
+<div className="payment-status">
+  <h3>Payment Status: {paymentStatus || "N/A"}</h3>
+</div>
+
 
       <div className="payment-section">
         <h3>Total: ${totalAmount.toFixed(2)}</h3>
@@ -345,6 +410,7 @@ const PaymentForm = () => {
         </button>
       </div>
       {paymentStatus && <p>{paymentStatus}</p>}
+      
     </div>);
 };
 
