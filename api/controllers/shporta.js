@@ -51,22 +51,44 @@ export const updateQuantity = (req, res) => {
 
 
 export const shlyejLibrin = (req, res) => {
-  const q = "delete from shporta where id = ?";
+  const bookId = req.params.id;
+  console.log("Delete request for item ID:", bookId); 
+  const q = "DELETE FROM shporta WHERE id = ?";
 
-  db.query(q, [req.params.id], (err, data) => {
-    if (err) return res.json(err);
-    return res.status(200).json("test test!");
+  db.query(q, [bookId], (err, data) => {
+    if (err) {
+      console.error("Error deleting item from database:", err);
+      return res.status(500).json({ error: "Error deleting item from database." });
+    }
+
+    if (data.affectedRows === 0) {
+      console.warn("No rows affected. Item may not exist.");
+      return res.status(404).json({ error: "Item not found in the database." });
+    }
+
+    console.log("Item successfully deleted.");
+    return res.status(200).json({ message: "Item successfully deleted." });
   });
 };
 
 export const pastroShporten = (req, res) => {
+  const userId = req.query.userId;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
   const q = "DELETE FROM shporta WHERE perdoruesi_id = ?";
 
-  db.query(q, [req.query.userId], (err, data) => {
-    if (err) return res.json(err);
-    return res.status(200).json("Shporta u pastrua me sukses!");
+  db.query(q, [userId], (err, data) => {
+    if (err) {
+      console.error("Error clearing the cart:", err);
+      return res.status(500).json({ error: "Failed to clear the cart." });
+    }
+    return res.status(200).json({ message: "Cart cleared successfully." });
   });
 };
+
 
 export const llogaritTotali = (req, res) => {
   const q = `

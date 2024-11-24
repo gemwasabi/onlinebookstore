@@ -30,6 +30,19 @@ const PaymentForm = () => {
     telefoni: "",
   });
   const [isPayButtonDisabled, setIsPayButtonDisabled] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState(1);
+  const [transportMethod, setTransportMethod] = useState("pickup"); // "merrevet" ose "transport"
+
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
+  };
+
+  useEffect(() => {
+    const baseTotal = cartItems.reduce((total, item) => total + item.cmimi * item.quantity, 0);
+    const transportCost = transportMethod === "transport" ? 2 : 0;
+    setTotalAmount(baseTotal + transportCost);
+  }, [cartItems, transportMethod]);
+
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -73,11 +86,6 @@ const PaymentForm = () => {
   useEffect(() => {
     const validateForm = () => {
       const isShippingInfoValid = () => {
-        const { name, email } = shippingInfo;
-        return name.trim() !== "" && email.trim() !== "";
-      };
-
-      const isAddressValid = () => {
         if (selectedAddressId === "new") {
           const { shteti, qyteti, adresa, kodi_postar, telefoni } = newAddress;
           return (
@@ -88,7 +96,15 @@ const PaymentForm = () => {
             telefoni.trim() !== ""
           );
         }
-        return selectedAddressId !== "";
+        const selectedAddress = savedAddresses.find(
+          (address) => address.id === parseInt(selectedAddressId)
+        );
+        return (
+          selectedAddress &&
+          selectedAddress.adresa.trim() !== "" &&
+          selectedAddress.qyteti.trim() !== "" &&
+          selectedAddress.kodi_postar.trim() !== ""
+        );
       };
 
       const isCardValid = () => {
@@ -96,12 +112,12 @@ const PaymentForm = () => {
         return cardElement && !cardElement.empty;
       };
 
-      const isValid = isShippingInfoValid() && isAddressValid() && isCardValid();
+      const isValid = isShippingInfoValid() && isCardValid();
       setIsPayButtonDisabled(!isValid);
     };
 
     validateForm();
-  }, [shippingInfo, selectedAddressId, newAddress, elements]);
+  }, [shippingInfo, selectedAddressId, newAddress, elements, savedAddresses]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -110,20 +126,46 @@ const PaymentForm = () => {
 
   const handleNewAddressChange = (e) => {
     const { name, value } = e.target;
-    setNewAddress({ ...newAddress, [name]: value });
+    setNewAddress((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddNewAddress = async () => {
+    if (
+      newAddress.shteti.trim() === "" ||
+      newAddress.qyteti.trim() === "" ||
+      newAddress.adresa.trim() === "" ||
+      newAddress.kodi_postar.trim() === "" ||
+      newAddress.telefoni.trim() === ""
+    ) {
+      alert("Please fill in all the address fields.");
+      return;
+    }
+
     try {
       const response = await axios.post("http://localhost:8800/api/adresat", {
         ...newAddress,
         perdoruesi_id: userId,
       });
-      alert("Adresa e re u shtua!");
+      alert("New address added successfully!");
       setSavedAddresses((prev) => [...prev, response.data]);
       setNewAddress({ shteti: "", qyteti: "", adresa: "", kodi_postar: "", telefoni: "" });
     } catch (error) {
       console.error("Error adding new address:", error);
+    }
+  };
+
+  const handleAddressChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedAddressId(selectedId);
+
+    if (selectedId !== "new") {
+      setNewAddress({
+        shteti: "",
+        qyteti: "",
+        adresa: "",
+        kodi_postar: "",
+        telefoni: "",
+      });
     }
   };
 
@@ -137,69 +179,115 @@ const PaymentForm = () => {
     );
   };
 
-  const handlePayment = async () => {
-    if (!stripe || !elements) return;
-  
-    setPaymentStatus("Processing...");
-  
+  const clearCart = async () => {
     try {
-      const secretResponse = await axios.post("http://localhost:8800/api/porosite/pagesa", {
-        amount: totalAmount,
-        currency: "eur",
+      await axios.delete(`http://localhost:8800/api/shporta/pastro`, {
+        params: { userId },
       });
-  
-      const cardElement = elements.getElement(CardElement);
-  
-      const { error, paymentIntent } = await stripe.confirmCardPayment(secretResponse.data.clientSecret, {
-        payment_method: {
-          card: cardElement,
-        },
-      });
-  
-      if (error) {
-        setPaymentStatus(`Payment failed: ${error.message}`);
-      } else if (paymentIntent.status === "succeeded") {
-        setPaymentStatus("Payment successful!");
-        console.log("PaymentIntent:", paymentIntent);
-  
-        // Save the order
-        await saveOrder(paymentIntent.id);
-      }
+      setCartItems([]);
     } catch (error) {
-      console.error("Error processing payment:", error);
-      setPaymentStatus("Payment failed. Please try again.");
+      console.error("Error clearing the cart:", error);
+      alert("Failed to clear the cart. Please try again.");
     }
   };
-  
-  const saveOrder = async (paymentIntentId) => {
-    if (!shippingInfo.address || !shippingInfo.city || !shippingInfo.postalCode) {
-      setPaymentStatus("Please complete all required shipping information.");
+
+  const handlePayment = async () => {
+    setPaymentStatus("Processing...");
+
+    try {
+      if (paymentMethod === 1) {
+        const secretResponse = await axios.post("http://localhost:8800/api/porosite/pagesa", {
+          amount: totalAmount,
+          currency: "eur",
+        });
+
+        const cardElement = elements?.getElement(CardElement);
+        const { error, paymentIntent } = await stripe.confirmCardPayment(secretResponse.data.clientSecret, {
+          payment_method: { card: cardElement },
+        });
+
+        if (error || paymentIntent.status !== "succeeded") {
+          throw new Error(error?.message || "Pagesa juaj me Stripe deshtoi.");
+        }
+
+        await saveOrder(paymentIntent.id, 1); // Stripe 
+        setPaymentStatus("Payment successful!");
+      } else {
+        await saveOrder(null, 0); // Cash
+        setPaymentStatus("Pagesa juaj ishte e suksesshme, do te paguani tek postieri.");
+      }
+
+      await clearCart();
+      resetFormState();
+    } catch (error) {
+      console.error("Payment error:", error);
+      setPaymentStatus(`Payment failed: ${error.message}`);
+    }
+  };
+  const resetFormState = () => {
+    setShippingInfo({
+      name: currentUser?.emri || "",
+      email: currentUser?.emaili || "",
+    });
+    setSelectedAddressId("");
+    setNewAddress({
+      shteti: "",
+      qyteti: "",
+      adresa: "",
+      kodi_postar: "",
+      telefoni: "",
+    });
+    setPaymentStatus("");
+    setTotalAmount(0);
+    setCartItems([]);
+  };
+
+  const saveOrder = async (paymentIntentId, method) => {
+    const shippingDetails =
+      selectedAddressId === "new"
+        ? { ...newAddress }
+        : savedAddresses.find((address) => address.id === parseInt(selectedAddressId));
+
+    if (!shippingDetails) {
+      setPaymentStatus("Detajet e adresës nuk janë të sakta.");
       return;
     }
-  
+
+    const orderData = {
+      userId,
+      totalAmount,
+      cartItems,
+      shippingInfo: shippingDetails,
+      transportMethod: transportMethod === "pickup" ? 0 : 1, // 0 for pickup, 1 for transport
+      paymentIntentId,
+      paymentMethod: method, // 1: Stripe, 0: Cash
+    };
+
     try {
-      const response = await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", {
-        userId,
-        totalAmount,
-        cartItems,
-        shippingInfo: {
-          address: shippingInfo.address,
-          address2: shippingInfo.address2 || "",
-          city: shippingInfo.city,
-          postalCode: shippingInfo.postalCode,
-          comment: shippingInfo.comment || "",
-        },
-        paymentIntentId,
-      });
-  
-      console.log("Order saved:", response.data);
-      setPaymentStatus("Order saved successfully!");
+      await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
     } catch (error) {
-      console.error("Error saving order:", error);
-      setPaymentStatus("Error saving order.");
+      throw new Error("Gabim gjatë ruajtjes së porosisë.");
     }
   };
-  
+
+
+  const handleRemoveBook = async (bookId) => {
+    const confirmDelete = window.confirm("A jeni te sigurte qe doni ta fshini librin?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await axios.delete(`http://localhost:8800/api/shporta/${bookId}`);
+      console.log("Book deleted:", response.data);
+      setCartItems((prevItems) => prevItems.filter((book) => book.shporta_id !== bookId));
+    } catch (error) {
+      console.error("Error removing book:", error);
+      alert("Ndodhi nje gabim gjate fshirjes se librit. Ju lutem provoni perseri.");
+    }
+    setCartItems((prevItems) => prevItems.filter((book) => book.shporta_id !== bookId));
+
+  };
+
+
 
   if (!userId) {
     return <p>Ju lutem kyçyni para se të vazhdoni me blerjen.</p>;
@@ -209,22 +297,31 @@ const PaymentForm = () => {
       <h2>Checkout</h2>
 
       <div className="cart-items">
-        {cartItems.map((item) => (
-          <div className="cart-item" key={item.id}>
-            <img src={item.foto || "default-image.jpg"} alt={item.title} className="book-image" />
-            <div className="book-info">
-              <h4>{item.titulli}</h4>
-              <p>Çmimi: ${item.cmimi}</p>
-              <div className="quantity-controls">
-                <FaMinusCircle onClick={() => handleQuantityChange(item.id, -1)} />
-                <span>{item.quantity}</span>
-                <FaPlusCircle onClick={() => handleQuantityChange(item.id, 1)} />
+        {cartItems.length === 0 ? (
+          <p>Shporta juaj eshte bosh.</p>
+        ) : (
+          cartItems.map((item) => (
+            <div className="cart-item" key={item.id}>
+              <img
+                src={item.foto ? `/assets/img/bookcovers/${item.foto}` : "default-image.jpg"}
+                alt={item.titulli || "Book Cover"}
+                className="book-image"
+              />
+              <div className="book-info">
+                <h4>{item.titulli}</h4>
+                <p>Çmimi: ${item.cmimi}</p>
+                <div className="quantity-controls">
+                  <FaMinusCircle onClick={() => handleQuantityChange(item.id, -1)} />
+                  <span>{item.quantity}</span>
+                  <FaPlusCircle onClick={() => handleQuantityChange(item.id, 1)} />
+                </div>
               </div>
+              <FaTrashAlt onClick={() => handleRemoveBook(item.shporta_id)} />
             </div>
-            <FaTrashAlt onClick={() => setCartItems(cartItems.filter((book) => book.id !== item.id))} />
-          </div>
-        ))}
+          ))
+        )}
       </div>
+
 
       <div className="user-info">
         <h3>User Information</h3>
@@ -232,7 +329,7 @@ const PaymentForm = () => {
           type="text"
           name="name"
           value={shippingInfo.name}
-          placeholder="Full Name"
+          placeholder="Emri juaj"
           onChange={handleInputChange}
           style={{ borderColor: shippingInfo.name.trim() === "" ? "red" : "" }}
         />
@@ -247,10 +344,10 @@ const PaymentForm = () => {
       </div>
 
       <div className="address-info">
-        <h3>Shipping Address</h3>
+        <h3>Adresa e transportit</h3>
         <select
           value={selectedAddressId}
-          onChange={(e) => setSelectedAddressId(e.target.value)}
+          onChange={handleAddressChange}
         >
           <option value="">Select an Address</option>
           {savedAddresses.map((address) => (
@@ -258,8 +355,9 @@ const PaymentForm = () => {
               {`${address.adresa}, ${address.qyteti}, ${address.shteti} (${address.kodi_postar})`}
             </option>
           ))}
-          <option value="new">Add New Address</option>
+          <option value="new">Shto nje adrese te re</option>
         </select>
+
 
         {selectedAddressId === "new" && (
           <div className="new-address-form">
@@ -267,7 +365,7 @@ const PaymentForm = () => {
               type="text"
               name="shteti"
               value={newAddress.shteti}
-              placeholder="Country"
+              placeholder="Shteti"
               onChange={handleNewAddressChange}
               style={{ borderColor: newAddress.shteti.trim() === "" ? "red" : "" }}
             />
@@ -275,7 +373,7 @@ const PaymentForm = () => {
               type="text"
               name="qyteti"
               value={newAddress.qyteti}
-              placeholder="City"
+              placeholder="Qyteti"
               onChange={handleNewAddressChange}
               style={{ borderColor: newAddress.qyteti.trim() === "" ? "red" : "" }}
             />
@@ -283,7 +381,7 @@ const PaymentForm = () => {
               type="text"
               name="adresa"
               value={newAddress.adresa}
-              placeholder="Address"
+              placeholder="Adresa"
               onChange={handleNewAddressChange}
               style={{ borderColor: newAddress.adresa.trim() === "" ? "red" : "" }}
             />
@@ -291,7 +389,7 @@ const PaymentForm = () => {
               type="text"
               name="kodi_postar"
               value={newAddress.kodi_postar}
-              placeholder="Postal Code"
+              placeholder="Kodi postar"
               onChange={handleNewAddressChange}
               style={{ borderColor: newAddress.kodi_postar.trim() === "" ? "red" : "" }}
             />
@@ -299,22 +397,42 @@ const PaymentForm = () => {
               type="text"
               name="telefoni"
               value={newAddress.telefoni}
-              placeholder="Phone"
+              placeholder="Telefoni"
               onChange={handleNewAddressChange}
               style={{ borderColor: newAddress.telefoni.trim() === "" ? "red" : "" }}
             />
             <button onClick={handleAddNewAddress}>Shto adresën e re</button>
           </div>)}
       </div>
+      <div className="transport-method">
+        <h3>Metoda e Transportit</h3>
+        <select value={transportMethod} onChange={(e) => setTransportMethod(e.target.value)}>
+          <option value="pickup">Merre vet (0€)</option>
+          <option value="transport">Transporto (2€)</option>
+        </select>
+      </div>
+
+      <div className="payment-method">
+        <h3>Metoda e pageses</h3>
+        <select value={paymentMethod} onChange={handlePaymentMethodChange}>
+          <option value="stripe">Paguaj me kartele (Stripe)</option>
+          <option value="cash">Paguaj me para ne dore</option>
+        </select>
+      </div>
+      <div className="payment-status">
+        <h3>Statusi i pageses: {paymentStatus || "N/A"}</h3>
+      </div>
+
 
       <div className="payment-section">
         <h3>Total: ${totalAmount.toFixed(2)}</h3>
         <CardElement />
         <button onClick={handlePayment} disabled={isPayButtonDisabled}>
-          Pay
+          Paguaj
         </button>
       </div>
       {paymentStatus && <p>{paymentStatus}</p>}
+
     </div>);
 };
 

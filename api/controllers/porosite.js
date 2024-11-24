@@ -1,4 +1,5 @@
 import stripe from "../config/stripe.js";
+import { db } from "../db.js";
 
 export const krijoPagesen = async (req, res) => {
   try {
@@ -17,40 +18,81 @@ export const krijoPagesen = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-import { db } from "../db.js";
+
+import { promisify } from "util";
+
+const query = promisify(db.query).bind(db);
 
 export const saveOrder = async (req, res) => {
-  const { userId, totalAmount, cartItems, shippingInfo } = req.body;
+  const { userId, totalAmount, cartItems, shippingInfo, paymentIntentId, transportMethod } = req.body;
 
   if (!userId || !cartItems || cartItems.length === 0 || !shippingInfo) {
+    console.error("Invalid order data:", { userId, totalAmount, cartItems, shippingInfo });
     return res.status(400).json({ error: "Invalid order data." });
   }
 
-  // Validate shipping info fields
-  const { address, city, postalCode } = shippingInfo;
-  if (!address || !city || !postalCode) {
-    return res.status(400).json({ error: "Shipping information is incomplete." });
-  }
-
   try {
-    await db.beginTransaction();
+    console.log("Payment Intent ID:", paymentIntentId); 
+    console.log("Shipping Info:", shippingInfo);
+
+    const address = shippingInfo.adresa || "Unknown Address";
+    const city = shippingInfo.qyteti || "Unknown City";
+    const postalCode = shippingInfo.kodi_postar || "00000";
+    const phone = shippingInfo.telefoni || "00000000";
+    const state = shippingInfo.shteti || "Unknown Country";
+
+    await query("START TRANSACTION");
+
+    let addressId = shippingInfo.id;
+
+    if (!addressId) {
+      const addressQuery = `
+        INSERT INTO adresat (perdoruesi_id, adresa, qyteti, kodi_postar, telefoni, shteti)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      const addressValues = [
+        userId,
+        address,
+        city,
+        postalCode,
+        phone,
+        state,
+      ];
+
+      const addressResult = await query(addressQuery, addressValues);
+
+      if (!addressResult.insertId) {
+        throw new Error("Failed to insert address.");
+      }
+
+      addressId = addressResult.insertId;
+    }
+
+    const paymentStatus = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Completed, 0: Pending
+    const paymentMethod = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Stripe, 0: Cash
 
     const orderQuery = `
-      INSERT INTO porosite (perdoruesi_id, data, totali, statusi, adresa_1, adresa_2, qyteti, kodi_postar, komenti_shtese)
-      VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO porosite (perdoruesi_id, data, totali, adresa_1, qyteti, kodi_postar, komenti_shtese, payment_method, payment_status, transport_method)
+      VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const orderValues = [
       userId,
       totalAmount,
-      0, // statusi (default pending)
       address,
-      shippingInfo.address2 || "",
       city,
       postalCode,
       shippingInfo.comment || "",
+      paymentMethod,
+      paymentStatus,
+      transportMethod, // 0: Pickup, 1: Transport
     ];
 
-    const [orderResult] = await db.query(orderQuery, orderValues);
+    const orderResult = await query(orderQuery, orderValues);
+
+    if (!orderResult.insertId) {
+      throw new Error("Failed to insert order.");
+    }
+
     const orderId = orderResult.insertId;
 
     const orderItemsQuery = `
@@ -63,14 +105,41 @@ export const saveOrder = async (req, res) => {
       item.quantity,
       item.cmimi,
     ]);
-    await db.query(orderItemsQuery, [orderItemsValues]);
 
-    await db.commit();
+    if (orderItemsValues.length > 0) {
+      await query(orderItemsQuery, [orderItemsValues]);
+    }
+
+    await query("COMMIT");
 
     res.status(201).json({ message: "Order saved successfully", orderId });
-  } catch (err) {
-    await db.rollback();
-    console.error("Error saving order:", err);
-    res.status(500).json({ error: "Error saving order." });
+  } catch (error) {
+    await query("ROLLBACK");
+    console.error("Error saving order:", error);
+    res.status(500).json({ error: error.message });
   }
 };
+
+export const updatePaymentStatus = async (req, res) => {
+  const { orderId, paymentStatus } = req.body;
+
+  const validStatuses = [0, 1, 2, 3]; // 0: Pending, 1: Completed, 2: Failed, 3: Refunded
+  if (!validStatuses.includes(paymentStatus)) {
+    return res.status(400).json({ error: "Invalid payment status." });
+  }
+
+  const q = `
+    UPDATE porosite 
+    SET payment_status = ? 
+    WHERE id = ?
+  `;
+
+  try {
+    await query(q, [paymentStatus, orderId]);
+    res.status(200).json({ message: "Payment status updated successfully." });
+  } catch (error) {
+    console.error("Error updating payment status:", error);
+    res.status(500).json({ error: "Error updating payment status." });
+  }
+};
+
