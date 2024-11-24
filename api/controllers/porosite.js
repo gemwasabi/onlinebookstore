@@ -32,55 +32,62 @@ export const saveOrder = async (req, res) => {
   }
 
   try {
+    console.log("Payment Intent ID:", paymentIntentId); 
+    console.log("Shipping Info:", shippingInfo);
+
+    const address = shippingInfo.adresa || "Unknown Address";
+    const city = shippingInfo.qyteti || "Unknown City";
+    const postalCode = shippingInfo.kodi_postar || "00000";
+    const phone = shippingInfo.telefoni || "00000000";
+    const state = shippingInfo.shteti || "Unknown Country";
+
     await query("START TRANSACTION");
 
     let addressId = shippingInfo.id;
 
     if (!addressId) {
-      // Only create a new address if it's not an existing one
       const addressQuery = `
         INSERT INTO adresat (perdoruesi_id, adresa, qyteti, kodi_postar, telefoni, shteti)
         VALUES (?, ?, ?, ?, ?, ?)
       `;
       const addressValues = [
         userId,
-        shippingInfo.address,
-        shippingInfo.city,
-        shippingInfo.postalCode,
-        shippingInfo.phone,
-        shippingInfo.shteti,
+        address,
+        city,
+        postalCode,
+        phone,
+        state,
       ];
-    
+
       const addressResult = await query(addressQuery, addressValues);
-    
+
       if (!addressResult.insertId) {
         throw new Error("Failed to insert address.");
       }
-    
+
       addressId = addressResult.insertId;
     }
-    const paymentStatus = paymentIntentId ? 1 : 0; // 1: Completed, 0: Pending
-    const paymentMethod = paymentIntentId ? 1 : 0; // 1: Stripe, 0: Cash
-    
+
+    const paymentStatus = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Completed, 0: Pending
+    const paymentMethod = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Stripe, 0: Cash
+
     const orderQuery = `
-      INSERT INTO porosite (perdoruesi_id, data, totali, statusi, adresa_1, adresa_2, qyteti, kodi_postar, komenti_shtese, payment_method, payment_status)
-      VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO porosite (perdoruesi_id, data, totali, adresa_1, qyteti, kodi_postar, komenti_shtese, payment_method, payment_status)
+      VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?)
     `;
     const orderValues = [
       userId,
       totalAmount,
-      paymentStatus,
-      shippingInfo.address,
-      shippingInfo.address2 || "",
-      shippingInfo.city,
-      shippingInfo.postalCode,
+      address,
+      city,
+      postalCode,
       shippingInfo.comment || "",
       paymentMethod,
       paymentStatus,
     ];
-    
+
     const orderResult = await query(orderQuery, orderValues);
-    
+
     if (!orderResult.insertId) {
       throw new Error("Failed to insert order.");
     }
