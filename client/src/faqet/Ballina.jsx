@@ -23,12 +23,10 @@ const Ballina = () => {
         const resRandomCategories = await axios.get(
           "http://localhost:8800/api/kategorite/random"
         );
-        console.log("Random Categories Response:", resRandomCategories.data); // Log the response
 
         if (Array.isArray(resRandomCategories.data)) {
           setTufat(resRandomCategories.data);
         } else {
-          console.error("Data is not an array:", resRandomCategories.data);
           setTufat([]);
         }
 
@@ -43,7 +41,6 @@ const Ballina = () => {
         }
       } catch (error) {
         setError(error);
-        console.log(error);
       } finally {
         setLoading(false);
       }
@@ -115,9 +112,9 @@ const Ballina = () => {
   const settings = (bookCount) => ({
     infinite: bookCount > 1,
     speed: 500,
-    slidesToShow: bookCount > 5 ? 5 : bookCount, // Show up to 5 slides, but fewer if there are fewer books
+    slidesToShow: bookCount > 5 ? 5 : bookCount,
     slidesToScroll: 1,
-    autoplay: bookCount > 1, // Only autoplay if there are multiple slides
+    autoplay: bookCount > 1,
     autoplaySpeed: 2000,
     nextArrow: <img src={chevronRight} alt="Next" className="w-8 h-8" />,
     prevArrow: <img src={chevronLeft} alt="Previous" className="w-8 h-8" />,
@@ -130,15 +127,13 @@ const Ballina = () => {
       <div className="py-9">
         {tufat.map((tufa, index) => (
           <div
-            className="w-full mx-auto lg:container p-10 bg-[#BDC6BA] rounded-2xl shadow sm:rounded-none my-5"
+            className="w-full mx-auto lg:container py-4 px-5 bg-[#BDC6BA] shadow-lg my-5 border-3"
             key={index}
           >
-            <div className="flex flex-col md:flex-row justify-between mb-4">
-              <h2 className="text-xl md:text-2xl font-bold text-[#282c26]">
-                {tufa.emri}
-              </h2>
+            <div className="mb-8 flex justify-between items-center">
+              <h1 className="text-3xl font-bold text-[#817E82]">{tufa.emri}</h1>
               <Link
-                className="text-purple-700 text-lg"
+                className="text-[#817E82] text-lg underline"
                 to={"/pamjaTufes/" + tufa.id}
               >
                 Shfaq të gjitha ({tufa.librat.length})
@@ -147,14 +142,31 @@ const Ballina = () => {
             <div className="relative">
               <Slider {...settings(tufa.librat.length)}>
                 {tufa.librat.map((libri, index) => (
-                  <div key={index} className="p-2">
-                    <Link to={`/libri/${libri.id}`}>
-                      <img
-                        className="h-64 w-44 object-cover mx-auto"
-                        src={`/assets/img/bookcovers/${libri.foto}`}
-                        alt={libri.titulli}
-                      />
+                  <div key={index} className="p-2 relative group">
+                    <Link to={`/libri/${libri.id}`} className="block relative">
+                      <div className="relative">
+                        <img
+                          className="h-64 w-44 object-cover mx-auto rounded-md shadow-lg"
+                          src={`/assets/img/bookcovers/${libri.foto}`}
+                          alt={libri.titulli}
+                        />
+                        <div className="absolute inset-0 flex justify-center items-end transition-opacity opacity-0 group-hover:opacity-100 bg-black/40 rounded-md">
+                          <button className="w-full bg-[#BDC6BA] text-gray-800 text-sm font-semibold py-2">
+                            Quick Add
+                          </button>
+                        </div>
+                      </div>
                     </Link>
+                    <div className="text-center mt-2">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        {libri.titulli.length > 20
+                          ? `${libri.titulli.slice(0, 20)}...`
+                          : libri.titulli}
+                      </p>
+                      <Link to={"/test/"}>
+                        <p className="text-xs text-gray-600">{libri.autori}</p>
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </Slider>
@@ -176,7 +188,7 @@ const Ballina = () => {
             {books_two.map((book, index) => (
               <div
                 key={index}
-                className="m-2 group p-5 bg-white/10 rounded-lg flex flex-col items-center justify-center gap-2 relative after:absolute after:h-full after:bg-[#7B8E76] z-20 shadow-lg after:-z-20 after:w-full after:inset-0 after:rounded-lg transition-all duration-300 hover:transition-all hover:duration-300 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden cursor-pointer after:-translate-y-full after:hover:translate-y-0 [&amp;_p]:delay-200 [&amp;_p]:transition-all"
+                className="m-2 group p-5 bg-white/10 rounded-lg flex flex-col items-center justify-center gap-2 relative after:absolute after:h-full after:bg-[#7B8E76] z-20 shadow-lg after:-z-20 after:w-full after:inset-0 after:rounded-lg transition-all duration-300 hover:transition-all hover:duration-300 after:transition-all after:duration-500 after:hover:transition-all after:hover:duration-500 overflow-hidden cursor-pointer after:-translate-y-full after:hover:translate-y-0 [&_p]:delay-200 [&_p]:transition-all"
               >
                 <img
                   className="w-40 h-40 object-contain rounded-md min-h-40 min-w-40"
