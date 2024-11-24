@@ -24,7 +24,7 @@ import { promisify } from "util";
 const query = promisify(db.query).bind(db);
 
 export const saveOrder = async (req, res) => {
-  const { userId, totalAmount, cartItems, shippingInfo, paymentIntentId } = req.body;
+  const { userId, totalAmount, cartItems, shippingInfo, paymentIntentId, transportMethod } = req.body;
 
   if (!userId || !cartItems || cartItems.length === 0 || !shippingInfo) {
     console.error("Invalid order data:", { userId, totalAmount, cartItems, shippingInfo });
@@ -72,8 +72,8 @@ export const saveOrder = async (req, res) => {
     const paymentMethod = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Stripe, 0: Cash
 
     const orderQuery = `
-      INSERT INTO porosite (perdoruesi_id, data, totali, adresa_1, qyteti, kodi_postar, komenti_shtese, payment_method, payment_status)
-      VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO porosite (perdoruesi_id, data, totali, adresa_1, qyteti, kodi_postar, komenti_shtese, payment_method, payment_status, transport_method)
+      VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const orderValues = [
       userId,
@@ -84,6 +84,7 @@ export const saveOrder = async (req, res) => {
       shippingInfo.comment || "",
       paymentMethod,
       paymentStatus,
+      transportMethod, // 0: Pickup, 1: Transport
     ];
 
     const orderResult = await query(orderQuery, orderValues);

@@ -31,10 +31,18 @@ const PaymentForm = () => {
   });
   const [isPayButtonDisabled, setIsPayButtonDisabled] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState(1);
+  const [transportMethod, setTransportMethod] = useState("pickup"); // "merrevet" ose "transport"
 
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value);
   };
+
+  useEffect(() => {
+    const baseTotal = cartItems.reduce((total, item) => total + item.cmimi * item.quantity, 0);
+    const transportCost = transportMethod === "transport" ? 2 : 0;
+    setTotalAmount(baseTotal + transportCost);
+  }, [cartItems, transportMethod]);
+
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -235,12 +243,13 @@ const PaymentForm = () => {
   };
 
   const saveOrder = async (paymentIntentId, method) => {
-    const shippingDetails = selectedAddressId === "new"
-      ? { ...newAddress }
-      : savedAddresses.find((address) => address.id === parseInt(selectedAddressId));
+    const shippingDetails =
+      selectedAddressId === "new"
+        ? { ...newAddress }
+        : savedAddresses.find((address) => address.id === parseInt(selectedAddressId));
 
     if (!shippingDetails) {
-      setPaymentStatus("Detajet e adreses nuk jane te sakta.");
+      setPaymentStatus("Detajet e adresës nuk janë të sakta.");
       return;
     }
 
@@ -249,6 +258,7 @@ const PaymentForm = () => {
       totalAmount,
       cartItems,
       shippingInfo: shippingDetails,
+      transportMethod: transportMethod === "pickup" ? 0 : 1, // 0 for pickup, 1 for transport
       paymentIntentId,
       paymentMethod: method, // 1: Stripe, 0: Cash
     };
@@ -256,9 +266,10 @@ const PaymentForm = () => {
     try {
       await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
     } catch (error) {
-      throw new Error("Error saving order.");
+      throw new Error("Gabim gjatë ruajtjes së porosisë.");
     }
   };
+
 
   const handleRemoveBook = async (bookId) => {
     const confirmDelete = window.confirm("A jeni te sigurte qe doni ta fshini librin?");
@@ -393,6 +404,14 @@ const PaymentForm = () => {
             <button onClick={handleAddNewAddress}>Shto adresën e re</button>
           </div>)}
       </div>
+      <div className="transport-method">
+        <h3>Metoda e Transportit</h3>
+        <select value={transportMethod} onChange={(e) => setTransportMethod(e.target.value)}>
+          <option value="pickup">Merre vet (0€)</option>
+          <option value="transport">Transporto (2€)</option>
+        </select>
+      </div>
+
       <div className="payment-method">
         <h3>Metoda e pageses</h3>
         <select value={paymentMethod} onChange={handlePaymentMethodChange}>
