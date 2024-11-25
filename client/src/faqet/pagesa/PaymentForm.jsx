@@ -334,11 +334,10 @@ const PaymentForm = () => {
   }
   return (
     <div className="payment-container">
-      <h2>Checkout</h2>
 
+      <h2 className="text-xl pb-2 text-white">Shporta</h2>
       <div className="checkout-layout">
         <div className="products-section">
-          <h3>Products</h3>
           <div className="cart-items">
             {cartItems.length === 0 ? (
               <p>Your cart is empty.</p>
@@ -365,9 +364,6 @@ const PaymentForm = () => {
               ))
             )}
           </div>
-          <div className="total-amount">
-            <h3>Total: ${totalAmount.toFixed(2)}</h3>
-          </div>
         </div>
 
         <div className="info-section">
@@ -378,7 +374,7 @@ const PaymentForm = () => {
               type="text"
               name="name"
               value={shippingInfo.name}
-              placeholder="Your Name"
+              placeholder="Emri juaj"
               onChange={handleInputChange}
             />
             <label>Email</label>
@@ -386,7 +382,7 @@ const PaymentForm = () => {
               type="email"
               name="email"
               value={shippingInfo.email}
-              placeholder="Your Email"
+              placeholder="Emaili juaj"
               onChange={handleInputChange}
             />
           </div>
@@ -449,7 +445,7 @@ const PaymentForm = () => {
             )}
           </div>
           <div className="payment-method">
-            <h3>Payment Method</h3>
+            <h3>Metoda e pageses</h3>
             <div className="payment-toggle">
               <button
                 className={`payment-btn ${paymentMethod === 0 ? "active" : ""}`}
@@ -473,13 +469,13 @@ const PaymentForm = () => {
             </div>
             {paymentMethod === 0 && (
               <div className="cash-info">
-                <p>The courier will have a POS terminal available if you decide to pay with a card upon delivery.</p>
+                <p>Postieri do e kete nje terminal POS me vete, ne rast se doni te paguani me kartele.</p>
               </div>
             )}
 
             {paymentMethod === 1 && (
               <div className="stripe-info">
-                <h4>Pay with Stripe</h4>
+                <h4 className="mb-2">Paguani me Stripe</h4>
                 <CardElement onChange={handleCardChange} />
               </div>
             )}
