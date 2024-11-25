@@ -4,7 +4,7 @@ import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { FaTrashAlt, FaPlusCircle, FaMinusCircle } from "react-icons/fa";
-import "../../../public/checkout.css";
+import "../../assets/checkout.css";
 
 const stripePromise = loadStripe("pk_test_51QLXIjP5BZIXEFPC5YFUg55tpo7nlz5eUIeOYbHuTkr9ezE4B35iAA6BCb3tGh4Qm9lGykpZvrFKEs9tUvzaumFC007HU9r3xc");
 
@@ -33,9 +33,6 @@ const PaymentForm = () => {
   const [paymentMethod, setPaymentMethod] = useState(1);
   const [transportMethod, setTransportMethod] = useState("pickup"); // "merrevet" ose "transport"
 
-  const handlePaymentMethodChange = (e) => {
-    setPaymentMethod(e.target.value);
-  };
 
   useEffect(() => {
     const baseTotal = cartItems.reduce((total, item) => total + item.cmimi * item.quantity, 0);
@@ -86,38 +83,58 @@ const PaymentForm = () => {
   useEffect(() => {
     const validateForm = () => {
       const isShippingInfoValid = () => {
-        if (selectedAddressId === "new") {
-          const { shteti, qyteti, adresa, kodi_postar, telefoni } = newAddress;
+        if (transportMethod === "transport") {
+          if (selectedAddressId === "new") {
+            const { shteti, qyteti, adresa, kodi_postar, telefoni } = newAddress;
+            return (
+              shteti.trim() !== "" &&
+              qyteti.trim() !== "" &&
+              adresa.trim() !== "" &&
+              kodi_postar.trim() !== "" &&
+              telefoni.trim() !== ""
+            );
+          }
+          const selectedAddress = savedAddresses.find(
+            (address) => address.id === parseInt(selectedAddressId)
+          );
           return (
-            shteti.trim() !== "" &&
-            qyteti.trim() !== "" &&
-            adresa.trim() !== "" &&
-            kodi_postar.trim() !== "" &&
-            telefoni.trim() !== ""
+            selectedAddress &&
+            selectedAddress.adresa.trim() !== "" &&
+            selectedAddress.qyteti.trim() !== "" &&
+            selectedAddress.kodi_postar.trim() !== ""
           );
         }
-        const selectedAddress = savedAddresses.find(
-          (address) => address.id === parseInt(selectedAddressId)
-        );
-        return (
-          selectedAddress &&
-          selectedAddress.adresa.trim() !== "" &&
-          selectedAddress.qyteti.trim() !== "" &&
-          selectedAddress.kodi_postar.trim() !== ""
-        );
+        return true; 
       };
 
       const isCardValid = () => {
-        const cardElement = elements.getElement(CardElement);
-        return cardElement && !cardElement.empty;
+        if (paymentMethod === 1) {
+          const cardElement = elements?.getElement(CardElement);
+          return cardElement && !cardElement.empty && !cardElement.invalid;
+        }
+        return true;
       };
 
-      const isValid = isShippingInfoValid() && isCardValid();
-      setIsPayButtonDisabled(!isValid);
+      setIsPayButtonDisabled(!(isShippingInfoValid() && isCardValid()));
     };
 
     validateForm();
-  }, [shippingInfo, selectedAddressId, newAddress, elements, savedAddresses]);
+  }, [
+    shippingInfo,
+    selectedAddressId,
+    newAddress,
+    elements,
+    savedAddresses,
+    transportMethod,
+    paymentMethod,
+  ]);
+
+
+  const handleCardChange = (event) => {
+    if (paymentMethod === 1) {
+      setIsPayButtonDisabled(event.empty || !!event.error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -158,7 +175,7 @@ const PaymentForm = () => {
     const selectedId = e.target.value;
     setSelectedAddressId(selectedId);
 
-    if (selectedId !== "new") {
+    if (selectedId !== "new" || transportMethod === "pickup") {
       setNewAddress({
         shteti: "",
         qyteti: "",
@@ -207,14 +224,14 @@ const PaymentForm = () => {
         });
 
         if (error || paymentIntent.status !== "succeeded") {
-          throw new Error(error?.message || "Pagesa juaj me Stripe deshtoi.");
+          throw new Error(error?.message || "Stripe payment failed.");
         }
 
-        await saveOrder(paymentIntent.id, 1); // Stripe 
+        await saveOrder(paymentIntent.id, 1); // Stripe
         setPaymentStatus("Payment successful!");
       } else {
         await saveOrder(null, 0); // Cash
-        setPaymentStatus("Pagesa juaj ishte e suksesshme, do te paguani tek postieri.");
+        setPaymentStatus("Your payment was successful. Pay on delivery.");
       }
 
       await clearCart();
@@ -224,6 +241,7 @@ const PaymentForm = () => {
       setPaymentStatus(`Payment failed: ${error.message}`);
     }
   };
+
   const resetFormState = () => {
     setShippingInfo({
       name: currentUser?.emri || "",
@@ -243,14 +261,26 @@ const PaymentForm = () => {
   };
 
   const saveOrder = async (paymentIntentId, method) => {
-    const shippingDetails =
-      selectedAddressId === "new"
-        ? { ...newAddress }
-        : savedAddresses.find((address) => address.id === parseInt(selectedAddressId));
+    let shippingDetails = {};
 
-    if (!shippingDetails) {
-      setPaymentStatus("Detajet e adresës nuk janë të sakta.");
-      return;
+    if (transportMethod === "transport") {
+      shippingDetails =
+        selectedAddressId === "new"
+          ? { ...newAddress }
+          : savedAddresses.find((address) => address.id === parseInt(selectedAddressId));
+
+      if (!shippingDetails) {
+        setPaymentStatus("Please select or provide a valid address.");
+        return;
+      }
+    } else {
+      shippingDetails = {
+        adresa: "E merr ne dyqan",
+        qyteti: "Prishtine",
+        kodi_postar: "00000",
+        telefoni: "00000000",
+        shteti: "Kosova",
+      };
     }
 
     const orderData = {
@@ -266,9 +296,13 @@ const PaymentForm = () => {
     try {
       await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
     } catch (error) {
-      throw new Error("Gabim gjatë ruajtjes së porosisë.");
+      throw new Error("Error saving order.");
     }
   };
+
+  console.log("Shipping Info Sent to saveOrder:", selectedAddressId === "new" ? newAddress : shippingInfo);
+  console.log("Cart Items Sent to saveOrder:", cartItems);
+  console.log("Total Amount Sent to saveOrder:", totalAmount);
 
 
   const handleRemoveBook = async (bookId) => {
@@ -287,6 +321,12 @@ const PaymentForm = () => {
 
   };
 
+  const calculateTransportDate = (daysToAdd) => {
+    const today = new Date();
+    const futureDate = new Date(today.setDate(today.getDate() + daysToAdd));
+    const options = { day: "2-digit", month: "long", year: "numeric" };
+    return futureDate.toLocaleDateString("sq-AL", options);
+  };
 
 
   if (!userId) {
@@ -296,144 +336,177 @@ const PaymentForm = () => {
     <div className="payment-container">
       <h2>Checkout</h2>
 
-      <div className="cart-items">
-        {cartItems.length === 0 ? (
-          <p>Shporta juaj eshte bosh.</p>
-        ) : (
-          cartItems.map((item) => (
-            <div className="cart-item" key={item.id}>
-              <img
-                src={item.foto ? `/assets/img/bookcovers/${item.foto}` : "default-image.jpg"}
-                alt={item.titulli || "Book Cover"}
-                className="book-image"
-              />
-              <div className="book-info">
-                <h4>{item.titulli}</h4>
-                <p>Çmimi: ${item.cmimi}</p>
-                <div className="quantity-controls">
-                  <FaMinusCircle onClick={() => handleQuantityChange(item.id, -1)} />
-                  <span>{item.quantity}</span>
-                  <FaPlusCircle onClick={() => handleQuantityChange(item.id, 1)} />
+      <div className="checkout-layout">
+        <div className="products-section">
+          <h3>Products</h3>
+          <div className="cart-items">
+            {cartItems.length === 0 ? (
+              <p>Your cart is empty.</p>
+            ) : (
+              cartItems.map((item) => (
+                <div className="cart-item" key={item.id}>
+                  <img
+                    src={item.foto ? `/assets/img/bookcovers/${item.foto}` : "default-image.jpg"}
+                    alt={item.titulli || "Book Cover"}
+                    className="book-image"
+                  />
+                  <div className="book-info">
+                    <h4>{item.titulli}</h4>
+                    <p>Price: ${item.cmimi}</p>
+                    <div className="quantity-controls">
+                      <FaMinusCircle onClick={() => handleQuantityChange(item.id, -1)} />
+                      <span>{item.quantity}</span>
+                      <FaPlusCircle onClick={() => handleQuantityChange(item.id, 1)} />
+                    </div>
+                    <p>Total: ${(item.cmimi * item.quantity).toFixed(2)}</p>
+                  </div>
+                  <FaTrashAlt onClick={() => handleRemoveBook(item.shporta_id)} />
                 </div>
-              </div>
-              <FaTrashAlt onClick={() => handleRemoveBook(item.shporta_id)} />
+              ))
+            )}
+          </div>
+          <div className="total-amount">
+            <h3>Total: ${totalAmount.toFixed(2)}</h3>
+          </div>
+        </div>
+
+        <div className="info-section">
+          <div className="user-info">
+            <h3 className="mb-1 text-pretty font-bold">Detajet e pagesës</h3>
+            <label>Emri</label>
+            <input
+              type="text"
+              name="name"
+              value={shippingInfo.name}
+              placeholder="Your Name"
+              onChange={handleInputChange}
+            />
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={shippingInfo.email}
+              placeholder="Your Email"
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="transport-method">
+            <h3>Metoda e transportit</h3>
+            <div className="transport-toggle">
+              <button
+                className={`toggle-btn ${transportMethod === "pickup" ? "active" : ""}`}
+                onClick={() => setTransportMethod("pickup")}
+              >
+                Merre Vet
+              </button>
+              <button
+                className={`toggle-btn ${transportMethod === "transport" ? "active" : ""}`}
+                onClick={() => setTransportMethod("transport")}
+              >
+                Transporto (2€)
+              </button>
             </div>
-          ))
-        )}
+
+            {transportMethod === "pickup" && (
+              <div className="pickup-info">
+                <h4 className="mb-1">Eja merre në:</h4>
+                <p>Rruga Jakov Xoxa, Prishtinë</p>
+                <p>Orari: 09:00 - 20:00</p>
+                <p>Numri i telefonit: 044123123</p>
+              </div>
+            )}
+
+            {transportMethod === "transport" && (
+              <div className="address-info">
+                <h4>Data e arritjes</h4>
+                <p>
+                  Porosia juaj do të arrij mes ditëve{" "}
+                  <strong>{calculateTransportDate(5)}</strong> dhe{" "}
+                  <strong>{calculateTransportDate(7)}</strong>.
+                </p>
+                <h4>Shipping Address</h4>
+                <select value={selectedAddressId} onChange={handleAddressChange}>
+                  <option value="">Select an Address</option>
+                  {savedAddresses.map((address) => (
+                    <option key={address.id} value={address.id}>
+                      {`${address.adresa}, ${address.qyteti}, ${address.shteti} (${address.kodi_postar})`}
+                    </option>
+                  ))}
+                  <option value="new">Add a New Address</option>
+                </select>
+                {selectedAddressId === "new" && (
+                  <div className="new-address-form">
+                    <input type="text" name="shteti" value={newAddress.shteti} placeholder="State" onChange={handleNewAddressChange} />
+                    <input type="text" name="qyteti" value={newAddress.qyteti} placeholder="City" onChange={handleNewAddressChange} />
+                    <input type="text" name="adresa" value={newAddress.adresa} placeholder="Address" onChange={handleNewAddressChange} />
+                    <input type="text" name="kodi_postar" value={newAddress.kodi_postar} placeholder="Postal Code" onChange={handleNewAddressChange} />
+                    <input type="text" name="telefoni" value={newAddress.telefoni} placeholder="Phone" onChange={handleNewAddressChange} />
+                    <button onClick={handleAddNewAddress}>Add New Address</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="payment-method">
+            <h3>Payment Method</h3>
+            <div className="payment-toggle">
+              <button
+                className={`payment-btn ${paymentMethod === 0 ? "active" : ""}`}
+                onClick={() => {
+                  setPaymentMethod(0);
+                  setIsPayButtonDisabled(false); 
+                }}
+              >
+                Cash
+              </button>
+              <button
+                className={`payment-btn ${paymentMethod === 1 ? "active" : ""}`}
+                onClick={() => {
+                  setPaymentMethod(1);
+                  const cardElement = elements?.getElement(CardElement);
+                  setIsPayButtonDisabled(!cardElement || cardElement.empty || cardElement.invalid);
+                }}
+              >
+                Stripe
+              </button>
+            </div>
+            {paymentMethod === 0 && (
+              <div className="cash-info">
+                <p>The courier will have a POS terminal available if you decide to pay with a card upon delivery.</p>
+              </div>
+            )}
+
+            {paymentMethod === 1 && (
+              <div className="stripe-info">
+                <h4>Pay with Stripe</h4>
+                <CardElement onChange={handleCardChange} />
+              </div>
+            )}
+          </div>
+
+
+          <div className="payment-section">
+            <h3>Total: ${totalAmount.toFixed(2)}</h3>
+            {paymentMethod === 1 && (
+              <button onClick={handlePayment} disabled={isPayButtonDisabled}>
+                Pay with Stripe
+              </button>
+            )}
+            {paymentMethod === 0 && (
+              <button onClick={handlePayment} disabled={isPayButtonDisabled}>
+                Confirm Cash Payment
+              </button>
+            )}
+          </div>
+
+
+          {paymentStatus && <p className="payment-status">{paymentStatus}</p>}
+        </div>
       </div>
+    </div>
 
-
-      <div className="user-info">
-        <h3>User Information</h3>
-        <input
-          type="text"
-          name="name"
-          value={shippingInfo.name}
-          placeholder="Emri juaj"
-          onChange={handleInputChange}
-          style={{ borderColor: shippingInfo.name.trim() === "" ? "red" : "" }}
-        />
-        <input
-          type="email"
-          name="email"
-          value={shippingInfo.email}
-          placeholder="Email"
-          onChange={handleInputChange}
-          style={{ borderColor: shippingInfo.email.trim() === "" ? "red" : "" }}
-        />
-      </div>
-
-      <div className="address-info">
-        <h3>Adresa e transportit</h3>
-        <select
-          value={selectedAddressId}
-          onChange={handleAddressChange}
-        >
-          <option value="">Select an Address</option>
-          {savedAddresses.map((address) => (
-            <option key={address.id} value={address.id}>
-              {`${address.adresa}, ${address.qyteti}, ${address.shteti} (${address.kodi_postar})`}
-            </option>
-          ))}
-          <option value="new">Shto nje adrese te re</option>
-        </select>
-
-
-        {selectedAddressId === "new" && (
-          <div className="new-address-form">
-            <input
-              type="text"
-              name="shteti"
-              value={newAddress.shteti}
-              placeholder="Shteti"
-              onChange={handleNewAddressChange}
-              style={{ borderColor: newAddress.shteti.trim() === "" ? "red" : "" }}
-            />
-            <input
-              type="text"
-              name="qyteti"
-              value={newAddress.qyteti}
-              placeholder="Qyteti"
-              onChange={handleNewAddressChange}
-              style={{ borderColor: newAddress.qyteti.trim() === "" ? "red" : "" }}
-            />
-            <input
-              type="text"
-              name="adresa"
-              value={newAddress.adresa}
-              placeholder="Adresa"
-              onChange={handleNewAddressChange}
-              style={{ borderColor: newAddress.adresa.trim() === "" ? "red" : "" }}
-            />
-            <input
-              type="text"
-              name="kodi_postar"
-              value={newAddress.kodi_postar}
-              placeholder="Kodi postar"
-              onChange={handleNewAddressChange}
-              style={{ borderColor: newAddress.kodi_postar.trim() === "" ? "red" : "" }}
-            />
-            <input
-              type="text"
-              name="telefoni"
-              value={newAddress.telefoni}
-              placeholder="Telefoni"
-              onChange={handleNewAddressChange}
-              style={{ borderColor: newAddress.telefoni.trim() === "" ? "red" : "" }}
-            />
-            <button onClick={handleAddNewAddress}>Shto adresën e re</button>
-          </div>)}
-      </div>
-      <div className="transport-method">
-        <h3>Metoda e Transportit</h3>
-        <select value={transportMethod} onChange={(e) => setTransportMethod(e.target.value)}>
-          <option value="pickup">Merre vet (0€)</option>
-          <option value="transport">Transporto (2€)</option>
-        </select>
-      </div>
-
-      <div className="payment-method">
-        <h3>Metoda e pageses</h3>
-        <select value={paymentMethod} onChange={handlePaymentMethodChange}>
-          <option value="stripe">Paguaj me kartele (Stripe)</option>
-          <option value="cash">Paguaj me para ne dore</option>
-        </select>
-      </div>
-      <div className="payment-status">
-        <h3>Statusi i pageses: {paymentStatus || "N/A"}</h3>
-      </div>
-
-
-      <div className="payment-section">
-        <h3>Total: ${totalAmount.toFixed(2)}</h3>
-        <CardElement />
-        <button onClick={handlePayment} disabled={isPayButtonDisabled}>
-          Paguaj
-        </button>
-      </div>
-      {paymentStatus && <p>{paymentStatus}</p>}
-
-    </div>);
+  );
 };
 
 const PaymentPage = () => (

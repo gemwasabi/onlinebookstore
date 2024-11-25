@@ -26,38 +26,46 @@ const query = promisify(db.query).bind(db);
 export const saveOrder = async (req, res) => {
   const { userId, totalAmount, cartItems, shippingInfo, paymentIntentId, transportMethod } = req.body;
 
-  if (!userId || !cartItems || cartItems.length === 0 || !shippingInfo) {
+  if (!userId || !cartItems || cartItems.length === 0) {
     console.error("Invalid order data:", { userId, totalAmount, cartItems, shippingInfo });
     return res.status(400).json({ error: "Invalid order data." });
   }
 
   try {
-    console.log("Payment Intent ID:", paymentIntentId); 
+    console.log("Payment Intent ID:", paymentIntentId);
     console.log("Shipping Info:", shippingInfo);
 
-    const address = shippingInfo.adresa || "Unknown Address";
-    const city = shippingInfo.qyteti || "Unknown City";
-    const postalCode = shippingInfo.kodi_postar || "00000";
-    const phone = shippingInfo.telefoni || "00000000";
-    const state = shippingInfo.shteti || "Unknown Country";
+    let address = "";
+    let city = "";
+    let postalCode = "";
+    let phone = "";
+    let state = "";
+
+    if (transportMethod === 0) { // 0: Pickup
+      address = "E merr ne dyqan";
+      city = "Prishtine";
+      postalCode = "00000";
+      phone = "00000000";
+      state = "Kosova";
+    } else {
+      address = shippingInfo.adresa || "Unknown Address";
+      city = shippingInfo.qyteti || "Unknown City";
+      postalCode = shippingInfo.kodi_postar || "00000";
+      phone = shippingInfo.telefoni || "00000000";
+      state = shippingInfo.shteti || "Unknown Country";
+    }
 
     await query("START TRANSACTION");
 
     let addressId = shippingInfo.id;
 
-    if (!addressId) {
+    if (!addressId && transportMethod === 1) {
+      console.log("No Address ID. Attempting to Insert New Address...");
       const addressQuery = `
         INSERT INTO adresat (perdoruesi_id, adresa, qyteti, kodi_postar, telefoni, shteti)
         VALUES (?, ?, ?, ?, ?, ?)
       `;
-      const addressValues = [
-        userId,
-        address,
-        city,
-        postalCode,
-        phone,
-        state,
-      ];
+      const addressValues = [userId, address, city, postalCode, phone, state];
 
       const addressResult = await query(addressQuery, addressValues);
 
@@ -66,6 +74,7 @@ export const saveOrder = async (req, res) => {
       }
 
       addressId = addressResult.insertId;
+      console.log("New Address ID:", addressId);
     }
 
     const paymentStatus = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Completed, 0: Pending
@@ -119,6 +128,7 @@ export const saveOrder = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const updatePaymentStatus = async (req, res) => {
   const { orderId, paymentStatus } = req.body;
