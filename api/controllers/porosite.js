@@ -1,5 +1,6 @@
 import stripe from "../config/stripe.js";
 import { db } from "../db.js";
+import nodemailer from "nodemailer";
 
 export const krijoPagesen = async (req, res) => {
   try {
@@ -30,6 +31,56 @@ export const saveOrder = async (req, res) => {
     console.error("Invalid order data:", { userId, totalAmount, cartItems, shippingInfo });
     return res.status(400).json({ error: "Invalid order data." });
   }
+
+  if (!shippingInfo || !shippingInfo.email) {
+    console.error("Missing shippingInfo or email:", shippingInfo);
+    return res.status(400).json({ error: "Shipping info or email is missing." });
+  }
+
+  const email = shippingInfo.email;
+  console.log("Recipient Email:", email);
+
+  const sendOrderEmail = async (email, orderDetails) => {
+    if (!email) {
+      throw new Error("No recipient email provided.");
+    }
+
+  const testAccount = await nodemailer.createTestAccount();
+
+  const transporter = nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass,
+    },
+  });
+
+  const itemsList = orderDetails.cartItems
+    .map((item) => `<li>${item.quantity}x ${item.titulli || "Book"} - $${item.cmimi}</li>`)
+    .join("");
+
+  const emailBody = `
+    <h2>Konfirmimi i porosise</h2>
+    <p>Faleminderit per porosine tuaj!</p>
+    <ul>${itemsList}</ul>
+    <p><strong>Shuma totale:</strong> $${orderDetails.totalAmount.toFixed(2)}</p>
+    <p>Adresa e dergimit: ${orderDetails.shippingInfo.adresa}, ${orderDetails.shippingInfo.qyteti}, ${orderDetails.shippingInfo.shteti}</p>
+  `;
+
+  const mailOptions = {
+    from: '"Lype" <no-reply@teststore.com>',
+    to: email, 
+    subject: "Konfirmimi i porosise suaj- Lype",
+    html: emailBody,
+  };
+
+  const info = await transporter.sendMail(mailOptions);
+
+  console.log("Emaili u dergu. Preview URL:", nodemailer.getTestMessageUrl(info)); 
+};
+
 
   try {
     console.log("Payment Intent ID:", paymentIntentId);
@@ -93,7 +144,7 @@ export const saveOrder = async (req, res) => {
       shippingInfo.comment || "",
       paymentMethod,
       paymentStatus,
-      transportMethod, // 0: Pickup, 1: Transport
+      transportMethod,
     ];
 
     const orderResult = await query(orderQuery, orderValues);
@@ -119,7 +170,20 @@ export const saveOrder = async (req, res) => {
       await query(orderItemsQuery, [orderItemsValues]);
     }
 
+    const orderDetails = {
+      cartItems,
+      totalAmount,
+      shippingInfo: {
+        adresa: address,
+        qyteti: city,
+        shteti: state,
+      },
+      paymentIntentId,
+    };
+
     await query("COMMIT");
+
+    await sendOrderEmail(shippingInfo.email, orderDetails);
 
     res.status(201).json({ message: "Order saved successfully", orderId });
   } catch (error) {
