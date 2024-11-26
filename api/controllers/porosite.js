@@ -1,6 +1,11 @@
 import stripe from "../config/stripe.js";
 import { db } from "../db.js";
 import nodemailer from "nodemailer";
+import fs from "fs";
+import PDFDocument from "pdfkit";
+import { promisify } from "util";
+
+const query = promisify(db.query).bind(db);
 
 export const krijoPagesen = async (req, res) => {
   try {
@@ -19,80 +24,171 @@ export const krijoPagesen = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const generateInvoice = (orderDetails) => {
+  const doc = new PDFDocument();
+  const filePath = `invoices/invoice_${orderDetails.orderId}.pdf`;
 
-import { promisify } from "util";
+  if (!fs.existsSync("invoices")) {
+    fs.mkdirSync("invoices");
+  }
 
-const query = promisify(db.query).bind(db);
+  doc.pipe(fs.createWriteStream(filePath));
+
+  doc
+    .image("lype-logo.png", 50, 45, { width: 100 })
+    .fontSize(20)
+    .text("Lype", 200, 50, { align: "right" })
+    .fontSize(10)
+    .text("Ubt Lab 1", 200, 80, { align: "right" })
+    .text("+38344123123", 200, 95, { align: "right" })
+    .text("lype@gmail.com", 200, 110, { align: "right" });
+
+  doc.moveDown(3);
+
+  doc
+    .fontSize(18)
+    .text("Fletpagesa", { align: "center" })
+    .moveDown()
+    .fontSize(12)
+    .text(`Porosia ID: ${orderDetails.orderId}`, { align: "left" })
+    .text(`Data: ${new Date().toLocaleDateString()}`, { align: "left" })
+    .moveDown();
+
+  doc
+    .fontSize(12)
+    .text("Adresa e faturimit:", { underline: true })
+    .moveDown(0.5)
+    .text(`${orderDetails.shippingInfo.name}`)
+    .text(
+      `${orderDetails.shippingInfo.adresa}, ${orderDetails.shippingInfo.qyteti}`
+    )
+    .text(
+      `${orderDetails.shippingInfo.shteti}, ${orderDetails.shippingInfo.kodi_postar}`
+    )
+    .text(`Telefoni: ${orderDetails.shippingInfo.telefoni}`)
+    .moveDown(2);
+
+  doc.fontSize(14).text("Produktet:", { underline: true }).moveDown(0.5);
+
+  doc
+    .fontSize(12)
+    .text("Produkti", 50, doc.y, { width: 200 })
+    .text("Sasia", 250, doc.y, { width: 100 })
+    .text("Cmimi", 350, doc.y, { width: 100, align: "right" })
+    .text("Totali", 450, doc.y, { width: 100, align: "right" });
+
+  orderDetails.cartItems.forEach((item) => {
+    doc
+      .moveDown(0.5)
+      .fontSize(12)
+      .text(item.titulli || "Libri", 50, doc.y, { width: 200 })
+      .text(item.quantity, 250, doc.y, { width: 100 })
+      .text(`$${item.cmimi.toFixed(2)}`, 350, doc.y, {
+        width: 100,
+        align: "right",
+      })
+      .text(`$${(item.quantity * item.cmimi).toFixed(2)}`, 450, doc.y, {
+        width: 100,
+        align: "right",
+      });
+  });
+
+  doc
+    .moveDown(2)
+    .fontSize(14)
+    .text(`Shuma totale: $${orderDetails.totalAmount.toFixed(2)}`, {
+      align: "right",
+    });
+
+  doc.end();
+
+  return filePath;
+};
 
 export const saveOrder = async (req, res) => {
-  const { userId, totalAmount, cartItems, shippingInfo, paymentIntentId, transportMethod } = req.body;
+  const {
+    userId,
+    totalAmount,
+    cartItems,
+    shippingInfo,
+    paymentIntentId,
+    transportMethod,
+  } = req.body;
 
   if (!userId || !cartItems || cartItems.length === 0) {
-    console.error("Invalid order data:", { userId, totalAmount, cartItems, shippingInfo });
+    console.error("Invalid order data:", {
+      userId,
+      totalAmount,
+      cartItems,
+      shippingInfo,
+    });
     return res.status(400).json({ error: "Invalid order data." });
   }
 
   if (!shippingInfo || !shippingInfo.email) {
     console.error("Missing shippingInfo or email:", shippingInfo);
-    return res.status(400).json({ error: "Shipping info or email is missing." });
+    return res
+      .status(400)
+      .json({ error: "Shipping info or email is missing." });
   }
 
-  const email = shippingInfo.email;
-  console.log("Recipient Email:", email);
+  const sendOrderEmail = async (email, orderDetails, invoicePath) => {
+    const testAccount = await nodemailer.createTestAccount();
 
-  const sendOrderEmail = async (email, orderDetails) => {
-    if (!email) {
-      throw new Error("No recipient email provided.");
-    }
+    const transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
 
-  const testAccount = await nodemailer.createTestAccount();
+    const itemsList = orderDetails.cartItems
+      .map(
+        (item) =>
+          `<li>${item.quantity}x ${item.titulli || "Book"} - $${
+            item.cmimi
+          }</li>`
+      )
+      .join("");
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
-    },
-  });
+    const emailBody = `
+      <h2>Konfirmimi i porosise</h2>
+      <p>Faleminderit per porosine tuaj!</p>
+      <ul>${itemsList}</ul>
+      <p><strong>Shuma totale:</strong> $${orderDetails.totalAmount.toFixed(
+        2
+      )}</p>
+      <p>Adresa e dergimit: ${orderDetails.shippingInfo.adresa}, ${
+      orderDetails.shippingInfo.qyteti
+    }, ${orderDetails.shippingInfo.shteti}</p>
+    `;
 
-  const itemsList = orderDetails.cartItems
-    .map((item) => `<li>${item.quantity}x ${item.titulli || "Book"} - $${item.cmimi}</li>`)
-    .join("");
+    const mailOptions = {
+      from: '"Lype" <no-reply@teststore.com>',
+      to: email,
+      subject: "Konfirmimi i porosise suaj- Lype",
+      html: emailBody,
+      attachments: [
+        {
+          filename: `invoice_${orderDetails.orderId}.pdf`,
+          path: invoicePath,
+        },
+      ],
+    };
 
-  const emailBody = `
-    <h2>Konfirmimi i porosise</h2>
-    <p>Faleminderit per porosine tuaj!</p>
-    <ul>${itemsList}</ul>
-    <p><strong>Shuma totale:</strong> $${orderDetails.totalAmount.toFixed(2)}</p>
-    <p>Adresa e dergimit: ${orderDetails.shippingInfo.adresa}, ${orderDetails.shippingInfo.qyteti}, ${orderDetails.shippingInfo.shteti}</p>
-  `;
+    const info = await transporter.sendMail(mailOptions);
 
-  const mailOptions = {
-    from: '"Lype" <no-reply@teststore.com>',
-    to: email, 
-    subject: "Konfirmimi i porosise suaj- Lype",
-    html: emailBody,
+    console.log("Email sent. Preview URL:", nodemailer.getTestMessageUrl(info));
   };
 
-  const info = await transporter.sendMail(mailOptions);
-
-  console.log("Emaili u dergu. Preview URL:", nodemailer.getTestMessageUrl(info)); 
-};
-
-
   try {
-    console.log("Payment Intent ID:", paymentIntentId);
-    console.log("Shipping Info:", shippingInfo);
+    let address, city, postalCode, phone, state;
 
-    let address = "";
-    let city = "";
-    let postalCode = "";
-    let phone = "";
-    let state = "";
-
-    if (transportMethod === 0) { // 0: Pickup
+    if (transportMethod === 0) {
+      // Pickup
       address = "E merr ne dyqan";
       city = "Prishtine";
       postalCode = "00000";
@@ -111,25 +207,18 @@ export const saveOrder = async (req, res) => {
     let addressId = shippingInfo.id;
 
     if (!addressId && transportMethod === 1) {
-      console.log("No Address ID. Attempting to Insert New Address...");
       const addressQuery = `
         INSERT INTO adresat (perdoruesi_id, adresa, qyteti, kodi_postar, telefoni, shteti)
         VALUES (?, ?, ?, ?, ?, ?)
       `;
       const addressValues = [userId, address, city, postalCode, phone, state];
-
       const addressResult = await query(addressQuery, addressValues);
-
-      if (!addressResult.insertId) {
-        throw new Error("Failed to insert address.");
-      }
-
+      if (!addressResult.insertId) throw new Error("Failed to insert address.");
       addressId = addressResult.insertId;
-      console.log("New Address ID:", addressId);
     }
 
-    const paymentStatus = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Completed, 0: Pending
-    const paymentMethod = paymentIntentId && paymentIntentId.length > 0 ? 1 : 0; // 1: Stripe, 0: Cash
+    const paymentStatus = paymentIntentId ? 1 : 0;
+    const paymentMethod = paymentIntentId ? 1 : 0;
 
     const orderQuery = `
       INSERT INTO porosite (perdoruesi_id, data, totali, adresa_1, qyteti, kodi_postar, komenti_shtese, payment_method, payment_status, transport_method)
@@ -146,12 +235,8 @@ export const saveOrder = async (req, res) => {
       paymentStatus,
       transportMethod,
     ];
-
     const orderResult = await query(orderQuery, orderValues);
-
-    if (!orderResult.insertId) {
-      throw new Error("Failed to insert order.");
-    }
+    if (!orderResult.insertId) throw new Error("Failed to insert order.");
 
     const orderId = orderResult.insertId;
 
@@ -165,15 +250,15 @@ export const saveOrder = async (req, res) => {
       item.quantity,
       item.cmimi,
     ]);
-
-    if (orderItemsValues.length > 0) {
+    if (orderItemsValues.length > 0)
       await query(orderItemsQuery, [orderItemsValues]);
-    }
 
     const orderDetails = {
+      orderId,
       cartItems,
       totalAmount,
       shippingInfo: {
+        ...shippingInfo,
         adresa: address,
         qyteti: city,
         shteti: state,
@@ -181,11 +266,15 @@ export const saveOrder = async (req, res) => {
       paymentIntentId,
     };
 
+    const invoicePath = generateInvoice(orderDetails);
+
     await query("COMMIT");
 
-    await sendOrderEmail(shippingInfo.email, orderDetails);
+    await sendOrderEmail(shippingInfo.email, orderDetails, invoicePath);
 
-    res.status(201).json({ message: "Order saved successfully", orderId });
+    res
+      .status(201)
+      .json({ message: "Order saved successfully", orderId, invoicePath });
   } catch (error) {
     await query("ROLLBACK");
     console.error("Error saving order:", error);
@@ -193,21 +282,13 @@ export const saveOrder = async (req, res) => {
   }
 };
 
-
 export const updatePaymentStatus = async (req, res) => {
   const { orderId, paymentStatus } = req.body;
-
-  const validStatuses = [0, 1, 2, 3]; // 0: Pending, 1: Completed, 2: Failed, 3: Refunded
+  const validStatuses = [0, 1, 2, 3];
   if (!validStatuses.includes(paymentStatus)) {
     return res.status(400).json({ error: "Invalid payment status." });
   }
-
-  const q = `
-    UPDATE porosite 
-    SET payment_status = ? 
-    WHERE id = ?
-  `;
-
+  const q = `UPDATE porosite SET payment_status = ? WHERE id = ?`;
   try {
     await query(q, [paymentStatus, orderId]);
     res.status(200).json({ message: "Payment status updated successfully." });
@@ -217,3 +298,16 @@ export const updatePaymentStatus = async (req, res) => {
   }
 };
 
+export const getInvoice = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    const filePath = `invoices/invoice_${orderId}.pdf`;
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "Invoice not found." });
+    }
+    res.download(filePath, `invoice_${orderId}.pdf`);
+  } catch (error) {
+    console.error("Error fetching invoice:", error);
+    res.status(500).json({ error: "Error fetching invoice." });
+  }
+};

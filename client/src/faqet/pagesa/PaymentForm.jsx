@@ -296,9 +296,13 @@ const PaymentForm = () => {
     };
   
     try {
-      await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
+      const saveOrderResponse = await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
+      const { orderId } = saveOrderResponse.data;
+  
+      window.location.href = `http://localhost:8800/api/porosite/invoices/${orderId}`;
     } catch (error) {
-      throw new Error("Error saving order.");
+      console.error("Payment error:", error);
+      setPaymentStatus(`Payment failed: ${error.message}`);
     }
   };
 
