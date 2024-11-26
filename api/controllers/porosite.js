@@ -328,20 +328,49 @@ export const merrPorosite = (req, res) => {
 };
 
 export const merrPorositePerdoruesit = (req, res) => {
-  const userId = req.params.userId; // Assuming the user ID is passed as a parameter in the URL
+  const q = `
+  SELECT 
+    p.id AS porosiId,
+    p.perdoruesi_id,
+    p.data,
+    p.totali,
+    p.adresa_1,
+    p.qyteti,
+    p.kodi_postar,
+    p.komenti_shtese,
+    p.payment_method,
+    p.payment_status, -- Include payment_status
+    p.transport_method,
+    (
+      SELECT GROUP_CONCAT(
+        CONCAT(
+          '{"bookId":', oi.book_id, 
+          ',"titulliLibrit":"', b.titulli, 
+          '","sasia":', oi.quantity, 
+          ',"cmimi":', oi.price, 
+          '}'
+        )
+      )
+      FROM order_items oi
+      LEFT JOIN librat b ON oi.book_id = b.id
+      WHERE oi.order_id = p.id
+    ) AS artikujt
+  FROM porosite p
+  WHERE p.perdoruesi_id = ?
+`;
 
-  // Query to fetch orders based on the userId
-  const query = `
-    SELECT *, date_format(data, "%d.%m.%Y %H:%i:%s") as data, concat(p.emri, " ", p.mbiemri) as perdoruesi
-    FROM porosite
-    LEFT JOIN perdoruesit p ON p.id = perdoruesi_id
-    WHERE perdoruesi_id = ?
-  `;
+db.query(q, [req.params.perdoruesi_id], (err, data) => {
+  if (err) {
+    console.error("Error fetching orders:", err);
+    return res.status(500).json({ message: "Gabim në kërkimin e porosive." });
+  }
 
-  db.query(query, [userId], (err, data) => {
-    if (err) {
-      return res.status(500).json({ message: "Gabim në kërkimin e porosive." });
-    }
-    return res.status(200).json(data);
-  });
+  const formattedData = data.map((order) => ({
+    ...order,
+    artikujt: order.artikujt ? JSON.parse(`[${order.artikujt}]`) : [],
+  }));
+
+  res.status(200).json(formattedData);
+});
+
 };

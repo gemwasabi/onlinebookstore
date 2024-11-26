@@ -6,21 +6,28 @@ import { AuthContext } from "../context/authContext";
 const OrdersPage = () => {
   const [porosite, setPorosite] = useState([]);
   const [faqjaAktuale, caktoFaqjaAktuale] = useState(1);
-  const [loading, setLoading] = useState(true); // To handle loading state
-  const [error, setError] = useState(null); // To handle any errors
+  const [loading, setLoading] = useState(true); // Handle loading state
+  const [error, setError] = useState(null); // Handle errors
   const { currentUser } = useContext(AuthContext);
 
   const porositePerFaqe = 10;
 
   useEffect(() => {
-    // Fetch orders from the API
     const fetchPorosite = async () => {
+      if (!currentUser?.id) {
+        console.warn("No currentUser found, skipping fetch.");
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get(
-          `http://localhost:8800/api/porosite/porositePerdoruesit/${currentUser.id}`
+          `http://localhost:8800/api/porosite/${currentUser.id}`
         );
-        setPorosite(response.data); // Assuming the API returns the list of orders
+        console.log("Fetched orders:", response.data);
+        setPorosite(response.data || []);
       } catch (err) {
+        console.error("Error fetching orders:", err);
         setError("Ka ndodhur një gabim gjatë ngarkimit të porosive.");
       } finally {
         setLoading(false);
@@ -28,8 +35,9 @@ const OrdersPage = () => {
     };
 
     fetchPorosite();
-  }, []);
+  }, [currentUser]);
 
+  // Pagination logic
   const indeksiFunditPorosise = faqjaAktuale * porositePerFaqe;
   const indeksiParePorosise = indeksiFunditPorosise - porositePerFaqe;
   const porositeAktuale = porosite.slice(
@@ -64,38 +72,58 @@ const OrdersPage = () => {
                   <th className="p-4">Data</th>
                   <th className="p-4">Totali (€)</th>
                   <th className="p-4">Metoda e Transportit</th>
+                  <th className="p-4">Statusi i Pagesës</th>
                   <th className="p-4">Artikujt</th>
                 </tr>
               </thead>
               <tbody>
-                {porositeAktuale.map((porosi) => (
-                  <tr
-                    key={porosi.porosiId}
-                    className="border-t hover:bg-[#BCC5B8] transition-colors"
-                  >
-                    <td className="p-4">{porosi.porosiId}</td>
-                    <td className="p-4">
-                      {new Date(porosi.dataPorosise).toLocaleDateString(
-                        "sq-AL"
-                      )}
-                    </td>
-                    <td className="p-4">
-                      €{parseFloat(porosi.totali).toFixed(2)}
-                    </td>
-                    <td className="p-4">{porosi.metodaTransporti}</td>
-                    <td className="p-4">
-                      <ul className="list-disc list-inside text-[#727D6D]">
-                        {porosi.artikujt.map((artikull, index) => (
-                          <li key={index}>
-                            {artikull.titulliLibrit} ({artikull.sasia}x €
-                            {artikull.cmimi})
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+  {porositeAktuale.map((porosi) => (
+    <tr
+      key={porosi.porosiId}
+      className="border-t hover:bg-[#BCC5B8] transition-colors"
+    >
+      <td className="p-4">{porosi.porosiId}</td>
+      <td className="p-4">
+        {porosi.data
+          ? new Date(porosi.data).toLocaleDateString("sq-AL")
+          : "Data e panjohur"}
+      </td>
+      <td className="p-4">
+        €{porosi.totali ? parseFloat(porosi.totali).toFixed(2) : "0.00"}
+      </td>
+      <td className="p-4">
+        {porosi.transport_method === 0
+          ? "E merr ne dyqan"
+          : porosi.transport_method === 1
+          ? "Posta"
+          : "E panjohur"}
+      </td>
+      <td className="p-4">
+        {porosi.payment_status === 1
+          ? "Paguar"
+          : porosi.payment_status === 0
+          ? "Jo e paguar"
+          : "Status i panjohur"}
+      </td>
+      <td className="p-4">
+        <ul className="list-disc list-inside text-[#727D6D]">
+          {Array.isArray(porosi.artikujt) && porosi.artikujt.length > 0 ? (
+            porosi.artikujt.map((artikull, index) => (
+              <li key={index}>
+                {artikull.titulliLibrit || "Artikull i panjohur"} ({artikull.sasia}x €
+                {artikull.cmimi})
+              </li>
+            ))
+          ) : (
+            <li>Nuk ka artikuj në këtë porosi.</li>
+          )}
+        </ul>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+
             </table>
 
             {/* Pagination */}
@@ -111,11 +139,10 @@ const OrdersPage = () => {
                 <button
                   key={i}
                   onClick={() => ndryshoFaqen(i + 1)}
-                  className={`mx-2 px-4 py-2 rounded-lg ${
-                    faqjaAktuale === i + 1
+                  className={`mx-2 px-4 py-2 rounded-lg ${faqjaAktuale === i + 1
                       ? "bg-[#7B8E76] text-white"
                       : "bg-[#BCC5B8] text-[#51584F] hover:bg-[#757C73]"
-                  }`}
+                    }`}
                 >
                   {i + 1}
                 </button>
