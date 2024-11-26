@@ -1,16 +1,14 @@
 import { useContext, useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
-import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
 const Libri = () => {
-  const { currentUser, ckycu } = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
   const [libri, setLibrin] = useState({});
   const location = useLocation();
   const libriId = location.pathname.split("/")[2];
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,7 +17,7 @@ const Libri = () => {
           "http://localhost:8800/api/librat/" + libriId
         );
         setLibrin(res.data);
-        window.scroll(0, 0);
+        window.scrollTo(0, 0);
       } catch (error) {
         console.log(error);
       }
@@ -38,7 +36,7 @@ const Libri = () => {
       });
     } catch (error) {
       console.error("Error adding book to cart:", error);
-      toast.error("Ka ndodhur nje gabim gjatë procesit!", {
+      toast.error("Ka ndodhur një gabim gjatë procesit!", {
         position: "top-right",
       });
     }
@@ -46,8 +44,8 @@ const Libri = () => {
 
   return (
     <div className="font-sans bg-[#7b8e76] min-h-screen flex flex-col">
-      <div className="container mx-auto p-4 flex-grow">
-        <div className="flex flex-col md:flex-row items-start">
+      <div className="container mx-auto px-4 py-6 flex-grow">
+        <div className="bg-[#bcc5b8] p-6 rounded-lg shadow-lg flex flex-col md:flex-row md:items-start gap-6">
           <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-4">
             <img
               className="w-32 md:w-48"
@@ -55,56 +53,67 @@ const Libri = () => {
               alt={libri.titulli || "Libri pa titull"}
             />
           </div>
-          <div className="bg-[#bcc5b8] px-6 py-3 rounded-lg shadow-lg flex-grow min-h-full">
-            <h1 className="text-[#848a81] text-2xl md:text-3xl font-bold mb-2">
+          <div className="flex-grow px-4 md:px-6 flex flex-col">
+            <h1
+              className="text-[#848a81] font-extrabold mb-4"
+              style={{ fontSize: "2rem" }}
+            >
               {libri.titulli}
             </h1>
-            <h2 className="text-lg md:text-xl text-[#848a81] mb-4">
-              nga {libri.autori}
+            <h2 className="text-lg text-[#848a81] mb-4">
+              nga{" "}
+              <span className="underline decoration-dotted">
+                {libri.autori}
+              </span>
             </h2>
-            <div className="flex space-x-4 mb-6">
-              <button
-                className="bg-[#7b8e76] text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors duration-200 hover:bg-[#6d7b69]"
-                onClick={addToCart}
-              >
-                <img
-                  src="https://res.cloudinary.com/dhjdnejbo/image/upload/v1716846152/solar_bag-bold_2_nwtgvx.svg"
-                  alt="Add to Cart"
-                  className="h-5 w-5 mr-2"
-                />
-                Shto në shportë
-              </button>
-            </div>
-            <h2 className="text-2xl font-semibold mb-2 text-[#848a81]">
-              Pershkrimi:
+            <h3 className="text-[#848a81] text-2xl font-bold mb-4">
+              {libri.cmimi}€
+            </h3>
+            <hr className="border-[#848a81] mb-4" />
+            <h2 className="text-[#848a81] text-xl font-semibold mb-2">
+              Përshkrimi
             </h2>
-            <p className="text-[#848a81] mb-6">{libri.pershkrimi}</p>
-            <div>
-              <h2 className="text-[#848a81] text-2xl font-semibold mb-2">
+            <p className="text-[#848a81] text-lg mb-4">{libri.pershkrimi}</p>
+            <div className="mt-8 mb-6">
+              <h2 className="text-[#848a81] text-xl font-semibold mb-4">
                 Detajet e produktit:
               </h2>
-              <div className="flex space-x-2">
-                <ul className="text-[#848a81] text-right">
-                  <li>Çmimi:</li>
-                  <li>Botuesi:</li>
-                  <li>Data e botimit:</li>
-                  <li>Nr. i faqeve:</li>
-                  <li>Dimensionet:</li>
-                  <li>Gjuha:</li>
-                  <li>Lloji:</li>
-                  <li>EAN/UPC:</li>
-                </ul>
-                <ul className="text-[#848a81] text-left">
-                  <li>{libri.cmimi ? `${libri.cmimi}€` : "N/A"}</li>
-                  <li>{libri.botuesi || "N/A"}</li>
-                  <li>{libri.data_botimit || "N/A"}</li>
-                  <li>{libri.nr_faqeve || "N/A"}</li>
-                  <li>{libri.dimensionet || "N/A"}</li>
-                  <li>{libri.gjuha || "N/A"}</li>
-                  <li>{libri.lloji || "N/A"}</li>
-                  <li>{libri.ean_upc || "N/A"}</li>
-                </ul>
-              </div>
+              <ul className="text-[#848a81] text-lg space-y-2">
+                <li>
+                  <span className="font-semibold">Botuesi:</span>{" "}
+                  {libri.botuesi || "N/A"}
+                </li>
+                <li>
+                  <span className="font-semibold">Data e botimit:</span>{" "}
+                  {libri.data_botimit || "N/A"}
+                </li>
+                <li>
+                  <span className="font-semibold">Gjuha:</span>{" "}
+                  {libri.gjuha || "N/A"}
+                </li>
+                <li>
+                  <span className="font-semibold">Lloji:</span>{" "}
+                  {libri.lloji || "N/A"}
+                </li>
+                <li>
+                  <span className="font-semibold">EAN/UPC:</span>{" "}
+                  {libri.ean_upc || "N/A"}
+                </li>
+              </ul>
+            </div>
+            <div
+              style={{
+                marginTop: "1rem",
+                width: "fit-content",
+                alignSelf: "start",
+              }}
+            >
+              <button
+                className="bg-[#7b8e76] text-white px-6 py-2 text-lg rounded-lg transition-colors duration-200 hover:bg-[#6d7b69]"
+                onClick={addToCart}
+              >
+                Shto në shportë
+              </button>
             </div>
           </div>
         </div>

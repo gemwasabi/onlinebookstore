@@ -262,13 +262,13 @@ const PaymentForm = () => {
 
   const saveOrder = async (paymentIntentId, method) => {
     let shippingDetails = {};
-
+  
     if (transportMethod === "transport") {
       shippingDetails =
         selectedAddressId === "new"
           ? { ...newAddress }
           : savedAddresses.find((address) => address.id === parseInt(selectedAddressId));
-
+  
       if (!shippingDetails) {
         setPaymentStatus("Please select or provide a valid address.");
         return;
@@ -282,28 +282,29 @@ const PaymentForm = () => {
         shteti: "Kosova",
       };
     }
-
+  
+    shippingDetails.email = shippingInfo.email;
+  
     const orderData = {
       userId,
       totalAmount,
       cartItems,
       shippingInfo: shippingDetails,
-      transportMethod: transportMethod === "pickup" ? 0 : 1, // 0 for pickup, 1 for transport
+      transportMethod: transportMethod === "pickup" ? 0 : 1,
       paymentIntentId,
-      paymentMethod: method, // 1: Stripe, 0: Cash
+      paymentMethod: method,
     };
-
+  
     try {
-      await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
+      const saveOrderResponse = await axios.post("http://localhost:8800/api/porosite/ruaj-porosine", orderData);
+      const { orderId } = saveOrderResponse.data;
+  
+      window.location.href = `http://localhost:8800/api/porosite/invoices/${orderId}`;
     } catch (error) {
-      throw new Error("Error saving order.");
+      console.error("Payment error:", error);
+      setPaymentStatus(`Payment failed: ${error.message}`);
     }
   };
-
-  console.log("Shipping Info Sent to saveOrder:", selectedAddressId === "new" ? newAddress : shippingInfo);
-  console.log("Cart Items Sent to saveOrder:", cartItems);
-  console.log("Total Amount Sent to saveOrder:", totalAmount);
-
 
   const handleRemoveBook = async (bookId) => {
     const confirmDelete = window.confirm("A jeni te sigurte qe doni ta fshini librin?");
