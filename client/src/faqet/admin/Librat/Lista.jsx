@@ -28,7 +28,7 @@ function Lista() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:8800/api/librat");
+      const res = await axios.get("http://localhost:8800/api/librat/simple");
       setLibrat(res.data);
     } catch (error) {
       console.log(error);
@@ -40,19 +40,80 @@ function Lista() {
   }, []);
 
   const columns = [
-    { name: "#", selector: (row, index) => index + 1, sortable: true },
-    { name: "Titulli", selector: (row) => row.titulli, sortable: true },
-    { name: "Autori", selector: (row) => row.autori, sortable: true },
-    { name: "ISBN", selector: (row) => row.isbn, sortable: true },
-    { name: "Cmimi", selector: (row) => row.cmimi, sortable: true },
-    { name: "Gjuha", selector: (row) => row.gjuha, sortable: true },
+    {
+      name: "#",
+      selector: (row, index) => index + 1,
+      sortable: true,
+      style: { width: "50px" },
+    },
+    {
+      name: "Titulli",
+      selector: (row) => row.titulli,
+      sortable: true,
+      style: {
+        maxWidth: "200px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+    },
+    {
+      name: "Autori",
+      selector: (row) => row.autori,
+      sortable: true,
+      style: {
+        maxWidth: "150px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+    },
+    {
+      name: "ISBN",
+      selector: (row) => row.isbn,
+      sortable: true,
+      style: {
+        maxWidth: "150px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+    },
+    {
+      name: "Cmimi",
+      selector: (row) => row.cmimi,
+      sortable: true,
+      style: { width: "100px" },
+    },
+    {
+      name: "Gjuha",
+      selector: (row) => row.gjuha,
+      sortable: true,
+      style: { width: "120px" },
+    },
     {
       name: "Data Publikimit",
       selector: (row) => row.data_publikimit,
       sortable: true,
+      style: { width: "150px" },
     },
-    { name: "Tipi", selector: (row) => row.tipi, sortable: true },
-    { name: "Pershkrimi", selector: (row) => row.pershkrimi, sortable: true },
+    {
+      name: "Tipi",
+      selector: (row) => row.tipi,
+      sortable: true,
+      style: { width: "100px" },
+    },
+    {
+      name: "Pershkrimi",
+      selector: (row) => row.pershkrimi,
+      sortable: true,
+      style: {
+        maxWidth: "200px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+    },
     {
       name: "Foto",
       cell: (row) =>
@@ -63,6 +124,7 @@ function Lista() {
             style={{ width: "100px", height: "auto" }}
           />
         ) : null,
+      style: { width: "120px" },
     },
     {
       name: "Aksion",
@@ -70,7 +132,6 @@ function Lista() {
         <div style={{ display: "flex", gap: "5px" }}>
           <Link
             to={`/admin/editoLibrin/${row.id}`}
-            className=""
             title="Edito"
             style={{
               display: "flex",
@@ -79,10 +140,12 @@ function Lista() {
               padding: "5px 10px",
             }}
           >
-            <i className="fas fa-pen text-primary" style={{ fontSize: "16px" }}></i>
+            <i
+              className="fas fa-pen text-primary"
+              style={{ fontSize: "16px" }}
+            ></i>
           </Link>
           <span
-            className=""
             onClick={() => shlyejLibrin(row.id)}
             title="Shlyej"
             style={{
@@ -92,10 +155,14 @@ function Lista() {
               padding: "5px 10px",
             }}
           >
-            <i className="fas fa-trash text-danger" style={{ fontSize: "16px" }}></i>
+            <i
+              className="fas fa-trash text-danger"
+              style={{ fontSize: "16px" }}
+            ></i>
           </span>
         </div>
       ),
+      style: { width: "150px" },
     },
   ];
 

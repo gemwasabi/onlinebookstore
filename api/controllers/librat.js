@@ -17,7 +17,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-export const merrLibrat = (req, res) => {
+
+export const merrLibratSimple = (req, res) => {
   const query = "SELECT * FROM librat";
 
   db.query(query, (err, data) => {
@@ -25,6 +26,103 @@ export const merrLibrat = (req, res) => {
       return res.status(500).json({ message: "Gabim në kërkimin e librave." });
     }
     return res.status(200).json(data);
+  });
+};
+
+
+export const merrLibrat = (req, res) => {
+  const page = parseInt(req.query.page) || 1; // Default to page 1 if no page is specified
+  const limit = parseInt(req.query.limit) || 20; // Default to 20 books per page if no limit is specified
+  const offset = (page - 1) * limit; // Calculate the offset for SQL query
+
+  // Extract filter parameters from the query
+  const category = req.query.category ? req.query.category.split(",") : [];
+  const author = req.query.author ? req.query.author.split(",") : [];
+  const year = req.query.year || "";
+  const priceMin = parseFloat(req.query.priceMin) || 0;
+  const priceMax = parseFloat(req.query.priceMax) || 100;
+
+  // Construct the WHERE clause dynamically based on the filters
+  let whereConditions = [];
+  let queryParams = [];
+
+  if (category.length > 0) {
+    whereConditions.push(`lk.kategoria_id IN (?)`);
+    queryParams.push(category);
+  }
+
+  console.log(author);
+  if (author && author.length > 0) {
+    whereConditions.push(`l.autori IN (?)`);
+    queryParams.push(author);
+  }
+
+  if (priceMin >= 0) {
+    whereConditions.push(`l.cmimi >= ?`);
+    queryParams.push(priceMin);
+  }
+
+  if (priceMax <= 100) {
+    whereConditions.push(`l.cmimi <= ?`);
+    queryParams.push(priceMax);
+  }
+
+  if (year) {
+    whereConditions.push(`YEAR(l.data_publikimit) = ?`);
+    queryParams.push(year);
+  }
+
+  // Build the base query and apply the WHERE conditions
+  let baseQuery = `
+    SELECT l.* 
+    FROM librat l
+    LEFT JOIN librat_kategorite lk ON l.id = lk.libri_id
+  `;
+  if (whereConditions.length > 0) {
+    baseQuery += " WHERE " + whereConditions.join(" AND ");
+  }
+
+  // Add pagination to the query
+  baseQuery += " LIMIT ? OFFSET ?";
+  queryParams.push(limit, offset);
+
+  // Get total number of books based on the filters
+  const totalQuery =
+    `
+    SELECT COUNT(DISTINCT l.id) AS total 
+    FROM librat l
+    LEFT JOIN librat_kategorite lk ON l.id = lk.libri_id
+  ` +
+    (whereConditions.length > 0
+      ? " WHERE " + whereConditions.join(" AND ")
+      : "");
+
+  db.query(totalQuery, queryParams.slice(0, -2), (err, result) => {
+    if (err) {
+      console.log(err);
+      return res
+        .status(500)
+        .json({ message: "Gabim në kërkimin e numrit të librave." });
+    }
+
+    const totalBooks = result[0].total;
+    const totalPages = Math.ceil(totalBooks / limit); // Calculate total pages
+
+    // Fetch the filtered books for the current page
+    db.query(baseQuery, queryParams, (err, data) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Gabim në kërkimin e librave." });
+      }
+
+      // Return the filtered books and pagination info
+      return res.status(200).json({
+        books: data,
+        currentPage: page,
+        totalPages: totalPages,
+      });
+    });
   });
 };
 
@@ -240,5 +338,20 @@ export const kerkoLibrat = (req, res) => {
       return res.status(500).json({ message: "Gabim në kërkimin e librave." });
     }
     return res.status(200).json({ results: data });
+  });
+};
+
+export const merrAutoret = (req, res) => {
+  const query = `
+    SELECT DISTINCT autori
+    FROM librat
+  `;
+
+  db.query(query, (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Gabim në marrjen e autorëve." });
+    }
+    return res.status(200).json({ authors: data });
   });
 };

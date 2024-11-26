@@ -1,9 +1,26 @@
 import { db } from "../db.js";
 
 export const merrTufat = (req, res) => {
+  const limit = req.query.limit ? parseInt(req.query.limit, 10) : null; // Parse the limit parameter
   const q = `
-    SELECT id, emri, statusi
-    FROM tufat;
+    SELECT id, emri, foto, statusi
+    FROM tufat
+    ${limit ? `LIMIT ${limit}` : ""}; -- Add LIMIT only if limit is provided
+  `;
+
+  db.query(q, (err, data) => {
+    if (err) return res.json(err);
+    return res.status(200).json(data);
+  });
+};
+
+export const merrTufatRandom = (req, res) => {
+  const limit = req.query.limit ? parseInt(req.query.limit, 10) : null; // Parse the limit parameter
+  const q = `
+    SELECT id, emri, foto, statusi
+    FROM tufat
+    ORDER BY RAND()
+    ${limit ? `LIMIT ${limit}` : ""} -- Add LIMIT only if limit is provided
   `;
 
   db.query(q, (err, data) => {
@@ -74,7 +91,7 @@ export const merrTufen = (req, res) => {
 
       const tufa = {
         ...tufaData[0],
-        librat: booksData
+        librat: booksData,
       };
 
       return res.status(200).json(tufa);
@@ -83,9 +100,9 @@ export const merrTufen = (req, res) => {
 };
 
 export const shtoTufe = (req, res) => {
+  const q1 = "INSERT INTO tufat (emri, statusi, foto) VALUES (?, ?, ?)";
   const { emri, statusi, librat } = req.body;
-
-  const q1 = "INSERT INTO tufat (emri, statusi) VALUES (?, ?)";
+  const filename = req.file ? req.file.filename : null;
 
   db.beginTransaction((err) => {
     if (err) {
@@ -93,7 +110,7 @@ export const shtoTufe = (req, res) => {
     }
 
     // Insert the new bundle
-    db.query(q1, [emri, statusi], (err, result) => {
+    db.query(q1, [emri, statusi, filename], (err, result) => {
       if (err) {
         return db.rollback(() => {
           res.status(500).json(err);

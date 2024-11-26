@@ -41,6 +41,7 @@ import UserSettings2 from "./faqet/UserSettings2";
 import UserSettings3 from "./faqet/UserSettings3";
 import PaymentPage from "./faqet/pagesa/PaymentForm";
 import PorositePerdoruesit from "./faqet/PorositePerdoruesit";
+import ViewAll from "./faqet/librat/ViewAll";
 
 const Struktura = () => {
   return (
@@ -196,8 +197,8 @@ const router = createBrowserRouter([
         element: <Libri />,
       },
       {
-        path: "/pamjaTufes/:id",
-        element: <ShikoMeShume />,
+        path: "/listaLibrave",
+        element: <ViewAll />,
       },
       {
         path: "/kategoria",

@@ -8,12 +8,14 @@ function Shto() {
     emri: "",
     librat: [],
     statusi: "",
+    foto: null,
   });
 
   const [errors, setErrors] = useState({
     emri: "",
     librat: "",
     statusi: "",
+    foto: "",
   });
 
   const navigate = useNavigate();
@@ -35,7 +37,11 @@ function Shto() {
     if (Object.values(validationErrors).every((error) => !error)) {
       console.log(inputs);
       try {
-        await axios.post("http://localhost:8800/api/tufat", inputs);
+        await axios.post("http://localhost:8800/api/tufat", inputs, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
         navigate("/admin/tufat");
       } catch (err) {
         console.log(err);
@@ -55,6 +61,9 @@ function Shto() {
     }
     if (!inputs.statusi) {
       errors.statusi = "Statusi eshte i detyrueshem";
+    }
+    if (!inputs.foto) {
+      errors.foto = "Fotoja eshte e detyruesheme";
     }
     return errors;
   };
@@ -140,6 +149,22 @@ function Shto() {
                   </select>
                   {errors.statusi && (
                     <div className="invalid-feedback">{errors.statusi}</div>
+                  )}
+                </div>
+              </div>
+              <div className="form-group row mb-3">
+                <label className="col-sm-2 col-form-label">Foto</label>
+                <div className="col-sm-10">
+                  <input
+                    type="file"
+                    className={`form-control ${errors.foto && "is-invalid"}`}
+                    onChange={(e) =>
+                      trajtoNdryshimet(e.target.files[0], { name: "foto" })
+                    }
+                    name="foto"
+                  />
+                  {errors.foto && (
+                    <div className="invalid-feedback">{errors.foto}</div>
                   )}
                 </div>
               </div>
