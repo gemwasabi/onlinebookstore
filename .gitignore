@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 client/public/assets
+
+client/src/assets/img/bookcovers
+api/invoices
