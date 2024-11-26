@@ -85,7 +85,7 @@ const Edito = () => {
 
     const fetchBooks = async () => {
       try {
-        const res = await axios.get(`http://localhost:8800/api/librat`);
+        const res = await axios.get(`http://localhost:8800/api/librat/simple`);
         setBooks(res.data); // Set all possible books
       } catch (error) {
         console.error(error);
@@ -148,13 +148,13 @@ const Edito = () => {
                   closeMenuOnSelect={false}
                   options={books.map((book) => ({
                     value: book.id,
-                    label: book.emri,
+                    label: book.titulli,
                   }))}
                   value={books
                     .filter((book) => inputs.librat.includes(book.id))
                     .map((book) => ({
                       value: book.id,
-                      label: book.emri,
+                      label: book.titulli,
                     }))}
                   onChange={handleSelectChange}
                   className={`basic-multi-select ${

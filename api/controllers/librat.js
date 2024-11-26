@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-
 export const merrLibratSimple = (req, res) => {
   const query = "SELECT * FROM librat";
 
@@ -29,7 +28,6 @@ export const merrLibratSimple = (req, res) => {
   });
 };
 
-
 export const merrLibrat = (req, res) => {
   const page = parseInt(req.query.page) || 1; // Default to page 1 if no page is specified
   const limit = parseInt(req.query.limit) || 20; // Default to 20 books per page if no limit is specified
@@ -38,6 +36,7 @@ export const merrLibrat = (req, res) => {
   // Extract filter parameters from the query
   const category = req.query.category ? req.query.category.split(",") : [];
   const author = req.query.author ? req.query.author.split(",") : [];
+  const tufa = req.query.tufa ? req.query.tufa.split(",") : [];
   const year = req.query.year || "";
   const priceMin = parseFloat(req.query.priceMin) || 0;
   const priceMax = parseFloat(req.query.priceMax) || 100;
@@ -51,10 +50,14 @@ export const merrLibrat = (req, res) => {
     queryParams.push(category);
   }
 
-  console.log(author);
   if (author && author.length > 0) {
     whereConditions.push(`l.autori IN (?)`);
     queryParams.push(author);
+  }
+
+  if (tufa && tufa.length > 0) {
+    whereConditions.push(`t.id IN (?)`); // Use `tufa_id` from the `tufat` table
+    queryParams.push(tufa);
   }
 
   if (priceMin >= 0) {
@@ -74,10 +77,13 @@ export const merrLibrat = (req, res) => {
 
   // Build the base query and apply the WHERE conditions
   let baseQuery = `
-    SELECT l.* 
+    SELECT DISTINCT l.* 
     FROM librat l
     LEFT JOIN librat_kategorite lk ON l.id = lk.libri_id
+    LEFT JOIN tufat_detal td ON l.id = td.libri_id
+    LEFT JOIN tufat t ON td.tufa_id = t.id
   `;
+
   if (whereConditions.length > 0) {
     baseQuery += " WHERE " + whereConditions.join(" AND ");
   }
@@ -92,6 +98,8 @@ export const merrLibrat = (req, res) => {
     SELECT COUNT(DISTINCT l.id) AS total 
     FROM librat l
     LEFT JOIN librat_kategorite lk ON l.id = lk.libri_id
+    LEFT JOIN tufat_detal td ON l.id = td.libri_id
+    LEFT JOIN tufat t ON td.tufa_id = t.id
   ` +
     (whereConditions.length > 0
       ? " WHERE " + whereConditions.join(" AND ")
@@ -99,10 +107,9 @@ export const merrLibrat = (req, res) => {
 
   db.query(totalQuery, queryParams.slice(0, -2), (err, result) => {
     if (err) {
-      console.log(err);
       return res
         .status(500)
-        .json({ message: "Gabim në kërkimin e numrit të librave." });
+        .json({ message: err });
     }
 
     const totalBooks = result[0].total;
@@ -111,9 +118,7 @@ export const merrLibrat = (req, res) => {
     // Fetch the filtered books for the current page
     db.query(baseQuery, queryParams, (err, data) => {
       if (err) {
-        return res
-          .status(500)
-          .json({ message: "Gabim në kërkimin e librave." });
+        return res.status(500).json({ message: err });
       }
 
       // Return the filtered books and pagination info

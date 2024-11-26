@@ -6,12 +6,14 @@ import { Link } from "react-router-dom";
 const ViewAll = () => {
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [tufat, setTufat] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [filters, setFilters] = useState({
     category: [],
     author: [],
     year: "",
+    tufa: [],
   });
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Current page state
@@ -20,7 +22,7 @@ const ViewAll = () => {
 
   const fetchBooks = (currentFilters) => {
     setBooks([]);
-    console.log(priceRange);
+
     axios
       .get("http://localhost:8800/api/librat", {
         params: {
@@ -28,6 +30,7 @@ const ViewAll = () => {
           limit: booksPerPage,
           category: currentFilters.category.join(","),
           author: currentFilters.author.join(","),
+          tufa: currentFilters.tufa.join(","),
           year: currentFilters.year,
           priceMin: priceRange[0],
           priceMax: priceRange[1],
@@ -47,6 +50,7 @@ const ViewAll = () => {
     const params = new URLSearchParams(window.location.search);
     const category = params.get("kategoria");
     const author = params.get("autori");
+    const tufa = params.get("tufa");
 
     if (category) {
       filters.category = category.split(",").map(Number); // Assume `category` is a comma-separated list of IDs
@@ -55,6 +59,16 @@ const ViewAll = () => {
     if (author) {
       filters.author = author.split(","); // Assume `author` is a comma-separated list of names
     }
+
+    if (tufa) {
+      filters.tufa = tufa.split(",").map(Number); // Assume `author` is a comma-separated list of names
+    }
+
+    // Fetch tufat
+    axios
+      .get("http://localhost:8800/api/tufat")
+      .then((response) => setTufat(response.data))
+      .catch((error) => console.error("Error fetching tufat:", error))
 
     // Fetch categories
     axios
@@ -111,6 +125,32 @@ const ViewAll = () => {
           }`}
         >
           <h2 className="text-3xl font-bold text-[#c3c9be] mb-4">Filterat</h2>
+
+          {/* Tufat Filter */}
+          <div className="mb-4">
+            <label htmlFor="tufat" className="block text-lg text-white">
+              Tufat
+            </label>
+            <Select
+              isMulti
+              id="tufat"
+              name="tufat"
+              options={tufat.map((tufa) => ({
+                value: tufa.id,
+                label: tufa.emri,
+              }))}
+              value={tufat
+                .filter((tufa) => filters.tufa.includes(tufa.id)) // Match selected IDs with the categories
+                .map((tufa) => ({
+                  value: tufa.id,
+                  label: tufa.emri,
+                }))}
+              onChange={(selectedOptions) =>
+                handleFilterChange(selectedOptions, "tufa")
+              }
+              className="w-full"
+            />
+          </div>
 
           {/* Category Filter */}
           <div className="mb-4">
@@ -184,7 +224,7 @@ const ViewAll = () => {
 
             {/* Display current price range values */}
             <div className="text-white text-sm mb-2">
-              Çmimi: {priceRange[0]}$ - {priceRange[1]}$
+              Çmimi: {priceRange[0]}€ - {priceRange[1]}€
             </div>
 
             <input
@@ -256,13 +296,13 @@ const ViewAll = () => {
                   </h3>
                 </Link>
                 {/* <Link to={`/listaLibrave?autori=${book.autori}`}> */}
-                  <p className="text-sm text-gray-500">{book.autori}</p>
+                <p className="text-sm text-gray-500">{book.autori}</p>
                 {/* </Link>/ */}
                 <p className="mt-2">Format: {book.tipi}</p>
-                <p className="text-lg font-semibold">{book.cmimi} $</p>
+                <p className="text-lg font-semibold">{book.cmimi}€</p>
                 {book.oldPrice && (
                   <p className="text-sm text-gray-500 line-through">
-                    ${book.oldPrice}
+                    €{book.oldPrice}
                   </p>
                 )}
                 <div className="mt-4">

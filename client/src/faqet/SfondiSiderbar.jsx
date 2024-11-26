@@ -64,11 +64,11 @@ const Sidebar = () => {
         label="Adresat"
         currentPath={location.pathname}
       />
-      <SidebarButton
+      {/* <SidebarButton
         to="/sfondi/kartelat"
         label="Kartela bankare"
         currentPath={location.pathname}
-      />
+      /> */}
       <SidebarButton
         to="/sfondi/porosite"
         label="Porosite"

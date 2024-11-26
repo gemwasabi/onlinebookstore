@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -62,9 +62,11 @@ const Libri = () => {
             </h1>
             <h2 className="text-lg text-[#848a81] mb-4">
               nga{" "}
-              <span className="underline decoration-dotted">
-                {libri.autori}
-              </span>
+              <Link to={`/listaLibrave?autori=${libri.autori}`}>
+                <span className="underline decoration-dotted">
+                  {libri.autori}
+                </span>
+              </Link>
             </h2>
             <h3 className="text-[#848a81] text-2xl font-bold mb-4">
               {libri.cmimi}€

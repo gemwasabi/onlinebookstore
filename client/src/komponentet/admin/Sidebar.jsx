@@ -19,12 +19,12 @@ function Sidebar() {
         <ul className="sidebar-nav">
           <li className="sidebar-header">Kryesore</li>
 
-          <li className={`sidebar-item ${isActive("/")}`}>
+          {/* <li className={`sidebar-item ${isActive("/")}`}>
             <Link className="sidebar-link" to="/admin">
               <i className="align-middle" data-feather="sliders"></i>
               <span className="align-middle">Ballina</span>
             </Link>
-          </li>
+          </li> */}
 
           <li
             className={`sidebar-item ${isActive(

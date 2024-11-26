@@ -25,23 +25,23 @@ function Lista() {
 
   const columns = [
     { name: "#", selector: (row, index) => index + 1, sortable: true },
+    { name: "Data", selector: (row) => row.data, sortable: true },
     {
       name: "Perdoruesi",
-      selector: (row) => row.perdoruesi_id,
+      selector: (row) => row.perdoruesi,
       sortable: true,
     },
-    { name: "Data", selector: (row) => row.data, sortable: true },
-    { name: "Totali", selector: (row) => row.totali, sortable: true },
-    { name: "Statusi", selector: (row) => row.statusi, sortable: true },
-    { name: "Adresa 1", selector: (row) => row.adresa_1, sortable: true },
-    { name: "Adresa 2", selector: (row) => row.adresa_2, sortable: true },
+    { name: "Totali", selector: (row) => row.totali + "€", sortable: true },
     { name: "Qyteti", selector: (row) => row.qyteti, sortable: true },
-    { name: "Kodi Postar", selector: (row) => row.kodi_postar, sortable: true },
-    {
-      name: "Komenti Shtese",
-      selector: (row) => row.konenti_shtese,
-      sortable: true,
-    },
+    { name: "Statusi", selector: (row) => row.statusi, sortable: true },
+    // { name: "Adresa 1", selector: (row) => row.adresa_1, sortable: true },
+    // { name: "Adresa 2", selector: (row) => row.adresa_2, sortable: true },
+    // { name: "Kodi Postar", selector: (row) => row.kodi_postar, sortable: true },
+    // {
+    //   name: "Komenti Shtese",
+    //   selector: (row) => row.konenti_shtese,
+    //   sortable: true,
+    // },
     {
       name: "Aksion",
       cell: (row) => (

@@ -311,3 +311,37 @@ export const getInvoice = async (req, res) => {
     res.status(500).json({ error: "Error fetching invoice." });
   }
 };
+
+export const merrPorosite = (req, res) => {
+  const query = `
+    SELECT *, date_format(data, "%d.%m.%Y %H:%i:%s") as data, concat(p.emri, " ", p.mbiemri) as perdoruesi
+    FROM porosite
+    left join perdoruesit p on p.id = perdoruesi_id
+  `;
+
+  db.query(query, (err, data) => {
+    if (err) {
+      return res.status(500).json({ message: "Gabim në kërkimin e porosive." });
+    }
+    return res.status(200).json(data);
+  });
+};
+
+export const merrPorositePerdoruesit = (req, res) => {
+  const userId = req.params.userId; // Assuming the user ID is passed as a parameter in the URL
+
+  // Query to fetch orders based on the userId
+  const query = `
+    SELECT *, date_format(data, "%d.%m.%Y %H:%i:%s") as data, concat(p.emri, " ", p.mbiemri) as perdoruesi
+    FROM porosite
+    LEFT JOIN perdoruesit p ON p.id = perdoruesi_id
+    WHERE perdoruesi_id = ?
+  `;
+
+  db.query(query, [userId], (err, data) => {
+    if (err) {
+      return res.status(500).json({ message: "Gabim në kërkimin e porosive." });
+    }
+    return res.status(200).json(data);
+  });
+};

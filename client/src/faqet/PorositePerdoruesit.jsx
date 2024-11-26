@@ -1,28 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import axios from "axios";
 import SfondiSidebar from "./SfondiSiderbar";
+import { AuthContext } from "../context/authContext";
 
 const OrdersPage = () => {
-  const porositeMock = Array.from({ length: 30 }, (_, index) => ({
-    porosiId: 130 - index,
-    dataPorosise: `2024-11-${30 - (index % 30)}`,
-    totali: (Math.random() * 100).toFixed(2),
-    metodaTransporti: index % 2 === 0 ? "Transport" : "Merre vetë",
-    artikujt: [
-      { titulliLibrit: "Kodi i Da Vinçit", sasia: 1, cmimi: "12.99" },
-      { titulliLibrit: "Arti i Luftës", sasia: 2, cmimi: "7.50" },
-      ...(index % 3 === 0
-        ? [{ titulliLibrit: "Lufta dhe Paqja", sasia: 1, cmimi: "15.00" }]
-        : []),
-    ],
-  }));
-
-  const [porosite] = useState(porositeMock);
+  const [porosite, setPorosite] = useState([]);
   const [faqjaAktuale, caktoFaqjaAktuale] = useState(1);
+  const [loading, setLoading] = useState(true); // To handle loading state
+  const [error, setError] = useState(null); // To handle any errors
+  const { currentUser } = useContext(AuthContext);
+
   const porositePerFaqe = 10;
+
+  useEffect(() => {
+    // Fetch orders from the API
+    const fetchPorosite = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8800/api/porosite/porositePerdoruesit/${currentUser.id}`
+        );
+        setPorosite(response.data); // Assuming the API returns the list of orders
+      } catch (err) {
+        setError("Ka ndodhur një gabim gjatë ngarkimit të porosive.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPorosite();
+  }, []);
 
   const indeksiFunditPorosise = faqjaAktuale * porositePerFaqe;
   const indeksiParePorosise = indeksiFunditPorosise - porositePerFaqe;
-  const porositeAktuale = porosite.slice(indeksiParePorosise, indeksiFunditPorosise);
+  const porositeAktuale = porosite.slice(
+    indeksiParePorosise,
+    indeksiFunditPorosise
+  );
   const totalFaqe = Math.ceil(porosite.length / porositePerFaqe);
 
   const ndryshoFaqen = (numriFaqes) => {
@@ -36,7 +49,11 @@ const OrdersPage = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-6 lg:p-10 bg-[#BCC5B8]">
-        {porosite.length === 0 ? (
+        {loading ? (
+          <p className="text-[#757C73]">Po ngarkohen porositë...</p>
+        ) : error ? (
+          <p className="text-[#D9534F]">{error}</p>
+        ) : porosite.length === 0 ? (
           <p className="text-[#757C73]">Nuk u gjet asnjë porosi.</p>
         ) : (
           <>
@@ -58,15 +75,20 @@ const OrdersPage = () => {
                   >
                     <td className="p-4">{porosi.porosiId}</td>
                     <td className="p-4">
-                      {new Date(porosi.dataPorosise).toLocaleDateString("sq-AL")}
+                      {new Date(porosi.dataPorosise).toLocaleDateString(
+                        "sq-AL"
+                      )}
                     </td>
-                    <td className="p-4">€{parseFloat(porosi.totali).toFixed(2)}</td>
+                    <td className="p-4">
+                      €{parseFloat(porosi.totali).toFixed(2)}
+                    </td>
                     <td className="p-4">{porosi.metodaTransporti}</td>
                     <td className="p-4">
                       <ul className="list-disc list-inside text-[#727D6D]">
                         {porosi.artikujt.map((artikull, index) => (
                           <li key={index}>
-                            {artikull.titulliLibrit} ({artikull.sasia}x €{artikull.cmimi})
+                            {artikull.titulliLibrit} ({artikull.sasia}x €
+                            {artikull.cmimi})
                           </li>
                         ))}
                       </ul>

@@ -106,11 +106,13 @@ const Ballina = () => {
               key={`tufa-${index}`}
               className="w-full mx-auto lg:container my-5 shadow-lg"
             >
+              <Link to={`/listaLibrave?tufa=${content.data}`}>
               <img
                 src={`/assets/img/tufat/${content.data.foto}`}
                 alt={content.data.emri}
                 className="w-full h-auto object-cover rounded-md"
               />
+              </Link>
             </div>
           ) : (
             <div

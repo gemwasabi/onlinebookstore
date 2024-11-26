@@ -65,20 +65,38 @@ function Lista() {
                     <td>{perdoruesi.emaili}</td>
                     <td>{perdoruesi.grupi == 0 ? "Perdorues" : "Admin"}</td>
                     <td>
-                      <Link
-                        to={"/admin/editoPerdoruesin/" + perdoruesi.id}
-                        className="btn btn-info"
-                      >
-                        Edito
-                      </Link>{" "}
-                      {perdoruesi.grupi == 0 && (
-                        <button
-                          className="btn btn-danger"
-                          onClick={() => shlyejPerdoruesin(perdoruesi.id)}
+                      <div style={{ display: "flex", gap: "5px" }}>
+                        <Link
+                          to={`/admin/editoPerdoruesin/${perdoruesi.id}`}
+                          title="Edito"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "5px 10px",
+                          }}
                         >
-                          Shlyej
-                        </button>
-                      )}
+                          <i
+                            className="fas fa-pen text-primary"
+                            style={{ fontSize: "16px" }}
+                          ></i>
+                        </Link>
+                        <span
+                          onClick={() => shlyejPerdoruesin(perdoruesi.id)}
+                          title="Shlyej"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "5px 10px",
+                          }}
+                        >
+                          <i
+                            className="fas fa-trash text-danger"
+                            style={{ fontSize: "16px" }}
+                          ></i>
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 ))}
