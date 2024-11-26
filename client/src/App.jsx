@@ -40,6 +40,7 @@ import UserSettings from "./faqet/UserSettings";
 import UserSettings2 from "./faqet/UserSettings2";
 import UserSettings3 from "./faqet/UserSettings3";
 import PaymentPage from "./faqet/pagesa/PaymentForm";
+import PorositePerdoruesit from "./faqet/PorositePerdoruesit";
 
 const Struktura = () => {
   return (
@@ -217,6 +218,10 @@ const router = createBrowserRouter([
       {
         path: "/sfondi/kartelat",
         element: <UserSettings3 />,
+      },
+      {
+        path: "/sfondi/porosite",
+        element: <PorositePerdoruesit />,
       },
       {
         path: "/faq",

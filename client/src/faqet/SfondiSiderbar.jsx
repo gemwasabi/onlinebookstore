@@ -69,6 +69,11 @@ const Sidebar = () => {
         label="Kartela bankare"
         currentPath={location.pathname}
       />
+      <SidebarButton
+        to="/sfondi/porosite"
+        label="Porosite"
+        currentPath={location.pathname}
+      />
       {currentUser.grupi == 0 && <DeleteProfileButton />}
     </div>
   );
