@@ -283,18 +283,40 @@ export const saveOrder = async (req, res) => {
 };
 
 export const updatePaymentStatus = async (req, res) => {
-  const { orderId, paymentStatus } = req.body;
-  const validStatuses = [0, 1, 2, 3];
-  if (!validStatuses.includes(paymentStatus)) {
-    return res.status(400).json({ error: "Invalid payment status." });
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ message: "Invalid order ID." });
   }
-  const q = `UPDATE porosite SET payment_status = ? WHERE id = ?`;
+
   try {
-    await query(q, [paymentStatus, orderId]);
-    res.status(200).json({ message: "Payment status updated successfully." });
-  } catch (error) {
-    console.error("Error updating payment status:", error);
-    res.status(500).json({ error: "Error updating payment status." });
+    console.log("Received ID from frontend:", id); 
+    const selectQuery = `SELECT payment_status FROM porosite WHERE id = ?`;
+    const rows = await query(selectQuery, [id]);
+
+    if (rows.length === 0) {
+      console.error("Order not found with ID:", id); 
+      return res.status(404).json({ message: "Order not found." });
+    }
+
+    const currentStatus = rows[0].payment_status;
+    const newStatus = currentStatus === 0 ? 1 : 0;
+
+    console.log("Current Status:", currentStatus, "New Status:", newStatus); 
+
+    const updateQuery = `UPDATE porosite SET payment_status = ? WHERE id = ?`;
+    const result = await query(updateQuery, [newStatus, id]);
+
+    console.log("SQL Result for ID:", id, "Result:", result); 
+
+    if (result.affectedRows === 0) {
+      return res.status(500).json({ message: "Failed to update payment status." });
+    }
+
+    return res.status(200).json({ message: `Payment status updated to ${newStatus}.` });
+  } catch (err) {
+    console.error("Error updating payment status:", err);
+    res.status(500).json({ message: "Failed to update payment status." });
   }
 };
 

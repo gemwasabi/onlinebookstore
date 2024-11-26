@@ -4,7 +4,8 @@ import {
   saveOrder,
   getInvoice,
   merrPorosite,
-  merrPorositePerdoruesit
+  merrPorositePerdoruesit,
+  updatePaymentStatus
 } from "../controllers/porosite.js";
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.get("/:perdoruesi_id", merrPorositePerdoruesit);
 router.post("/pagesa", krijoPagesen);
 router.post("/ruaj-porosine", saveOrder);
 router.get("/invoices/:orderId", getInvoice);
+router.put("/status", updatePaymentStatus);
 
 export default router;

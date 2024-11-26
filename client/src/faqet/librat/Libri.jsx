@@ -42,6 +42,32 @@ const Libri = () => {
     }
   };
 
+  const handleStatusChange = async (id, newStatus) => {
+    const row = porosite.find((porosi) => porosi.id === id);
+    if (row.payment_status === parseInt(newStatus, 10)) {
+      console.log("No status change detected. Skipping update.");
+      toast.info("Statusi është i pandryshuar.");
+      return;
+    }
+  
+    try {
+      const res = await axios.put("http://localhost:8800/api/porosite/status", {
+        id,
+        payment_status: parseInt(newStatus, 10),
+      });
+  
+      console.log("API Response:", res.data);
+  
+      toast.success(res.data.message);
+  
+      fetchData();
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      toast.error("Gabim në ndryshimin e statusit.");
+    }
+  };
+  
+
   return (
     <div className="font-sans bg-[#7b8e76] min-h-screen flex flex-col">
       <div className="container mx-auto px-4 py-6 flex-grow">
